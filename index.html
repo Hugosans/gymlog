@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gym Log">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Gym Log</title>
+<style>
+:root{
+  --bg:#000;--card:#161618;--card2:#232326;--line:#2c2c30;
+  --text:#f5f5f7;--muted:#8e8e93;
+  --green:#30d158;--red:#ff453a;--blue:#0a84ff;--purple:#bf5af2;--orange:#ff9f0a;
+  --safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang HK","PingFang TC","Helvetica Neue",Arial,sans-serif;font-size:16px;-webkit-text-size-adjust:100%}
+body{overscroll-behavior-y:none}
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding:calc(var(--safe-top) + 12px) max(16px,env(safe-area-inset-right)) calc(var(--safe-bottom) + 110px) max(16px,env(safe-area-inset-left))}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0;text-align:inherit;touch-action:manipulation}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+input,select,textarea{font:inherit;font-size:16px;color:var(--text);background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input[type=date]{min-height:44px}
+textarea{min-height:90px;resize:vertical}
+select{-webkit-appearance:none;appearance:none}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;min-height:40px;gap:10px}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto}
+.icon-btn svg{width:22px;height:22px;fill:none;stroke:var(--text);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.title{font-size:19px;font-weight:700;text-align:center;flex:1;min-width:0}
+.sync-line{font-size:11px;color:var(--muted);font-weight:500;margin-top:1px}
+h1{font-size:28px;font-weight:800;margin:6px 0 2px}
+h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;font-size:13px}
+.sub{color:var(--muted);font-size:14px}
+.card{background:var(--card);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:12px}
+.row.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.ex-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ex-item:last-child{border-bottom:0}
+.ex-name{font-weight:600;font-size:16px}
+.ex-meta{color:var(--muted);font-size:13px;margin-top:2px}
+.badge{font-size:12px;padding:3px 8px;border-radius:8px;background:var(--card2);color:var(--muted);white-space:nowrap}
+.badge.green{background:rgba(48,209,88,.18);color:var(--green)}
+.badge.strong{background:var(--green);color:#000}
+.badge.red{background:rgba(255,69,58,.18);color:var(--red)}
+.primary{display:flex;align-items:center;justify-content:center;width:100%;padding:16px;border-radius:16px;background:var(--green);color:#000;font-weight:700;font-size:18px;text-align:center}
+.primary.blue{background:var(--blue);color:#fff}
+.primary.red{background:var(--red);color:#fff}
+.secondary{display:flex;align-items:center;justify-content:center;width:100%;padding:13px;border-radius:14px;background:var(--card2);color:var(--text);font-weight:600;font-size:15px;text-align:center}
+.secondary:disabled{opacity:.4}
+.danger{color:var(--red)}
+.bottom{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(var(--safe-bottom) + 12px);background:linear-gradient(to top,var(--bg) 70%,transparent);max-width:560px;margin:0 auto;z-index:5}
+.bottom .row{gap:10px}
+.row>.primary,.row>.secondary{flex:1;width:auto}
+.skip{flex:0 0 auto;padding:16px 18px;border-radius:16px;background:var(--card2);font-weight:700;font-size:16px;color:var(--muted)}
+.small{font-size:13px}
+.center{text-align:center}
+.mt{margin-top:12px}.mb{margin-bottom:12px}
+.pill-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.pill{flex:0 0 auto;padding:8px 14px;border-radius:20px;background:var(--card);color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap}
+.seg{display:flex;background:var(--card);border-radius:12px;padding:3px;margin-bottom:6px}
+.seg button{flex:1;padding:8px 0;border-radius:9px;font-weight:700;font-size:14px;color:var(--muted);text-align:center}
+.seg button.on{background:var(--card2);color:var(--text)}
+.seg.sm button{padding:6px 0;font-size:13px}
+.tabs{display:flex;gap:5px;margin-bottom:12px}
+.tab{flex:1;text-align:center;padding:9px 0;border-radius:12px;background:var(--card);font-weight:700;color:var(--muted);font-size:14px}
+.tab.on{background:var(--text);color:#000}
+.label{font-size:13px;color:var(--muted);margin:12px 0 6px;display:block}
+.field{margin-bottom:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stepper{display:flex;align-items:center;justify-content:center;gap:18px;margin:10px 0 4px}
+.stepper button{width:52px;height:52px;border-radius:50%;background:var(--card2);font-size:28px;font-weight:600;text-align:center}
+.stepper button:disabled{opacity:.3}
+.stepper .w{font-size:46px;font-weight:800;min-width:130px;text-align:center;line-height:1;font-variant-numeric:tabular-nums}
+.stepper .w small{font-size:16px;color:var(--muted);font-weight:600;margin-left:3px}
+.stepper .step{font-size:11px;color:var(--muted);display:block;margin-top:2px;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.plate{display:inline-block;padding:6px 12px;border-radius:10px;background:var(--card2);color:var(--muted);font-size:13px;font-weight:700;border:1px solid var(--line)}
+.plate.on{background:rgba(48,209,88,.18);color:var(--green);border-color:rgba(48,209,88,.5)}
+.prow2{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}
+.prow2:last-child{border-bottom:0}
+.prow2 .ctl{display:flex;align-items:center;gap:6px}
+.prow2 .ctl button{width:36px;height:36px;border-radius:10px;background:var(--card2);font-size:20px;font-weight:600;text-align:center}
+.prow2 .ctl button:disabled{opacity:.25}
+.prow2 .ctl b{min-width:28px;text-align:center;font-variant-numeric:tabular-nums}
+.suggest{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;font-weight:700;font-size:14px}
+.suggest.up{background:rgba(48,209,88,.16);color:var(--green)}
+.suggest.strong{background:var(--green);color:#000}
+.suggest.down{background:rgba(255,69,58,.16);color:var(--red)}
+.suggest.keep{background:var(--card2);color:var(--muted)}
+.rpe-bar{display:flex;gap:4px;margin-top:12px}
+.rpe-bar button{flex:1;height:46px;border-radius:10px;font-weight:800;font-size:15px;color:rgba(255,255,255,.8);transition:transform .12s;opacity:.5;text-align:center}
+.rpe-bar button.on{opacity:1;transform:scaleY(1.2);color:#fff;box-shadow:0 0 0 2px #fff inset}
+.rpe-bar.sm button{height:38px;font-size:13px}
+.rpe-desc{min-height:92px;margin-top:4px}
+.rpe-desc .t{font-size:20px;font-weight:800}
+.rpe-desc .code{font-size:12px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--card2);color:var(--muted);margin-left:6px;vertical-align:3px}
+.rpe-desc .d{color:var(--muted);font-size:14px;margin-top:4px;line-height:1.45}
+.rpe-desc .next{font-size:14px;font-weight:700;margin-top:6px}
+.sets{display:flex;gap:10px;justify-content:center;margin:10px 0}
+.sets button{width:38px;height:38px;border-radius:50%;background:var(--card2);font-weight:700;color:var(--muted);font-size:15px;text-align:center}
+.sets button.done{background:var(--green);color:#000}
+.timer{font-size:48px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.timer.warn{color:var(--orange)}
+.timer.done{color:var(--green)}
+.last{text-align:right}
+.last .n{font-size:26px;font-weight:800;line-height:1}
+.last .n small{font-size:13px;color:var(--muted);font-weight:600}
+.notes{white-space:pre-wrap;color:var(--muted);font-size:14px;line-height:1.5}
+.progress-line{height:4px;background:var(--card2);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.progress-line i{display:block;height:100%;background:var(--green)}
+/* chart */
+.chart-wrap{background:var(--card);border-radius:18px;padding:12px 10px 8px}
+.rangehead{display:flex;justify-content:space-between;align-items:flex-end;padding:0 6px;margin:8px 0 2px}
+.rangehead .k{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px}
+.rangehead .v{font-size:24px;font-weight:800;line-height:1.1}
+.rangehead .v small{font-size:14px;color:var(--muted);font-weight:600}
+.rangehead .d{font-size:12px;color:var(--muted);margin-top:2px}
+.chartbox{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.chartbox.drag{cursor:grabbing}
+svg.chart{width:100%;height:auto;display:block}
+.tooltip{background:var(--card2);border-radius:12px;padding:10px 12px;margin:8px 4px 0;font-size:14px;min-height:62px}
+.legend{display:flex;gap:6px;align-items:center;margin:10px 4px 0;font-size:11px;color:var(--muted)}
+.legend .g{flex:1;height:8px;border-radius:4px}
+.hist{width:100%;padding:11px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:14px;text-align:left}
+.hist:last-child{border-bottom:0}
+.hist .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto}
+.chev{color:var(--muted);font-size:18px;margin-left:2px}
+.prow{width:100%;display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);text-align:left}
+.prow:last-child{border-bottom:0}
+.rpe-num{min-width:40px;text-align:center;font-weight:800;font-size:15px}
+.mini{width:32px;height:32px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--muted);flex:0 0 auto}
+.toggle{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:10px}
+.toggle:last-child{border-bottom:0}
+.switch{width:50px;height:30px;border-radius:15px;background:var(--card2);position:relative;transition:.2s;flex:0 0 auto}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on{background:var(--green)}
+.switch.on::after{left:23px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-bottom) + 110px);background:var(--text);color:#000;padding:10px 16px;border-radius:14px;font-weight:600;font-size:14px;z-index:99;opacity:0;transition:.25s;pointer-events:none;max-width:88vw;width:max-content;text-align:center}
+.toast.show{opacity:1}
+.big{font-size:60px;text-align:center;margin:30px 0 10px}
+.empty{color:var(--muted);text-align:center;padding:24px 0}
+.choice{display:block;width:100%;text-align:left;padding:15px 16px;border-radius:16px;background:var(--card);margin-bottom:10px}
+.choice b{display:block;font-size:17px}
+.choice span{color:var(--muted);font-size:14px}
+.day-chip{display:inline-block;padding:1px 6px;border-radius:6px;background:var(--card2);color:var(--muted);font-size:11px;margin-right:3px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.modal.show{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:20px 16px calc(var(--safe-bottom) + 18px);max-height:92vh;overflow:auto}
+.mmsg{font-size:17px;font-weight:600;line-height:1.45;padding:4px 2px}
+.help{font-size:13px;color:var(--muted);line-height:1.55}
+.help ol{padding-left:20px;margin:6px 0}
+code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
+@keyframes flash{0%{box-shadow:inset 0 0 0 0 rgba(48,209,88,0)}30%{box-shadow:inset 0 0 0 9999px rgba(48,209,88,.28)}100%{box-shadow:inset 0 0 0 0 rgba(48,209,88,0)}}
+body.flash{animation:flash .9s ease 2}
+.pr{color:#ffd60a}
+/* iPad／打橫：兩欄 */
+@media (min-width:800px){
+  #app{max-width:1000px}
+  .bottom{max-width:1000px}
+  .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  .wcol2{margin-top:12px}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;align-items:start}
+  .rpe-bar button{height:54px}
+}
+.kind-tag{font-size:11px;padding:2px 7px;border-radius:6px;background:var(--card2);color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal" class="modal" onclick="closeModal(false)"></div>
+<div id="toast" class="toast"></div>
+<script>
+/* ====================== 常數 ====================== */
+const APP_VER='v5.2';
+const LS_PREFS='gymlog_prefs_v1';
+const LS='gymlog_v2', LS_SESSION='gymlog_session_v2', LS_SYNC='gymlog_sync_v1';
+const DAYS=['日','一','二','三','四','五','六'];
+const DAY_ORDER=['1','2','3','4','5','6','0'];
+const CATS={back:'背',biceps:'二頭',chest:'胸',triceps:'三頭',shoulders:'肩',legs:'腿',abs:'腹',forearm:'前臂',other:'其他'};
+const KINDS={notch:'固定檔位',plates:'加配重片',stack:'配重塊',body:'自重'};
+const KIND_HELP={
+  notch:'一排固定重量嘅器材，例如啞鈴架。輸入所有檔位，建議加重會直接跳落一檔。',
+  plates:'用配重片砌重量，例如槓鈴（每邊各放）或者手持槓鈴片。輸入基本重量（槓本身）同你有嘅配重片數量，app 會幫你計每邊放咩片。',
+  stack:'插銷式配重塊，例如龍門架／繩索機。輸入最低、最高同每格重量；有快拆加重片就加落「加重片」度。',
+  body:'冇重量，只記錄難度。'};
+
+/* 難度 1–10：頭加「太輕鬆」、中間加「開始有挑戰」、尾加「力竭」，其餘對返舊 y / n 代號 */
+const RPE_COLORS=[null,'#3b82f6','#0ea5e9','#14b8a6','#22c55e','#84cc16','#eab308','#f97316','#ef4444','#d946ef','#9333ea'];
+const RPE=[null,
+ {t:'太輕鬆',     code:'',     d:'完全冇感覺，好似熱身咁，4 組做完都唔覺攰。'},
+ {t:'好輕鬆',     code:'yyy',  d:'好輕鬆，明顯可以再重好多。'},
+ {t:'輕鬆',       code:'yy',   d:'輕鬆，最後一組都仲有好多力。'},
+ {t:'OK',         code:'y',    d:'有訓練感但唔辛苦，可以試吓加少少。'},
+ {t:'開始有挑戰', code:'',     d:'最後一組最後幾下開始吃力，但動作仲係好穩。'},
+ {t:'剛剛好',     code:'空白', d:'有少少難，最後一兩下要出力但全部做得晒 — 剛剛好 ahhh。'},
+ {t:'有啲頂唔順', code:'n',    d:'最後一組最後 1–4 下唔係好掂，要少少借力或者幫手。'},
+ {t:'好辛苦',     code:'nn',   d:'最後一組最後 5–8 下已經 dying，勉強先完成。'},
+ {t:'太重',       code:'nnn',  d:'最後一組大約只做到 3 下左右。'},
+ {t:'力竭',       code:'',     d:'幾組都做唔夠，第二、三組已經跌晒次數，完全冇力。'},
+];
+
+/* ====================== 建議算法（單位 = 器材「一檔」：繩索 5、槓鈴每邊 2.5、啞鈴跳一格；0.5 檔 = 繩索快拆 2.5）
+   r0 = 今次難度, r1 = 上次, sameW = 上次同今次同一重量 */
+function ruleUnits(r0,r1,sameW){
+  const has=r1!=null; let u=0, why='';
+  switch(r0){
+    case 1: u=1.5; why='太輕鬆'; break;
+    case 2: u=1;   why='好輕鬆'; break;
+    case 3: if(has&&r1<=3){u=1.5;why='連續兩次輕鬆';}else{u=1;why='輕鬆';} break;
+    case 4: u=0.5; why='OK，微加'; break;
+    case 5: if(has&&r1<=5){u=0.5;why='連續兩次唔算難';}else{u=0;why='維持多一次再加';} break;
+    case 6: u=0; why='剛剛好，維持'; break;
+    case 7: u=0; why='維持，練到穩先加'; break;
+    case 8: if(has&&r1>=8){u=-0.5;why='連續兩次好辛苦';}else{u=0;why='維持再試一次';} break;
+    case 9: if(has&&r1>=9){u=-1;why='連續兩次太重';}else{u=-0.5;why='太重，減少少';} break;
+    case 10: u=-1; why='力竭'; break;
+  }
+  // 成長趨勢：同一重量，比上次輕鬆咗 → 每輕鬆 1 級多加 0.5 檔（最多 +1）
+  if(has&&sameW&&r0<=6&&r1-r0>=1){const b=Math.min(r0>=6?0.5:1,(r1-r0)*0.5);why=`同一重量比上次輕鬆 ${r1-r0} 級`+(u>0?'，'+why:'');u+=b;}
+  u=Math.max(-1,Math.min(1.5,u));
+  return [u,why];
+}
+/* 用成個歷史計下次：r0/w0 = 今次難度／重量，prev = 之前嘅紀錄（新→舊），now = 今次嘅時間 */
+function planNext(r0,w0,prev,now){
+  const l1=prev[0]; const same=l1&&Math.abs(l1.weight-w0)<1e-9;
+  let [u,why]=ruleUnits(r0,l1?l1.rpe:null,!!same); let target=null;
+  const sw=[r0]; for(const l of prev){ if(Math.abs(l.weight-w0)>1e-9) break; sw.push(l.rpe); }  // 連續幾次都係呢個重量
+  if(sw.length>=3&&sw.slice(0,3).every(r=>r>=6&&r<=7)&&u<0.5){u=0.5;why='連續三次都係剛剛好，試吓微加';}
+  if(sw.length>=3&&sw.slice(0,3).every(r=>r>=8)){u=-1;why='連續三次好辛苦，減重重新儲力';}
+  if(l1&&w0<l1.weight-1e-9&&u>0.5){u=0.5;why='啱啱減完重量，慢慢加返';}
+  if(l1&&w0>l1.weight+1e-9&&r0>=9){target=l1.weight;u=-0.5;why='加重後太辛苦，返返上次重量';}
+  if(l1&&now){ const gap=Math.round((now-l1.ts)/86400000);
+    if(gap>=42&&u>-0.5){u=-0.5;why=`${gap} 日冇練，先減少少`;} else if(gap>=21&&u>0){u=0;why=`${gap} 日冇練，先維持`;} }
+  u=Math.max(-1,Math.min(1.5,u));
+  return {u,why,target};
+}
+function tierOf(u){return u>=1.5?'強烈加重':u>=1?'加重':u>0?'微加':u===0?'維持':u>-1?'微減':'減重';}
+
+/* ====================== 器材 ====================== */
+function defaultEquip(){
+  const inv=[{w:20,n:2},{w:10,n:2},{w:5,n:2},{w:2.5,n:4}];
+  return {
+    cable:{id:'cable',name:'繩索',kind:'stack',min:5,max:70,step:5,addons:[{w:2.5,name:'快拆片'}],mt:0},
+    barbell:{id:'barbell',name:'槓鈴',kind:'plates',base:10,perSide:true,plates:inv.map(p=>({...p})),mt:0},
+    dumbbell:{id:'dumbbell',name:'啞鈴',kind:'notch',perHand:true,notches:[3,4.5,5,6.5,7,8.5,9,10.5,11,12.5,13,14.5,16.5,18.5,20.5,22.7],mt:0},
+    plate:{id:'plate',name:'槓鈴片（手持）',kind:'plates',base:0,perSide:false,plates:inv.map(p=>({...p})),mt:0},
+    bodyweight:{id:'bodyweight',name:'徒手',kind:'body',mt:0},
+  };
+}
+const r2=x=>Math.round(x*100)/100;
+const _achCache={};
+function equipOf(id){return S.equip[id]||{id,name:'（已刪器材）',kind:'missing'};}
+// 所有可以砌到嘅重量（plates perSide = 每邊；stack = 配重 + 加重片）
+function achievable(eq){
+  const key=JSON.stringify(eq); if(_achCache[key]) return _achCache[key];
+  let set=new Set();
+  if(eq.kind==='notch') (eq.notches||[]).forEach(n=>set.add(r2(n)));
+  else if(eq.kind==='stack'){
+    const adds=subsetSums((eq.addons||[]).slice(0,6).map(a=>({w:a.w,n:1})));
+    const step=Math.max(0.25,+eq.step||5), mn=Math.max(0,+eq.min||0), mx=Math.min(mn+step*400,Math.max(mn,+eq.max||mn));
+    for(let k=0,b=mn;b<=mx+1e-9;k++,b=r2(mn+step*k)) adds.forEach(a=>set.add(r2(b+a)));
+  } else if(eq.kind==='plates'){
+    const inv=(eq.plates||[]).map(p=>({w:p.w,n:eq.perSide?Math.floor(p.n/2):p.n}));
+    subsetSums(inv).forEach(v=>set.add(r2(v)));
+  } else set.add(0);
+  const arr=[...set].sort((a,b)=>a-b); if(!arr.length) arr.push(0);
+  return _achCache[key]=arr;
+}
+function subsetSums(inv){ let s=new Set([0]); inv.forEach(p=>{const nx=new Set(s); s.forEach(v=>{for(let k=1;k<=p.n;k++) nx.add(r2(v+p.w*k));}); s=nx;}); return [...s]; }
+function nearest(arr,w,dir){ // dir 用嚟打破平手
+  let best=arr[0],bd=1e9; arr.forEach(v=>{const d=Math.abs(v-w); if(d<bd-1e-9||(Math.abs(d-bd)<1e-9&&dir&&Math.sign(v-w)===dir)){bd=d;best=v;}}); return best; }
+function stepTo(eq,w,dir){ const a=achievable(eq); const i=a.findIndex(v=>Math.abs(v-w)<1e-9);
+  if(i<0){ if(dir>0){const n=a.find(v=>v>w+1e-9);return n!=null?n:a[a.length-1];} if(dir<0){let n=null;a.forEach(v=>{if(v<w-1e-9)n=v;});return n!=null?n:a[0];} return nearest(a,w,0); }
+  return a[Math.max(0,Math.min(a.length-1,i+dir))]; }
+function unitKg(eq){ if(eq.kind==='stack') return eq.step; if(eq.kind==='plates'){const ws=(eq.plates||[]).map(p=>p.w);return ws.length?Math.min(...ws):2.5;} return 0; }
+function applyUnits(eq,w,u){
+  if(eq.kind==='body') return 0;
+  if(eq.kind==='missing') return w;
+  if(eq.kind==='notch'){ const a=achievable(eq); let i=a.findIndex(v=>Math.abs(v-w)<1e-9); if(i<0) i=a.indexOf(nearest(a,w,0)); const n=u>0?Math.ceil(u-1e-9):Math.floor(u+1e-9); return a[Math.max(0,Math.min(a.length-1,i+n))]; }
+  const dir=Math.sign(u); let t=nearest(achievable(eq),r2(w+u*unitKg(eq)),dir);
+  if(dir&&Math.abs(t-w)<1e-9) t=stepTo(eq,w,dir);
+  return t;
+}
+// 配重片分解：最少塊數
+function platesBreak(eq,w){
+  const inv=(eq.plates||[]).map(p=>({w:p.w,n:eq.perSide?Math.floor(p.n/2):p.n})).sort((a,b)=>b.w-a.w);
+  let best=null;
+  (function go(i,rem,used,cnt){ if(best&&cnt>=best.cnt) return; if(Math.abs(rem)<1e-9){best={cnt,used:used.slice()};return;} if(i>=inv.length||rem<-1e-9) return;
+    const p=inv[i]; for(let k=Math.min(p.n,Math.floor(rem/p.w+1e-9));k>=0;k--){used[i]=k;go(i+1,r2(rem-p.w*k),used,cnt+k);} used[i]=0; })(0,r2(w),[],0);
+  return best?inv.map((p,i)=>({w:p.w,k:best.used[i]||0,max:p.n})):null;
+}
+function stackParts(eq,w){
+  const adds=eq.addons||[]; const combos=[];
+  for(let m=0;m<(1<<adds.length);m++){let s=0;adds.forEach((a,i)=>{if(m&(1<<i))s+=a.w;});combos.push([m,r2(s)]);}
+  combos.sort((a,b)=>a[1]-b[1]);
+  for(const [m,s] of combos){const b=r2(w-s); if(b>=eq.min-1e-9&&b<=eq.max+1e-9&&Math.abs(((b-eq.min)/eq.step)-Math.round((b-eq.min)/eq.step))<1e-6) return {base:b,mask:m,extra:s};}
+  return {base:w,mask:0,extra:0};
+}
+function totalKg(ex,eq,w){ if(eq.kind==='plates') return r2((eq.base||0)+(eq.perSide?2:1)*w); if(eq.kind==='stack'&&ex&&ex.perSide) return r2(w*2); return w; }
+function shortW(ex,eq,w){
+  if(eq.kind==='missing') return fmtW(w)+'kg';
+  if(eq.kind==='body') return '徒手';
+  if(eq.kind==='notch') return fmtW(w)+'kg'+(eq.perHand?' 每隻手':'');
+  if(eq.kind==='plates') return (eq.perSide?'每邊 ':'')+fmtW(w)+'kg'+(eq.base||eq.perSide?' · 總 '+fmtW(totalKg(ex,eq,w))+'kg':'');
+  if(ex&&ex.perSide) return fmtW(w)+'kg ×2 = '+fmtW(w*2)+'kg';
+  return fmtW(w)+'kg';
+}
+function longW(ex,eq,w){
+  if(eq.kind==='plates'){const b=platesBreak(eq,w);const txt=b?b.filter(p=>p.k).map(p=>fmtW(p.w)+(p.k>1?'×'+p.k:'')).join(' + ')||'淨'+(eq.base?'槓':''):'砌唔到';
+    return (eq.perSide?'每邊 ':'')+fmtW(w)+'kg（'+txt+'）· 總重 '+fmtW(totalKg(ex,eq,w))+'kg'+(eq.base?'（連 '+fmtW(eq.base)+'kg 槓）':'');}
+  if(eq.kind==='stack'){const p=stackParts(eq,w);const parts=p.extra?`配重 ${fmtW(p.base)} + 加重片 ${fmtW(p.extra)}`:'';
+    if(ex&&ex.perSide) return `兩邊各 ${fmtW(w)}kg${parts?'（'+parts+'）':''} · 合共 ${fmtW(w*2)}kg`; return parts?parts+' kg':'';}
+  return '';
+}
+
+/* ====================== 預設資料 ====================== */
+const SEED_RPE={'yyy':2,'yy':3,'y':4,'':6,'n':7,'nn':8,'nnn':9,'yyh':3};
+function defaultData(){
+  const E=[
+   {id:'latpull',name:'器械下拉',en:'Lat Pulldown',cat:'back',rest:120,perSide:true,variants:[{eq:'cable',weight:30}],seed:['cable','yyy'],
+    notes:'握距略闊於膊頭，挺胸、膊頭沉低，用背部發力拉到上胸位置，唔好用身體後仰借力。放返上去時完全伸展。'},
+   {id:'row',name:'坐姿划船',en:'Seated Cable Row',cat:'back',rest:120,perSide:true,variants:[{eq:'cable',weight:25}],seed:['cable','n'],
+    notes:'腰背挺直，拉嘅時候肩胛骨向後夾，手肘貼身拉到肚臍位置，再慢慢放返出去。唔好聳肩。'},
+   {id:'curl',name:'二頭彎舉',en:'Dumbbell Curl',cat:'biceps',rest:60,variants:[{eq:'dumbbell',weight:6.5}],seed:['dumbbell',''],
+    notes:'手肘固定喺身側，唔好前後擺動，頂峰收緊一秒再慢慢放低（放低用 2–3 秒）。'},
+   {id:'facepull',name:'繩索面拉',en:'Face Pull',cat:'shoulders',rest:60,variants:[{eq:'cable',weight:20}],seed:['cable','yy'],
+    notes:'繩索設喺面部高度，拉向面部時手肘向外打開、拳頭向耳仔方向，後膊同上背夾緊。重量唔使大。'},
+   {id:'reardelt',name:'俯身交叉繩索反向飛鳥',en:'Bent-over Cross-cable Rear Delt Fly',cat:'shoulders',rest:60,perSide:true,variants:[{eq:'cable',weight:5}],seed:['cable','y'],
+    notes:'髖部向後推，上半身接近同地面平行，雙手交叉握住左右兩邊最低位嘅繩索，手肘微曲向外向上打開，用後膊發力。每邊 5kg。（而家改做面拉，呢個留返有時間先加）'},
+   {id:'flatbench',name:'平板槓鈴臥推',en:'Flat Barbell Bench Press',cat:'chest',rest:120,variants:[{eq:'barbell',weight:15}],seed:['barbell','y'],
+    notes:'肩胛骨後夾壓實櫈面，腳踏實地面。槓鈴落到下胸位置，手肘約 45°，推起時唔好鎖死手肘。重量大時建議用安全架。'},
+   {id:'incline',name:'上斜臥推',en:'Incline Bench Press',cat:'chest',rest:120,variants:[{eq:'dumbbell',weight:11},{eq:'barbell',weight:10}],ask:true,seed:['dumbbell','yyy'],
+    notes:'櫈角度約 30°。啞鈴：落到胸部兩側後再向上內收，活動幅度較大。槓鈴：落到鎖骨下方。'},
+   {id:'ohtri',name:'繩索過頭三頭伸展',en:'Overhead Cable Triceps Extension',cat:'triceps',rest:60,variants:[{eq:'cable',weight:15}],seed:['cable','n'],
+    notes:'繩索設喺腰部高度，背向機器行前一兩步，上臂貼耳向前上方伸直，只有前臂郁動。放返時感受三頭長頭拉伸。'},
+   {id:'latraise',name:'繩索側平舉',en:'Cable Lateral Raise',cat:'shoulders',rest:60,variants:[{eq:'cable',weight:7.5}],seed:['cable',''],
+    notes:'繩索設最低位，身體微向外傾，手肘微曲向側邊抬到膊頭高度，用中束膊頭發力，唔好聳肩或者用手腕帶動。'},
+   {id:'revpush',name:'繩索反握下壓',en:'Reverse-grip Cable Pushdown',cat:'triceps',rest:60,variants:[{eq:'cable',weight:22.5}],seed:['cable','y'],
+    notes:'掌心向上反握直桿，手肘貼身固定，向下壓到手臂伸直，頂峰收緊三頭。'},
+   {id:'squat',name:'槓鈴深蹲／硬拉',en:'Barbell Squat / Deadlift',cat:'legs',rest:120,variants:[{eq:'barbell',weight:15}],seed:['barbell',''],
+    notes:'深蹲：腳與肩同闊，膝蓋跟腳尖方向，核心收緊落到大腿平行地面。硬拉：槓鈴貼小腿，背部保持中立，用髖部發力企直。'},
+   {id:'calfraise',name:'槓鈴站立提踵',en:'Standing Barbell Calf Raise',cat:'legs',rest:60,variants:[{eq:'barbell',weight:15}],seed:['barbell','yyy'],
+    notes:'槓鈴放喺上背（同深蹲一樣位置），前腳掌踩喺踏板或者配重片邊緣，腳跟懸空。慢慢將腳跟升到最高、頂峰停 1–2 秒，再用 2–3 秒放到最低（腳跟低過腳掌）感受小腿拉伸。全程膝蓋微曲固定，唔好用膝蓋彈起，身體保持企直。小腿恢復快，可以用較重重量同較高次數。'},
+   {id:'pullthru',name:'繩索髖拉',en:'Cable Pull-through',cat:'legs',rest:60,perSide:true,variants:[{eq:'cable',weight:25}],seed:['cable','yy'],
+    notes:'背向機器，繩索由兩腿之間穿過，髖部向後推（唔係彎腰），再用臀部同腿後發力企直夾緊臀部。'},
+   {id:'legcurl',name:'繩索腿彎舉',en:'Cable Leg Curl',cat:'legs',rest:60,variants:[{eq:'cable',weight:25}],seed:['cable','yyh'],
+    notes:'腳踝扣住繩索，大腿固定不動，用腿後肌群將腳跟拉向臀部，慢慢放返。'},
+   {id:'hanging',name:'懸垂舉腿',en:'Hanging Leg Raise',cat:'abs',rest:30,variants:[{eq:'bodyweight',weight:0}],seed:['bodyweight','yyy'],
+    notes:'吊喺單槓，雙腿併攏慢慢抬起，重點係骨盆向後捲（下腹發力），唔好擺動借力。想加難度可以伸直腿或者腳夾啞鈴。'},
+   {id:'cablecrunch',name:'繩索卷腹',en:'Kneeling Cable Crunch',cat:'abs',rest:30,variants:[{eq:'cable',weight:55}],seed:['cable','y'],
+    notes:'跪喺龍門架前，繩索握喺頭兩側，髖部固定，用腹部將上身向下捲（手肘向膝蓋），唔好用手臂拉。'},
+   {id:'woodchop',name:'繩索伐木（平移）',en:'Cable Wood Chop',cat:'abs',rest:30,variants:[{eq:'cable',weight:20}],seed:['cable','yyy'],
+    notes:'側身企喺機器旁，雙手握把手、手臂伸直，用核心旋轉身體將把手由一邊平移到另一邊，髖部跟隨轉動。'},
+   {id:'wristcurl',name:'繩索腕彎舉',en:'Cable Wrist Curl',cat:'forearm',rest:60,variants:[{eq:'cable',weight:27.5}],seed:['cable','y'],
+    notes:'掌心向上，前臂固定，只用手腕向上捲，頂峰停一秒再慢慢放低。'},
+   {id:'wristext',name:'繩索腕伸展',en:'Cable Wrist Extension',cat:'forearm',rest:60,variants:[{eq:'cable',weight:12.5}],seed:['cable','nnn'],
+    notes:'掌心向下，前臂固定，用手腕向上翹起。通常只能用腕彎舉約一半重量，太重好易傷手腕。'},
+   {id:'radial',name:'繩索橈側屈',en:'Radial Deviation',cat:'forearm',rest:60,variants:[{eq:'cable',weight:7.5}],seed:['cable','n'],
+    notes:'拇指向上握住把手，手腕向拇指方向（向上）屈，幅度細，重量輕，動作慢。'},
+   {id:'ulnar',name:'繩索尺側屈',en:'Ulnar Deviation',cat:'forearm',rest:60,variants:[{eq:'cable',weight:12.5}],seed:['cable','y'],
+    notes:'拇指向上握住把手，手腕向尾指方向屈，幅度細、動作慢。'},
+  ];
+  const schedule={
+    '1':{main:['latpull','row','curl','facepull'],extras:['hanging','cablecrunch','woodchop','reardelt']},
+    '4':{main:['flatbench','incline','ohtri','latraise'],extras:['revpush']},
+    '5':{main:['squat','calfraise','pullthru','legcurl','hanging','cablecrunch','woodchop'],extras:[]},
+    '0':{main:['latraise','wristcurl','wristext','radial','ulnar'],extras:['hanging','cablecrunch','woodchop','revpush','flatbench']},
+  };
+  const ex={}, logs=[];
+  const today=new Date(); today.setHours(12,0,0,0);
+  E.forEach(e=>{
+    const [seq,code]=e.seed; delete e.seed;
+    Object.assign(e,{sets:4,reps:12,perSide:!!e.perSide,ask:!!e.ask,defaultEq:e.ask?null:e.variants[0].eq,mt:0});
+    ex[e.id]=e;
+    let day=DAY_ORDER.find(k=>schedule[k]&&schedule[k].main.includes(e.id))||DAY_ORDER.find(k=>schedule[k]&&schedule[k].extras.includes(e.id))||'1';
+    const d=new Date(today); let back=(d.getDay()-(+day)+7)%7; if(back===0) back=7; d.setDate(d.getDate()-back);
+    const v=e.variants.find(x=>x.eq===seq);
+    logs.push({id:'seed_'+e.id,date:dstr(d),ts:d.getTime(),ex:e.id,eq:seq,weight:v.weight,rpe:SEED_RPE[code]||6,sets:4,seed:true,mt:0});
+  });
+  Object.values(schedule).forEach(s=>s.at=0);
+  return {v:3,ex,equip:defaultEquip(),schedule,schedAt:0,logs,deleted:{}};
+}
+function migrate(d){
+  if(!d.equip) d.equip=defaultEquip();
+  Object.values(d.equip).forEach(e=>{if(e.mt==null)e.mt=0;});
+  d.deleted=d.deleted||{}; d.schedAt=d.schedAt||0; d.ex=d.ex||{}; d.logs=Array.isArray(d.logs)?d.logs:[]; d.schedule=d.schedule||{};
+  Object.keys(d.schedule).forEach(k=>{const s=d.schedule[k]||{};d.schedule[k]={main:Array.isArray(s.main)?s.main:[],extras:Array.isArray(s.extras)?s.extras:[],at:s.at||0};});
+  Object.values(d.ex).forEach(e=>{if(!Array.isArray(e.variants)||!e.variants.length)e.variants=[{eq:'bodyweight',weight:0}];
+    e.sets=Math.min(20,Math.max(1,parseInt(e.sets)||4)); e.reps=Math.min(200,Math.max(1,parseInt(e.reps)||12)); e.rest=Math.min(900,Math.max(0,parseInt(e.rest)>=0?parseInt(e.rest):60));});
+  if(d.ex.legraise&&!d.ex.calfraise&&!d.deleted['ex:calfraise']){const e=d.ex.legraise;delete d.ex.legraise;e.id='calfraise';e.name='槓鈴站立提踵';e.en='Standing Barbell Calf Raise';e.mt=Date.now();d.ex.calfraise=e;
+    Object.values(d.schedule).forEach(s=>{s.main=s.main.map(x=>x==='legraise'?'calfraise':x);s.extras=s.extras.map(x=>x==='legraise'?'calfraise':x);});d.logs.forEach(l=>{if(l.ex==='legraise')l.ex='calfraise';if(l.id==='seed_legraise')l.id='seed_calfraise';});}
+  d.v=3; return d;
+}
+
+/* ====================== 工具 ====================== */
+const $=s=>document.querySelector(s);
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36);
+function dstr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const todayStr=()=>dstr(new Date());
+const fmtD=s=>{const p=s.split('-');return (+p[1])+'/'+(+p[2]);};
+const dowOf=s=>new Date(s+'T12:00:00').getDay();
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtW=w=>String(r2(w));
+const num=v=>parseFloat(String(v==null?'':v).replace(/[,，]/g,'.'));
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),1800);}
+function loadJSON(k){try{const s=localStorage.getItem(k);return s?JSON.parse(s):null;}catch(e){return null;}}
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){toast('儲存失敗');}}
+function save(){saveLocal();scheduleSync();}
+function saveSession(){try{if(W)localStorage.setItem(LS_SESSION,JSON.stringify(W));else localStorage.removeItem(LS_SESSION);}catch(e){}}
+const colorOf=r=>RPE_COLORS[r]||'#666';
+function logsFor(exId,eq){return S.logs.filter(l=>l.ex===exId&&(!eq||l.eq===eq)).sort((a,b)=>b.ts-a.ts);}
+function variantOf(ex,eq){return ex.variants.find(v=>v.eq===eq)||ex.variants[0];}
+function suggest(ex,eqId){
+  const eq=equipOf(eqId); const v=variantOf(ex,eqId); const ls=logsFor(ex.id,eqId);
+  if(!ls.length) return {w:v.weight,u:0,dir:0,tier:'',msg:'未有紀錄，用預設重量'};
+  const l0=ls[0]; const {u,why,target}=planNext(l0.rpe,l0.weight,ls.slice(1),Date.now());
+  if(eq.kind==='body') return {w:0,u,dir:Math.sign(u),tier:tierOf(u),msg:u>0?'上次輕鬆：加次數或者加難度':u<0?'上次太辛苦：減少次數':why};
+  const w=target!=null?nearest(achievable(eq),target,0):applyUnits(eq,l0.weight,u); const d=r2(w-l0.weight);
+  return {w,u,dir:Math.sign(d),tier:tierOf(u),msg:why+(d?`（${d>0?'+':''}${fmtW(d)}kg）`:'')};
+}
+
+/* ====================== 狀態 ====================== */
+let S=loadJSON(LS)||defaultData(); S=migrate(S);
+let W=loadJSON(LS_SESSION);
+let P=Object.assign({wake:true,wakeIdle:10},loadJSON(LS_PREFS)||{}); // 每部機各自設定
+function savePrefs(){try{localStorage.setItem(LS_PREFS,JSON.stringify(P));}catch(e){}}
+let V={view:'home'};
+function go(view,extra){V=Object.assign({view},extra||{});window.scrollTo(0,0);render();}
+
+/* ====================== 彈出視窗 ====================== */
+let modalResolve=null, LE=null;
+function showModal(html){const m=$('#modal');m.innerHTML=`<div class="sheet" onclick="event.stopPropagation()">${html}</div>`;m.classList.add('show');}
+function closeModal(v){const m=$('#modal');m.classList.remove('show');m.innerHTML='';LE=null;const r=modalResolve;modalResolve=null;if(r)r(!!v);}
+function ask(msg,okText){
+  if(modalResolve) closeModal(false);
+  return new Promise(res=>{modalResolve=res;
+    showModal(`<div class="mmsg">${esc(msg)}</div><div class="row mt"><button class="secondary" onclick="closeModal(false)">取消</button><button class="primary red" onclick="closeModal(true)">${esc(okText||'確定')}</button></div>`);});
+}
+
+/* ====================== 渲染 ====================== */
+const ICON={
+ chart:'<svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-7"/></svg>',
+ edit:'<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+ back:'<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>',
+ close:'<svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+ plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+};
+const SPACER='<div style="width:40px;flex:0 0 auto"></div>';
+function render(){
+  const map={home:renderHome,workout:renderWorkout,extras:renderExtras,summary:renderSummary,progress:renderProgress,edit:renderEdit,exform:renderExForm,pick:renderPick,eqform:renderEqForm};
+  $('#app').innerHTML=(map[V.view]||renderHome)();
+  keepAwake(wakeWanted());
+  if(V.view==='exform') exFormEqHint();
+  if(V.view==='eqform'&&V._keepName!=null){const n=$('#q_name');if(n)n.value=V._keepName;}
+  tickTimer();
+}
+function sugBadge(sg){ if(!sg.tier||!sg.dir) return ''; const cls=sg.dir>0?(sg.u>=1.5?'strong':'green'):'red'; return `<span class="badge ${cls}">${sg.dir>0?sg.tier:(sg.u<=-1?'減重':'微減')} ${sg.dir>0?'↑':'↓'}</span>`; }
+
+/* ---------- 主頁 ---------- */
+function renderHome(){
+  const d=new Date(); const dow=V.dayOverride!=null?+V.dayOverride:d.getDay();
+  const sch=S.schedule[dow];
+  let html=`<div class="topbar"><button class="icon-btn" onclick="go('progress')">${ICON.chart}</button>
+    <div class="title">Gym Log${SY.token?`<div class="sync-line" id="syncLine">${esc(syncStatus)}</div>`:''}</div>
+    <button class="icon-btn" onclick="go('edit')">${ICON.edit}</button></div>`;
+  if(W&&W.queue&&W.queue.length){
+    html+=`<div class="card" style="border:1px solid var(--green)"><div class="row between"><div><b>有未完成嘅訓練</b><div class="sub">星期${DAYS[W.dow]} · ${fmtD(W.date)} · 做到第 ${Math.min(W.idx+1,W.queue.length)}/${W.queue.length} 個</div></div>
+      <button class="badge green" style="font-size:15px;padding:8px 14px" onclick="resumeSession()">繼續</button></div>
+      <button class="small danger mt" style="padding:6px 0" onclick="discardSession()">放棄呢次訓練</button></div>`;
+  }
+  const wk=new Date(d); wk.setHours(0,0,0,0); wk.setDate(wk.getDate()-((wk.getDay()+6)%7)); const wks=dstr(wk);
+  const daysThisWeek=new Set(S.logs.filter(l=>!l.seed&&l.date>=wks).map(l=>l.date)).size;
+  html+=`<h1>星期${DAYS[dow]}</h1><div class="sub">${d.getMonth()+1}月${d.getDate()}日${V.dayOverride!=null?' · 改做其他日子嘅課表':''} · 今個星期練咗 <b style="color:var(--text)">${daysThisWeek}</b> 日</div>`;
+  if(!sch||!sch.main.length){
+    html+=`<div class="card mt"><div class="big">😴</div><div class="center"><b>今日係休息日</b><div class="sub mt">想照做？揀一日嘅課表：</div></div>
+      <div class="pill-row mt" style="justify-content:center">${DAY_ORDER.filter(k=>S.schedule[k]&&S.schedule[k].main.length).map(k=>`<button class="pill" onclick="V.dayOverride=${k};render()">星期${DAYS[k]}</button>`).join('')}</div></div>`;
+    return html;
+  }
+  html+=`<div class="card mt">`+sch.main.map((id,i)=>{
+    const e=S.ex[id]; if(!e) return '';
+    const eqId=e.defaultEq||e.variants[0].eq; const sg=suggest(e,eqId); const ls=logsFor(id,eqId);
+    return `<div class="ex-item"><div class="mini">${i+1}</div><div class="grow"><div class="ex-name">${esc(e.name)}</div>
+      <div class="ex-meta">${e.ask&&e.defaultEq==null?e.variants.map(v=>esc(equipOf(v.eq).name)).join('／')+' · ':''}${shortW(e,equipOf(eqId),sg.w)} · ${e.sets}×${e.reps}${ls.length?` · 上次 <b style="color:${colorOf(ls[0].rpe)}">${ls[0].rpe}</b>/10`:''}</div></div>${sugBadge(sg)}</div>`;
+  }).join('')+`</div>`;
+  if(sch.extras.length) html+=`<div class="sub small" style="margin:0 4px 12px">有時間可以加：${sch.extras.map(id=>S.ex[id]?esc(S.ex[id].name):'').filter(Boolean).join('、')}</div>`;
+  if(V.dayOverride!=null) html+=`<button class="secondary mb" onclick="V.dayOverride=null;render()">返回今日</button>`;
+  else html+=`<div class="pill-row mb">${DAY_ORDER.filter(k=>S.schedule[k]&&S.schedule[k].main.length&&+k!==dow).map(k=>`<button class="pill" onclick="V.dayOverride=${k};render()">改做星期${DAYS[k]}</button>`).join('')}</div>`;
+  html+=`<div class="bottom"><button class="primary" onclick="startSession(${dow})">開始訓練</button></div>`;
+  return html;
+}
+
+/* ---------- 訓練流程 ---------- */
+async function startSession(dow){
+  if(W&&W.queue&&W.queue.length&&!(await ask('有一個未完成嘅訓練，要放棄佢重新開始？（已記錄嘅動作會保留）','重新開始'))) return;
+  timerEnd=0;
+  W={dow,date:todayStr(),start:Date.now(),queue:S.schedule[dow].main.filter(id=>S.ex[id]),idx:0,done:[],step:null,extraMode:false};
+  if(!W.queue.length){toast('呢日未有動作');W=null;return;}
+  enterExercise(); saveSession(); go('workout');
+}
+function resumeSession(){ if(!W.step) enterExercise(); if(!W.step){go('extras');return;} go('workout'); }
+async function discardSession(){
+  if(!(await ask('放棄呢次訓練？已經記錄咗嘅動作會保留。','放棄'))) return;
+  W=null; saveSession(); timerEnd=0; toast('已放棄'); go('home');
+}
+function enterExercise(){
+  while(W.idx<W.queue.length&&!S.ex[W.queue[W.idx]]) W.idx++;
+  if(W.idx>=W.queue.length){W.step=null;return;}
+  const ex=S.ex[W.queue[W.idx]];
+  const needAsk=ex.variants.length>1&&ex.ask&&ex.defaultEq==null;
+  const eq=needAsk?null:(ex.defaultEq&&ex.variants.some(v=>v.eq===ex.defaultEq)?ex.defaultEq:ex.variants[0].eq);
+  W.step={ex:ex.id,eq,weight:eq?suggest(ex,eq).w:null,rpe:null,sets:0};
+}
+function chooseEq(eq,remember){
+  const ex=S.ex[W.step.ex];
+  if(remember){ex.defaultEq=eq;ex.ask=false;ex.mt=Date.now();save();toast('已設定預設：'+equipOf(eq).name);}
+  W.step.eq=eq; W.step.weight=suggest(ex,eq).w; saveSession(); render();
+}
+function setW(w){W.step.weight=r2(w);saveSession();render();}
+function adjW(dir){
+  const st=W.step; const eq=equipOf(st.eq);
+  if(eq.kind==='stack'){const p=stackParts(eq,st.weight);const b=Math.min(eq.max,Math.max(eq.min,r2(p.base+eq.step*dir)));setW(b+p.extra);}
+  else setW(stepTo(eq,st.weight,dir));
+}
+function toggleAddon(i){const st=W.step;const eq=equipOf(st.eq);const p=stackParts(eq,st.weight);const a=eq.addons[i].w;setW(p.mask&(1<<i)?st.weight-a:st.weight+a);}
+function adjPlate(w,dir){const st=W.step;const t=r2(st.weight+w*dir);if(achievable(equipOf(st.eq)).some(v=>Math.abs(v-t)<1e-9))setW(t);}
+document.addEventListener('pointerdown',()=>{if(AC&&AC.state!=='running')unlockAudio();},{passive:true});
+function setRpe(r){ W.step.rpe=W.step.rpe===r?null:r; saveSession(); render(); }
+function tapSet(i){
+  const st=W.step; const ex=S.ex[st.ex];
+  if(i<st.sets){ st.sets=i; saveSession(); render(); return; }
+  st.sets=i+1; saveSession(); unlockAudio(); startTimer(ex.rest); render();
+  if(st.sets>=ex.sets) toast('全部組數完成！揀返難度 👇');
+}
+function doneSet(){ const st=W.step; const ex=S.ex[st.ex]; if(st.sets<ex.sets) tapSet(st.sets); }
+function advance(){ W.idx++; enterExercise(); saveSession(); if(W.step) go('workout'); else go('extras'); }
+function nextExercise(){
+  const st=W.step; const ex=S.ex[st.ex];
+  if(!st.eq){toast('請先揀器材');return;}
+  if(st.rpe==null){toast('請先揀難度 1–10，或者撳「跳過」');return;}
+  const v=variantOf(ex,st.eq); const now=Date.now(); const isBody=equipOf(st.eq).kind==='body';
+  const prev=logsFor(ex.id,st.eq); const prevMax=prev.length?Math.max(...prev.map(l=>l.weight)):null;
+  const pr=!isBody&&prevMax!=null&&st.weight>prevMax+1e-9;
+  S.logs.push({id:uid(),date:W.date,ts:now,ex:ex.id,eq:st.eq,weight:st.weight,rpe:st.rpe,sets:st.sets||ex.sets,extra:!!W.extraMode,pw:v.weight,pr:pr||undefined,note:(st.note||'').trim()||undefined,mt:now});
+  if(!isBody&&ex.variants.some(x=>x.eq===st.eq)) v.weight=st.weight; // 唔改 mt：重量由紀錄推算，避免同步時覆蓋另一部機嘅動作設定
+  save(); W.done.push(ex.id); toast(pr?`🏆 新重量紀錄！${fmtW(st.weight)}kg（之前 ${fmtW(prevMax)}kg）`:'已記錄 ✓'); advance();
+}
+function skipExercise(){ toast('已跳過（冇記錄）'); advance(); }
+function swapNext(){ // 同下一個動作對調
+  if(W.idx>=W.queue.length-1){toast('已經係最後一個');return;}
+  const q=W.queue; [q[W.idx],q[W.idx+1]]=[q[W.idx+1],q[W.idx]];
+  const cur=S.ex[q[W.idx+1]]; enterExercise(); saveSession(); toast('先做呢個，'+(cur?cur.name:'')+' 排第二'); go('workout');
+}
+function addRest(sec){ if(!timerEnd||Date.now()>timerEnd) startTimer(sec); else {timerEnd+=sec*1000;timerBeeped=false;if(W){W.timerEnd=timerEnd;saveSession();}} tickTimer(); }
+function setNote(v){ if(W&&W.step){W.step.note=v;saveSession();} }
+function weightUI(ex,eq,w){
+  if(eq.kind==='body') return `<div class="center" style="font-size:30px;font-weight:800;margin:14px 0 6px">徒手</div>`;
+  if(eq.kind==='missing') return `<div class="center" style="font-size:30px;font-weight:800;margin:14px 0 6px">${fmtW(w)}kg</div><div class="sub center small">呢個器材已經刪咗，去「編輯 → 器材」加返</div>`;
+  const a=achievable(eq); let atMin=w<=a[0]+1e-9, atMax=w>=a[a.length-1]-1e-9;
+  if(eq.kind==='stack'){const sp=stackParts(eq,w);atMin=sp.base<=eq.min+1e-9;atMax=sp.base>=eq.max-1e-9;}
+  const stepTxt=eq.kind==='stack'?`每格 ${fmtW(eq.step)}`:eq.kind==='notch'?'跳一檔':'';
+  let html=`<div class="stepper"><button onclick="adjW(-1)" ${atMin?'disabled':''}>−</button><div class="w">${fmtW(w)}<small>kg</small><span class="step">${eq.kind==='plates'&&eq.perSide?'每邊':''}${eq.kind==='notch'&&eq.perHand?'每隻手':''}${stepTxt?' · '+stepTxt:''}</span></div><button onclick="adjW(1)" ${atMax?'disabled':''}>＋</button></div>`;
+  if(eq.kind==='stack'&&eq.addons&&eq.addons.length){const p=stackParts(eq,w);
+    html+=`<div class="chips">${eq.addons.map((ad,i)=>`<button class="plate ${p.mask&(1<<i)?'on':''}" onclick="toggleAddon(${i})">${p.mask&(1<<i)?'✓':'＋'} ${esc(ad.name||'加重片')} ${fmtW(ad.w)}kg</button>`).join('')}</div>`;}
+  if(eq.kind==='plates'){const b=platesBreak(eq,w)||[];
+    html+=`<div class="mt" style="margin:10px 6px 0">${b.map(p=>`<div class="prow2"><span><b>${fmtW(p.w)}kg</b> <span class="sub small">片${eq.perSide?'（每邊）':''} · 有 ${p.max}</span></span><span class="ctl"><button onclick="adjPlate(${p.w},-1)" ${p.k<=0?'disabled':''}>−</button><b>${p.k}</b><button onclick="adjPlate(${p.w},1)" ${p.k>=p.max?'disabled':''}>＋</button></span></div>`).join('')}</div>`;}
+  const lw=longW(ex,eq,w); if(lw) html+=`<div class="sub center small mt">${lw}</div>`;
+  return html;
+}
+function renderWorkout(){
+  if(!W||!W.step) return renderHome();
+  const st=W.step; const ex=S.ex[st.ex];
+  if(ex&&st.eq&&!ex.variants.some(v=>v.eq===st.eq)){ st.eq=ex.variants.length>1?null:ex.variants[0].eq; if(st.eq) st.weight=suggest(ex,st.eq).w; saveSession(); }
+  if(!ex){W.idx++;enterExercise();saveSession();if(!W.step){V.view='extras';return renderExtras();}return renderWorkout();}
+  const pct=Math.round(W.idx/W.queue.length*100); const isLast=W.idx+1>=W.queue.length;
+  let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button>
+    <div class="title small">${W.idx+1} / ${W.queue.length}${W.extraMode?' · 加操':''}</div>
+    <button class="icon-btn" onclick="go('exform',{id:'${ex.id}',from:'workout'})">${ICON.edit}</button></div>
+    <div class="progress-line"><i style="width:${pct}%"></i></div>
+    <h1 style="font-size:26px">${esc(ex.name)}</h1><div class="sub">${ex.en?esc(ex.en)+' · ':''}${CATS[ex.cat]||''} · ${ex.sets}×${ex.reps} · 休息 ${ex.rest}s${W.idx<W.queue.length-1&&S.ex[W.queue[W.idx+1]]?` <button class="badge" onclick="swapNext()">⇅ 先做下一個（${esc(S.ex[W.queue[W.idx+1]].name)}）</button>`:''}</div>`;
+  const bottom=`<div class="bottom"><div class="row"><button class="primary" onclick="nextExercise()">${isLast?'完成呢個動作':'下一個'}</button><button class="skip" onclick="skipExercise()">跳過 ›</button></div></div>`;
+  if(!st.eq){
+    html+=`<div class="card mt"><b>今日用邊種器材？</b><div class="sub mb">揀「記住」之後就唔會再問（可以喺編輯度改返）。</div>`+
+      ex.variants.map(v=>{const sg=suggest(ex,v.eq);const q=equipOf(v.eq);return `<button class="choice" style="background:var(--card2)" onclick="chooseEq('${v.eq}',false)"><b>${esc(q.name)}</b><span>${shortW(ex,q,sg.w)} · ${esc(sg.msg)}</span></button>`;}).join('')+
+      `<div class="row mt">`+ex.variants.map(v=>`<button class="secondary" onclick="chooseEq('${v.eq}',true)">記住用${esc(equipOf(v.eq).name)}</button>`).join('')+`</div></div>`+bottom;
+    return html;
+  }
+  const eq=equipOf(st.eq); const sg=suggest(ex,st.eq); const ls=logsFor(ex.id,st.eq); const last=ls[0];
+  const cls=sg.dir>0?(sg.u>=1.5?'strong':'up'):sg.dir<0?'down':'keep'; const arrow=sg.dir>0?'↑':sg.dir<0?'↓':'→';
+  const tierTxt=sg.dir>0?sg.tier:sg.dir<0?(sg.u<=-1?'減重':'微減'):(sg.tier?'維持':'');
+  html+=`<div class="card mt"><div class="row between" style="align-items:flex-start">
+      <div><span class="suggest ${cls}">${arrow} ${tierTxt?tierTxt+'：':''}${esc(sg.msg)}</span><div class="sub small mt">${esc(eq.name)}${ex.variants.length>1?` <button class="badge" onclick="W.step.eq=null;saveSession();render()">轉器材</button>`:''}</div></div>
+      <div class="last">${last?`<div class="n" style="color:${colorOf(last.rpe)}">${last.rpe}<small>/10</small></div><div class="sub small">上次 ${eq.kind==='body'?'徒手':fmtW(last.weight)+'kg'} · ${fmtD(last.date)}</div>`:`<div class="sub small">未有紀錄</div>`}</div></div>`;
+  html+=weightUI(ex,eq,st.weight)+`</div>`;
+  html=html.replace('<div class="card mt"><div class="row between" style="align-items:flex-start">','<div class="wgrid"><div><div class="card mt"><div class="row between" style="align-items:flex-start">');
+  html+=`<div class="card"><div class="row between"><b>組數</b><span class="sub small">撳數字記錄／撤回 · 休息 ${ex.rest}s</span></div>
+    <div class="sets">${Array.from({length:Math.min(20,Math.max(1,ex.sets|0))},(_,i)=>`<button class="${i<st.sets?'done':''}" onclick="tapSet(${i})">${i+1}</button>`).join('')}</div>
+    <div class="timer" id="timer">--:--</div>
+    <div class="row mt"><button class="secondary" onclick="doneSet()" ${st.sets>=ex.sets?'disabled':''}>完成一組 → 休息</button><button class="secondary" style="flex:0 0 auto;width:auto;padding:13px 14px" onclick="unlockAudio();addRest(30)">+30s</button><button class="secondary" style="flex:0 0 auto;width:auto;padding:13px 16px" onclick="unlockAudio();startTimer(${ex.rest})">⏱</button></div></div></div><div class="wcol2">`;
+  let desc=`<div class="d" style="margin-top:14px">做完之後，揀最貼近<b>最後一組</b>感覺嘅數字。下面會即刻話你下次建議幾重。</div>`;
+  if(st.rpe){
+    const R=RPE[st.rpe]; const {u,why,target}=planNext(st.rpe,st.weight,ls,null);
+    let nxt;
+    if(eq.kind==='body') nxt=u>0?'下次：加次數或者加難度':u<0?'下次：減少次數':'下次：維持';
+    else{const nw=target!=null?nearest(achievable(eq),target,0):applyUnits(eq,st.weight,u);const d=r2(nw-st.weight);nxt=d>0?`下次：${tierOf(u)} +${fmtW(d)}kg → ${fmtW(nw)}kg`:d<0?`下次：減 ${fmtW(-d)}kg → ${fmtW(nw)}kg`:`下次：維持 ${fmtW(nw)}kg`;}
+    desc=`<div class="t" style="color:${colorOf(st.rpe)}">${st.rpe}　${R.t}${R.code?`<span class="code">舊：${R.code}</span>`:''}</div><div class="d">${R.d}</div><div class="next" style="color:${u>0?'var(--green)':u<0?'var(--red)':'var(--text)'}">${nxt}<span class="sub small" style="font-weight:500">　${esc(why)}</span></div>`;
+  }
+  html+=`<div class="card"><div class="row between"><b>今日難度</b><span class="sub small">1 輕鬆 ─ 10 力竭</span></div>
+    <div class="rpe-desc">${desc}</div>
+    <div class="rpe-bar">${Array.from({length:10},(_,i)=>`<button class="${st.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="setRpe(${i+1})">${i+1}</button>`).join('')}</div>
+    <input class="mt" placeholder="備註（可留空）例如：左膊有少少痛、用咗闊握" value="${esc(st.note||'')}" oninput="setNote(this.value)"></div>`;
+  if(ex.notes) html+=`<div class="card"><b>動作指引</b><div class="notes mt">${esc(ex.notes)}</div></div>`;
+  if(ls.length) html+=`<div class="card"><div class="row between"><b>最近紀錄</b><span class="sub small">撳一條可以改／刪</span></div>${ls.slice(0,4).map(l=>logRow(l,false)).join('')}</div>`;
+  return html+`</div></div>`+bottom;
+}
+
+/* ---------- 計時 ---------- */
+let timerEnd=0, timerBeeped=true, AC=null;
+function startTimer(sec){timerEnd=Date.now()+sec*1000;timerBeeped=false;if(W){W.timerEnd=timerEnd;saveSession();}tickTimer();}
+function tickTimer(){
+  if(timerEnd&&!timerBeeped&&Date.now()>=timerEnd){timerBeeped=true;beep();}
+  if(timerEnd&&Date.now()-timerEnd>60000){timerEnd=0;if(W&&W.timerEnd){W.timerEnd=0;saveSession();}}
+  const e=$('#timer'); if(!e) return;
+  if(!timerEnd){e.textContent='--:--';e.className='timer';return;}
+  const r=Math.max(0,Math.ceil((timerEnd-Date.now())/1000));
+  e.textContent=r>0?String(Math.floor(r/60)).padStart(2,'0')+':'+String(r%60).padStart(2,'0'):'GO!';
+  e.className='timer'+(r<=5&&r>0?' warn':r===0?' done':'');
+}
+if(W&&W.timerEnd){timerEnd=W.timerEnd;timerBeeped=Date.now()>=timerEnd;}
+setInterval(tickTimer,250);
+function unlockAudio(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state!=='running')AC.resume();}catch(e){}}
+function beep(){
+  try{document.body.classList.remove('flash');void document.body.offsetWidth;document.body.classList.add('flash');setTimeout(()=>document.body.classList.remove('flash'),2000);}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}
+  try{if(!AC)return;if(AC.state!=='running')AC.resume();[0,0.25,0.5].forEach(t=>{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.frequency.value=880;g.gain.value=.3;o.start(AC.currentTime+t);o.stop(AC.currentTime+t+.15);});}catch(e){}
+}
+
+/* ---------- 加操 ---------- */
+function renderExtras(){
+  if(!W) return renderHome();
+  const sch=S.schedule[W.dow]||{extras:[]};
+  const done=new Set(W.queue);
+  const recentIds=[...new Set(S.logs.filter(l=>l.extra).sort((a,b)=>b.ts-a.ts).map(l=>l.ex))].filter(id=>S.ex[id]&&!done.has(id)).slice(0,6);
+  const sugg=sch.extras.filter(id=>S.ex[id]&&!done.has(id));
+  const btn=id=>{const e=S.ex[id];const eqId=e.defaultEq||e.variants[0].eq;const sg=suggest(e,eqId);return `<button class="choice" onclick="addExtra('${id}')"><b>${esc(e.name)}</b><span>${CATS[e.cat]||''} · ${shortW(e,equipOf(eqId),sg.w)} · ${esc(sg.msg)}</span></button>`;};
+  let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button><div class="title">今日有冇加動作？</div>${SPACER}</div>
+    <div class="sub center mb">主課表完成 🎉 想加操就揀一個，唔加就撳「完成今日訓練」。</div>`;
+  if(sugg.length) html+=`<h2>今日建議加</h2>`+sugg.map(btn).join('');
+  if(recentIds.length) html+=`<h2>最近加過</h2>`+recentIds.map(btn).join('');
+  DAY_ORDER.forEach(k=>{const s=S.schedule[k]; if(!s) return;
+    const ids=[...new Set(s.main.concat(s.extras))].filter(id=>S.ex[id]&&!done.has(id)&&!sugg.includes(id));
+    if(ids.length) html+=`<h2>星期${DAYS[k]}</h2>`+ids.map(btn).join('');});
+  const scheduled=new Set(); Object.values(S.schedule).forEach(s=>s.main.concat(s.extras).forEach(id=>scheduled.add(id)));
+  const others=Object.keys(S.ex).filter(id=>!scheduled.has(id)&&!done.has(id));
+  if(others.length) html+=`<h2>其他</h2>`+others.map(btn).join('');
+  html+=`<div class="bottom"><button class="primary" onclick="finishSession()">完成今日訓練</button></div>`;
+  return html;
+}
+function addExtra(id){ W.queue.push(id); W.extraMode=true; W.idx=W.queue.length-1; enterExercise(); saveSession(); go('workout'); }
+function finishSession(){ const d=W; W=null; saveSession(); timerEnd=0; go('summary',{date:d.date,dow:d.dow,mins:d.start?Math.round((Date.now()-d.start)/60000):null}); }
+function renderSummary(){
+  const ls=S.logs.filter(l=>l.date===V.date&&!l.seed).sort((a,b)=>a.ts-b.ts);
+  const avg=ls.length?(ls.reduce((a,l)=>a+l.rpe,0)/ls.length).toFixed(1):'-';
+  const prs=ls.filter(isPR).length;
+  return `<div class="big">💪</div><h1 class="center">訓練完成</h1><div class="sub center">星期${DAYS[V.dow]} · ${fmtD(V.date)} · ${ls.length} 個動作 · 平均難度 ${avg}${V.mins!=null&&V.mins<600?' · 用時 '+V.mins+' 分鐘':''}${prs?` · <span class="pr">🏆 ${prs} 個新紀錄</span>`:''}</div>
+    <div class="card mt">${ls.map(l=>logRow(l,true)).join('')||'<div class="empty">今次冇記錄</div>'}</div>
+    <div class="sub small center">撳任何一條可以修改或者刪除</div>
+    <div class="bottom"><button class="primary blue" onclick="go('home')">返回主頁</button></div>`;
+}
+
+/* ---------- 紀錄：一行 + 修改／刪除 ---------- */
+function logRow(l,showName){
+  const e=S.ex[l.ex]; const eq=equipOf(l.eq);
+  const w=eq.kind==='body'?'徒手':shortW(e,eq,l.weight);
+  const title=showName?esc(e?e.name:l.ex):fmtD(l.date)+' · '+esc(eq.name);
+  const sub=showName?esc(eq.name)+' · '+w:w;
+  return `<button class="hist" onclick="openLog('${l.id}')"><span class="dot" style="background:${colorOf(l.rpe)}"></span><span class="grow">${title}${isPR(l)?' <span class="pr">🏆</span>':''}${l.extra?' <span class="badge">加操</span>':''}${l.seed?' <span class="badge">舊筆記</span>':''}<div class="sub small">${sub}${l.note?' · 📝 '+esc(l.note):''}</div></span><b>${l.rpe}/10</b><span class="chev">›</span></button>`;
+}
+// 個人最高紀錄：嗰次重量高過之前所有同器材紀錄（即時計，改／刪紀錄都會自動更新）
+function isPR(l){ if(equipOf(l.eq).kind==='body'||l.seed) return false;
+  const prev=S.logs.filter(x=>x.ex===l.ex&&x.eq===l.eq&&x.ts<l.ts); return prev.length>0&&l.weight>Math.max(...prev.map(x=>x.weight))+1e-9; }
+function openLog(id){ const l=S.logs.find(x=>x.id===id); if(!l) return; if(modalResolve) closeModal(false); LE=Object.assign({},l,{confirmDel:false}); drawLogSheet(); }
+function leRead(){ if(!LE) return; const d=$('#le_date'),q=$('#le_eq'),w=$('#le_w'),n=$('#le_note'); if(d&&d.value) LE.date=d.value; if(q) LE.eq=q.value; if(w) LE.weight=num(w.value)||0; if(n) LE.note=n.value; }
+function leEqChange(){ leRead(); const q=S.equip[LE.eq]; if(q) LE.weight=q.kind==='body'?0:nearest(achievable(q),LE.weight,0); drawLogSheet(); }
+function leRpe(n){ leRead(); LE.rpe=n; drawLogSheet(); }
+function leExtra(){ leRead(); LE.extra=!LE.extra; drawLogSheet(); }
+function drawLogSheet(){
+  const e=S.ex[LE.ex]; const eqs=[...new Set((e?e.variants.map(v=>v.eq):[]).concat(LE.eq))]; const eq=equipOf(LE.eq);
+  const R=RPE[LE.rpe];
+  showModal(`<div class="row between"><b style="font-size:18px">${esc(e?e.name:LE.ex)}</b><button class="mini" onclick="closeModal(false)">✕</button></div>
+   <div class="two"><div><label class="label">日期</label><input type="date" id="le_date" value="${LE.date}"></div>
+   <div><label class="label">器材</label><select id="le_eq" onchange="leEqChange()">${eqs.map(q=>`<option value="${q}" ${q===LE.eq?'selected':''}>${esc(equipOf(q).name)}</option>`).join('')}</select></div></div>
+   <label class="label">重量 kg${eq.kind==='plates'&&eq.perSide?'（每邊）':eq.kind==='notch'&&eq.perHand?'（每隻手）':e&&e.perSide&&eq.kind==='stack'?'（每邊）':''}</label>
+   <input type="number" id="le_w" inputmode="decimal" step="0.5" value="${LE.weight}">
+   <label class="label">難度：<b style="color:${colorOf(LE.rpe)}">${LE.rpe} ${R?R.t:''}</b></label>
+   <div class="rpe-bar sm" style="margin-top:4px">${Array.from({length:10},(_,i)=>`<button class="${LE.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="leRpe(${i+1})">${i+1}</button>`).join('')}</div>
+   <input id="le_note" class="mt" placeholder="備註（可留空）" value="${esc(LE.note||'')}">
+   <div class="toggle mt"><b>加操</b><button class="switch ${LE.extra?'on':''}" onclick="leExtra()"></button></div>
+   <div class="row mt"><button class="secondary" style="color:var(--red)" onclick="deleteLog()">${LE.confirmDel?'再撳一次確認刪除':'刪除'}</button><button class="primary" onclick="saveLog()">儲存</button></div>`);
+}
+function refreshVariant(exId,eqId,fallback){
+  const e=S.ex[exId]; if(!e||equipOf(eqId).kind==='body') return;
+  const v=e.variants.find(x=>x.eq===eqId); if(!v) return;
+  const l=logsFor(exId,eqId)[0]; if(l) v.weight=l.weight; else if(fallback!=null) v.weight=fallback;
+}
+function saveLog(){
+  leRead(); const i=S.logs.findIndex(x=>x.id===LE.id); if(i<0){closeModal();return;}
+  const old=S.logs[i]; let ts=old.ts;
+  if(LE.date!==old.date){const d=new Date(old.ts);const p=LE.date.split('-').map(Number);d.setFullYear(p[0],p[1]-1,p[2]);ts=d.getTime();}
+  const leq=S.equip[LE.eq]; const typed=r2(LE.weight);
+  const lw=!leq?typed:leq.kind==='body'?0:nearest(achievable(leq),typed,0);
+  if(leq&&leq.kind!=='body'&&Math.abs(lw-typed)>1e-9) toast(`${fmtW(typed)}kg 砌唔到，已改為最近嘅 ${fmtW(lw)}kg`); else toast('已更新');
+  S.logs[i]=Object.assign({},old,{date:LE.date,ts,eq:LE.eq,weight:lw,rpe:LE.rpe,extra:!!LE.extra,note:(LE.note||'').trim()||undefined,mt:Date.now()});
+  refreshVariant(old.ex,old.eq,old.pw); if(LE.eq!==old.eq) refreshVariant(old.ex,LE.eq);
+  save(); closeModal(); render();
+}
+function deleteLog(){
+  leRead(); if(!LE.confirmDel){LE.confirmDel=true;drawLogSheet();return;}
+  const i=S.logs.findIndex(x=>x.id===LE.id); if(i<0){closeModal();return;}
+  const old=S.logs[i]; S.logs.splice(i,1); S.deleted[old.id]=Date.now();
+  refreshVariant(old.ex,old.eq,old.pw); save(); closeModal(); toast('已刪除'); render();
+}
+
+/* ---------- 進度 ---------- */
+function renderProgress(){ return V.exId&&S.ex[V.exId]?renderProgressDetail():renderProgressList(); }
+function renderProgressList(){
+  const mode=V.mode||'day';
+  let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button><div class="title">我嘅進度</div>${SPACER}</div>
+   <div class="seg">${[['day','按日子'],['cat','按部位'],['log','訓練日誌']].map(([k,t])=>`<button class="${mode===k?'on':''}" onclick="V.mode='${k}';render()">${t}</button>`).join('')}</div>`;
+  if(mode==='log') return html+renderLogBook();
+  { const since=Date.now()-30*86400000; const recent=S.logs.filter(l=>!l.seed&&l.ts>=since);
+    const days=new Set(recent.map(l=>l.date)).size; const prs=recent.filter(isPR).length;
+    const up=new Set(); Object.keys(S.ex).forEach(id=>{const ls=logsFor(id).filter(l=>!l.seed);const old=ls.find(l=>l.ts<since)||ls[ls.length-1];if(ls[0]&&old&&ls[0].ts>=since&&ls[0].eq===old.eq&&ls[0].weight>old.weight+1e-9)up.add(id);});
+    html+=`<div class="card" style="padding:12px 16px"><div class="row between"><div><b>過去 30 日</b><div class="sub small">${days} 日訓練 · ${recent.length} 個動作</div></div><div style="text-align:right"><b style="color:var(--green)">${up.size} 個動作加咗重</b><div class="sub small"><span class="pr">🏆</span> ${prs} 個新紀錄</div></div></div></div>`; }
+  const groups=[];
+  if(mode==='day'){ const seen=new Set();
+    DAY_ORDER.forEach(k=>{const s=S.schedule[k];if(!s)return;const ids=[...new Set(s.main.concat(s.extras))].filter(id=>S.ex[id]);ids.forEach(id=>seen.add(id));if(ids.length)groups.push(['星期'+DAYS[k],ids]);});
+    const rest=Object.keys(S.ex).filter(id=>!seen.has(id)); if(rest.length) groups.push(['其他',rest]);
+  } else Object.keys(CATS).forEach(c=>{const ids=Object.keys(S.ex).filter(id=>S.ex[id].cat===c);if(ids.length)groups.push([CATS[c],ids]);});
+  html+='<div class="pgrid">'+groups.map(([t,ids])=>`<div><h2>${t}</h2><div class="card" style="padding-top:2px;padding-bottom:2px">${ids.map(progRow).join('')}</div></div>`).join('')+'</div>';
+  return html;
+}
+function progRow(id){
+  const e=S.ex[id]; const all=logsFor(id);
+  if(!all.length) return `<button class="prow" onclick="openDetail('${id}')"><div class="grow"><div class="ex-name">${esc(e.name)}</div><div class="ex-meta">未有紀錄</div></div><span class="chev">›</span></button>`;
+  const last=all[0]; const same=all.filter(l=>l.eq===last.eq).reverse(); const eq=equipOf(last.eq);
+  const diff=r2(last.weight-same[0].weight);
+  const dTxt=eq.kind==='body'?'':diff>0?` · <span style="color:var(--green)">+${fmtW(diff)}kg</span>`:diff<0?` · <span style="color:var(--red)">${fmtW(diff)}kg</span>`:'';
+  return `<button class="prow" onclick="openDetail('${id}')"><div class="grow"><div class="ex-name">${esc(e.name)}</div><div class="ex-meta">${eq.kind==='body'?'徒手':fmtW(last.weight)+'kg'} · ${all.length} 次${dTxt}</div></div>
+    ${spark(same)}<span class="rpe-num" style="color:${colorOf(last.rpe)}">${last.rpe}</span><span class="chev">›</span></button>`;
+}
+function spark(ls){
+  if(ls.length<2) return '<svg width="64" height="26"></svg>';
+  const ys=ls.map(l=>l.weight); let a=Math.min(...ys),b=Math.max(...ys); if(a===b){a-=1;b+=1;}
+  const X=i=>3+i*(58/(ls.length-1)), Y=v=>23-(v-a)/(b-a)*20;
+  const pts=ls.map((l,i)=>`${X(i).toFixed(1)},${Y(l.weight).toFixed(1)}`).join(' '); const L=ls[ls.length-1];
+  return `<svg width="64" height="26" viewBox="0 0 64 26"><polyline points="${pts}" fill="none" stroke="#8e8e93" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${X(ls.length-1)}" cy="${Y(L.weight)}" r="3" fill="${colorOf(L.rpe)}"/></svg>`;
+}
+function renderLogBook(){
+  if(!S.logs.length) return '<div class="empty">未有紀錄</div>';
+  const by={}; S.logs.forEach(l=>{(by[l.date]=by[l.date]||[]).push(l);});
+  return Object.keys(by).sort().reverse().map(d=>`<h2>${fmtD(d)} 星期${DAYS[dowOf(d)]} · ${by[d].length} 個動作</h2><div class="card" style="padding-top:2px;padding-bottom:2px">${by[d].sort((a,b)=>a.ts-b.ts).map(l=>logRow(l,true)).join('')}</div>`).join('')
+    +'<div class="sub small center mt">撳任何一條可以修改或者刪除（例如測試時誤入嘅紀錄）</div>';
+}
+/* ---- Apple 健康風格圖表：時間範圍 + 左右掃 ---- */
+const RANGES=[['3D','3日',3],['W','週',7],['M','月',30],['6M','6月',182],['Y','年',365]];
+const DAY=86400000;
+function openDetail(id){ V.exId=id; V.sel=null; V.range=V.range||'M'; V.end=null; render(); }
+function setRange(k){ V.range=k; V.end=null; V.sel=null; render(); }
+function renderProgressDetail(){
+  const ex=S.ex[V.exId];
+  const ls=logsFor(ex.id).sort((a,b)=>a.ts-b.ts);
+  let html=`<div class="topbar"><button class="icon-btn" onclick="V.exId=null;V.sel=null;render()">${ICON.back}</button><div class="title">${esc(ex.name)}</div>${SPACER}</div>`;
+  if(!ls.length) return html+`<div class="empty">未有紀錄，做完第一次就會有圖表 📈</div>`;
+  const lastL=ls[ls.length-1]; const same=ls.filter(l=>l.eq===lastL.eq); const eq=equipOf(lastL.eq);
+  const diff=r2(lastL.weight-same[0].weight);
+  const best=eq.kind==='body'?null:Math.max(...same.map(l=>l.weight));
+  html+=`<div class="row mb" style="gap:8px"><div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">${best!=null?'最高 🏆':'總次數'}</div><b style="font-size:22px">${best!=null?fmtW(best)+'<span class="sub small">kg</span>':ls.length}</b></div>
+    <div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">${esc(eq.name)}變化</div><b style="font-size:22px;color:${diff>0?'var(--green)':diff<0?'var(--red)':'inherit'}">${diff>0?'+':''}${fmtW(diff)}kg</b></div>
+    <div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">最近難度</div><b style="font-size:22px;color:${colorOf(lastL.rpe)}">${lastL.rpe}/10</b></div></div>`;
+  html+=`<div class="chart-wrap"><div class="seg sm" style="margin:0 2px 4px">${RANGES.map(([k,t])=>`<button class="${(V.range||'M')===k?'on':''}" onclick="setRange('${k}')">${t}</button>`).join('')}</div><div id="chartBox" class="chartbox" onpointerdown="chartDown(event)" onpointermove="chartMove(event)" onpointerup="chartUp(event)" onpointercancel="chartCancel(event)">${chartInner(ls)}</div>
+    <div class="legend">1 輕鬆<div class="g" style="background:linear-gradient(90deg,${RPE_COLORS.slice(1).join(',')})"></div>10 力竭</div>
+    <div class="tooltip" id="tip">${V.sel!=null&&ls[V.sel]?tipHtml(ls[V.sel]):'<span class="sub">撳圖上嘅點睇當日重量同難度 · 左右掃可以睇其他日子</span>'}</div></div>`;
+  html+=`<h2>紀錄（撳一條可以改／刪）</h2><div class="card" style="padding-top:2px;padding-bottom:2px">${ls.slice().reverse().map(l=>logRow(l,false)).join('')}</div>`;
+  return html;
+}
+function chartWindow(ls){
+  const R=RANGES.find(r=>r[0]===(V.range||'M'))||RANGES[2]; const span=R[2]*DAY;
+  const first=ls[0].ts, last=ls[ls.length-1].ts, now=Date.now();
+  const maxEnd=Math.max(last,now)+span*0.06, minEnd=first+span*0.5;
+  if(V.end==null) V.end=Math.min(maxEnd,last+span*0.1);
+  V.end=Math.max(Math.min(minEnd,maxEnd),Math.min(maxEnd,V.end));
+  return {x1:V.end,x0:V.end-span,span,days:R[2]};
+}
+function tipHtml(l){const e=S.ex[l.ex];const eq=equipOf(l.eq);return `<div class="row between"><b>${l.date}</b><b style="color:${colorOf(l.rpe)}">難度 ${l.rpe}/10 · ${RPE[l.rpe]?RPE[l.rpe].t:''}</b></div><div class="sub small mt">${esc(eq.name)} · ${eq.kind==='body'?'徒手':shortW(e,eq,l.weight)} · ${l.sets||4} 組${l.extra?' · 加操':''}${l.seed?' · 舊筆記':''}${l.note?'<br>📝 '+esc(l.note):''}</div>`;}
+function chartInner(ls){
+  const win=chartWindow(ls);
+  const vis=ls.map((l,i)=>({l,i})).filter(o=>o.l.ts>=win.x0&&o.l.ts<=win.x1);
+  const dateTxt=d=>{const x=new Date(d);return (win.days>=182?x.getFullYear()+'年':'')+(x.getMonth()+1)+'月'+x.getDate()+'日';};
+  let head;
+  if(vis.length){const ys=vis.map(o=>o.l.weight);const a=Math.min(...ys),b=Math.max(...ys);head=`<div><div class="k">範圍</div><div class="v">${a===b?fmtW(a):fmtW(a)+'–'+fmtW(b)}<small> kg</small></div></div>`;}
+  else head=`<div><div class="k">範圍</div><div class="v"><small>呢段時間冇紀錄</small></div></div>`;
+  head=`<div class="rangehead">${head}<div class="d" style="text-align:right">${dateTxt(win.x0)} – ${dateTxt(win.x1)}</div></div>`;
+  return head+chartSVG(ls,win,vis);
+}
+function chartSVG(ls,win,vis){
+  const Wd=chartW(),H=Wd>500?300:230,pl=CH.pl,pr=CH.pr,pt=14,pb=30;
+  const base=vis.length?vis.map(o=>o.l.weight):ls.map(l=>l.weight);
+  let y0=Math.min(...base),y1=Math.max(...base); const pad=Math.max(2.5,(y1-y0)*0.25); y0=Math.max(0,y0-pad); y1=y1+pad;
+  const X=t=>pl+(t-win.x0)/win.span*(Wd-pl-pr), Y=v=>pt+(1-(v-y0)/(y1-y0))*(H-pt-pb);
+  let g=`<defs><clipPath id="clip"><rect x="${pl}" y="0" width="${Wd-pl-pr}" height="${H}"/></clipPath></defs>`;
+  for(let i=0;i<=3;i++){const v=y0+(y1-y0)*i/3;g+=`<line x1="${pl}" x2="${Wd-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#2c2c30" stroke-width="1"/><text x="${Wd-pr+8}" y="${Y(v)+4}" fill="#8e8e93" font-size="11">${fmtW(Math.round(v*2)/2)}</text>`;}
+  // x 軸刻度
+  const ticks=[]; const s=new Date(win.x0); s.setHours(0,0,0,0);
+  if(win.days<=7){for(let t=s.getTime();t<=win.x1;t+=DAY) ticks.push([t,(new Date(t).getMonth()+1)+'/'+new Date(t).getDate()]);}
+  else if(win.days<=31){const d=new Date(s);d.setDate(d.getDate()-((d.getDay()+6)%7));for(let t=d.getTime();t<=win.x1;t+=7*DAY) ticks.push([t,(new Date(t).getMonth()+1)+'/'+new Date(t).getDate()]);}
+  else {const d=new Date(s.getFullYear(),s.getMonth(),1);while(d.getTime()<=win.x1){ticks.push([d.getTime(),(d.getMonth()+1)+'月']);d.setMonth(d.getMonth()+1);}}
+  ticks.forEach(([t,lab])=>{if(t<win.x0)return;const x=X(t);g+=`<line x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}" stroke="#2c2c30" stroke-width="1" stroke-dasharray="2,3"/><text x="${x}" y="${H-10}" fill="#8e8e93" font-size="11" text-anchor="middle">${lab}</text>`;});
+  g+=`<g clip-path="url(#clip)">`;
+  const eqs=[...new Set(ls.map(l=>l.eq))];
+  eqs.forEach((eq,k)=>{const pts=ls.filter(l=>l.eq===eq).map(l=>`${X(l.ts).toFixed(1)},${Y(l.weight).toFixed(1)}`).join(' ');
+    g+=`<polyline points="${pts}" fill="none" stroke="#8e8e93" stroke-width="2" stroke-dasharray="${k?'5,4':''}" opacity=".6"/>`;});
+  vis.forEach(({l,i})=>{const sel=V.sel===i;g+=`<circle cx="${X(l.ts).toFixed(1)}" cy="${Y(l.weight).toFixed(1)}" r="${sel?9:7}" fill="${colorOf(l.rpe)}" stroke="#fff" stroke-width="${sel?3:0}"/>`;});
+  g+=`</g>`;
+  if(eqs.length>1) g+=eqs.map((eq,k)=>`<text x="${pl+4}" y="${pt+12+k*14}" fill="#8e8e93" font-size="11">${k?'- - ':'—— '}${esc(equipOf(eq).name)}</text>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${Wd} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+}
+let drag=null;
+const CH={pl:12,pr:44};
+const chartW=()=>window.innerWidth>=800?820:500;
+function chartCancel(e){ drag=null; e.currentTarget.classList.remove('drag'); }
+function chartDown(e){const box=e.currentTarget;const r=box.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,end:V.end,w:r.width,left:r.left,moved:false,id:e.pointerId};}
+function chartMove(e){
+  if(!drag) return; const dx=e.clientX-drag.x;
+  if(!drag.moved){ if(Math.abs(dx)<=6) return; drag.moved=true; e.currentTarget.classList.add('drag'); try{e.currentTarget.setPointerCapture(drag.id);}catch(x){} }
+  const ls=logsFor(V.exId).sort((a,b)=>a.ts-b.ts); const win=chartWindow(ls);
+  V.end=drag.end-dx/drag.w*win.span*(chartW()/(chartW()-CH.pl-CH.pr));
+  e.currentTarget.innerHTML=chartInner(ls);
+}
+function chartUp(e){
+  if(!drag) return; const d=drag; drag=null; e.currentTarget.classList.remove('drag');
+  if(d.moved||Math.abs(e.clientY-d.y)>10) return;
+  // 冇拖動 = 點一下：揀最近嗰點（Apple 健康風格）
+  const ls=logsFor(V.exId).sort((a,b)=>a.ts-b.ts); const win=chartWindow(ls);
+  const sx=(e.clientX-d.left)/d.w*chartW(); const t=win.x0+(sx-CH.pl)/(chartW()-CH.pl-CH.pr)*win.span;
+  let best=null,bd=1e18; ls.forEach((l,i)=>{if(l.ts<win.x0||l.ts>win.x1)return;const dd=Math.abs(l.ts-t);if(dd<bd){bd=dd;best=i;}});
+  if(best!=null&&bd<win.span*0.08){V.sel=V.sel===best?null:best;render();}
+}
+
+/* ---------- 編輯 ---------- */
+function renderEdit(){
+  if(V.tab==null) V.tab=String(new Date().getDay());
+  let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button><div class="title">編輯</div><button class="icon-btn" onclick="${V.tab==='equip'?"go('eqform',{from:'edit'})":"go('exform',{from:'edit',tab:V.tab})"}">${ICON.plus}</button></div>
+    <div class="tabs">${DAY_ORDER.map(t=>`<button class="tab ${V.tab===t?'on':''}" onclick="V.tab='${t}';render()">${DAYS[t]}</button>`).join('')}</div>
+    <div class="seg" style="margin-bottom:10px">${[['all','所有動作'],['equip','器材'],['settings','設定']].map(([k,t])=>`<button class="${V.tab===k?'on':''}" onclick="V.tab='${k}';render()">${t}</button>`).join('')}</div>`;
+  if(V.tab==='all'){
+    return html+`<div class="card">`+Object.keys(S.ex).map(id=>{const e=S.ex[id];const days=DAY_ORDER.filter(k=>S.schedule[k]&&S.schedule[k].main.includes(id));
+      return `<div class="ex-item"><div class="grow"><div class="ex-name">${esc(e.name)}</div><div class="ex-meta">${CATS[e.cat]||''} · ${e.variants.map(v=>esc(equipOf(v.eq).name)+' '+(equipOf(v.eq).kind==='body'?'':fmtW(v.weight)+'kg')).join(' / ')} · ${e.sets}×${e.reps} · 休息${e.rest}s　${days.map(k=>`<span class="day-chip">${DAYS[k]}</span>`).join('')}</div></div>
+      <button class="mini" onclick="go('exform',{id:'${id}',from:'edit',tab:'all'})">✎</button><button class="mini danger" onclick="delEx('${id}')">🗑</button></div>`;}).join('')+`</div>`;
+  }
+  if(V.tab==='equip'){
+    return html+`<div class="help" style="margin:0 4px 10px">新增動作時揀器材，重量檔位、加重片同建議加重嘅幅度就會自動跟。你有新器材或者買多咗配重片，喺度改一次就得。</div><div class="card">`+Object.values(S.equip).map(q=>{
+      let meta=KINDS[q.kind]||q.kind;
+      if(q.kind==='notch') meta+=' · '+(q.notches||[]).length+' 檔'+(q.perHand?' · 每隻手':'');
+      if(q.kind==='stack') meta+=` · ${fmtW(q.min)}–${fmtW(q.max)} 每格 ${fmtW(q.step)}`+((q.addons||[]).length?' · 加重片 '+q.addons.map(a=>fmtW(a.w)).join('/'):'');
+      if(q.kind==='plates') meta+=` · 基本 ${fmtW(q.base||0)}kg${q.perSide?' · 每邊各放':''} · 片 `+(q.plates||[]).map(p=>fmtW(p.w)+'×'+p.n).join(' ');
+      const used=Object.values(S.ex).filter(e=>e.variants.some(v=>v.eq===q.id)).length;
+      return `<div class="ex-item"><div class="grow"><div class="ex-name">${esc(q.name)}</div><div class="ex-meta">${meta} · ${used} 個動作用緊</div></div>
+      <button class="mini" onclick="go('eqform',{id:'${q.id}',from:'edit'})">✎</button><button class="mini danger" onclick="delEquip('${q.id}')">🗑</button></div>`;}).join('')+`</div>`;
+  }
+  if(V.tab==='settings'){
+    return html+renderPrefsCard()+renderSyncCard()+`<h2>備份</h2><div class="card">
+      <button class="secondary mb" onclick="exportData()">匯出備份 (JSON)</button>
+      <label class="secondary mb">匯入備份<input type="file" accept=".json,application/json,text/plain" class="vh" onchange="importData(this)"></label>
+      <button class="secondary" onclick="resetAll()"><span class="danger">重設為預設課表（清除所有紀錄）</span></button></div>
+      <div class="sub small center">Gym Log ${APP_VER}${navigator.serviceWorker&&navigator.serviceWorker.controller?' · 可離線使用 ✓':''}</div>`;
+  }
+  if(!S.schedule[V.tab]) S.schedule[V.tab]={main:[],extras:[]};
+  const sch=S.schedule[V.tab];
+  const list=(arr,key)=>arr.map((id,i)=>{const e=S.ex[id];if(!e)return '';
+    return `<div class="ex-item"><div class="grow"><div class="ex-name">${esc(e.name)}</div><div class="ex-meta">${e.variants.map(v=>esc(equipOf(v.eq).name)+' '+(equipOf(v.eq).kind==='body'?'':fmtW(v.weight)+'kg')).join(' / ')} · ${e.sets}×${e.reps} · 休息${e.rest}s</div></div>
+      <button class="mini" onclick="moveEx('${key}',${i},-1)">↑</button><button class="mini" onclick="moveEx('${key}',${i},1)">↓</button>
+      <button class="mini" onclick="go('exform',{id:'${id}',from:'edit',tab:V.tab})">✎</button><button class="mini danger" onclick="removeFrom('${key}',${i})">✕</button></div>`;}).join('')||'<div class="empty small">未有動作</div>';
+  html+=`<h2>星期${DAYS[V.tab]} 主課表</h2><div class="card">${list(sch.main,'main')}<button class="secondary mt" onclick="go('pick',{key:'main',tab:V.tab})">＋ 加入動作</button></div>
+    <h2>有時間先加</h2><div class="card">${list(sch.extras,'extras')}<button class="secondary mt" onclick="go('pick',{key:'extras',tab:V.tab})">＋ 加入動作</button></div>`;
+  return html;
+}
+function touchSched(day){const now=Date.now();S.schedAt=now;const d=day!=null?day:V.tab;if(S.schedule[d])S.schedule[d].at=now;}
+function moveEx(key,i,d){const a=S.schedule[V.tab][key];const j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];touchSched();save();render();}
+function removeFrom(key,i){S.schedule[V.tab][key].splice(i,1);touchSched();save();render();}
+async function delEx(id){ if(!S.ex[id]) return;
+  if(!(await ask('刪除「'+S.ex[id].name+'」？佢嘅所有紀錄都會一齊刪除。','刪除'))) return;
+  const now=Date.now(); delete S.ex[id]; S.deleted['ex:'+id]=now;
+  Object.keys(S.schedule).forEach(k=>{const s=S.schedule[k];if(s.main.includes(id)||s.extras.includes(id)){s.main=s.main.filter(x=>x!==id);s.extras=s.extras.filter(x=>x!==id);touchSched(k);}});
+  S.logs=S.logs.filter(l=>{if(l.ex===id){S.deleted[l.id]=now;return false;}return true;});
+  if(W&&W.queue){const before=W.queue.slice(0,W.idx).filter(x=>x===id).length;W.queue=W.queue.filter(x=>x!==id);W.idx=Math.max(0,W.idx-before);if(W.step&&W.step.ex===id)enterExercise();if(!W.queue.length)W=null;saveSession();}
+  save(); render();
+}
+async function delEquip(id){
+  const used=Object.values(S.ex).filter(e=>e.variants.some(v=>v.eq===id));
+  if(used.length){toast('仲有 '+used.length+' 個動作用緊呢個器材');return;}
+  const logged=S.logs.filter(l=>l.eq===id).length;
+  if(logged){toast('有 '+logged+' 條紀錄用過呢個器材，刪咗會冇咗重量資料。可以改名代替。');return;}
+  if(!(await ask('刪除器材「'+S.equip[id].name+'」？','刪除'))) return;
+  delete S.equip[id]; S.deleted['eq:'+id]=Date.now(); save(); render();
+}
+function renderPick(){
+  if(!S.schedule[V.tab]) S.schedule[V.tab]={main:[],extras:[]};
+  const cur=new Set(S.schedule[V.tab][V.key]);
+  let html=`<div class="topbar"><button class="icon-btn" onclick="go('edit',{tab:V.tab})">${ICON.back}</button><div class="title">加入星期${DAYS[V.tab]}${V.key==='extras'?'（有時間先加）':''}</div><button class="icon-btn" onclick="go('exform',{from:'pick',tab:V.tab,key:V.key})">${ICON.plus}</button></div>`;
+  let any=false;
+  Object.keys(CATS).forEach(c=>{const ids=Object.keys(S.ex).filter(id=>S.ex[id].cat===c&&!cur.has(id));if(!ids.length)return;any=true;
+    html+=`<h2>${CATS[c]}</h2>`+ids.map(id=>`<button class="choice" onclick="pickEx('${id}')"><b>${esc(S.ex[id].name)}</b><span>${S.ex[id].variants.map(v=>esc(equipOf(v.eq).name)+' '+(equipOf(v.eq).kind==='body'?'':fmtW(v.weight)+'kg')).join(' / ')}</span></button>`).join('');});
+  if(!any) html+='<div class="empty">全部動作已經加咗，撳右上角＋新增</div>';
+  return html;
+}
+function pickEx(id){(S.schedule[V.tab]=S.schedule[V.tab]||{main:[],extras:[]})[V.key].push(id);touchSched();save();toast('已加入');go('edit',{tab:V.tab});}
+
+/* 動作表單 */
+function renderExForm(){
+  const isNew=!V.id||!S.ex[V.id];
+  const e=isNew?{name:'',en:'',cat:'other',sets:4,reps:12,rest:60,perSide:false,variants:[{eq:'cable',weight:10}],ask:false,defaultEq:'cable',notes:''}:S.ex[V.id];
+  const v2=e.variants[1]||{eq:'',weight:''};
+  const eqOpts=sel=>Object.values(S.equip).map(q=>`<option value="${q.id}" ${q.id===sel?'selected':''}>${esc(q.name)}（${KINDS[q.kind]}）</option>`).join('');
+  const days=isNew?[]:DAY_ORDER.filter(k=>S.schedule[k]&&S.schedule[k].main.includes(V.id));
+  const hasStack=e.variants.some(v=>equipOf(v.eq).kind==='stack');
+  return `<div class="topbar"><button class="icon-btn" onclick="formBack()">${ICON.close}</button><div class="title">${isNew?'新增動作':'編輯動作'}</div>${SPACER}</div>
+   <div class="card">
+    <div class="field"><label class="label">名稱</label><input id="f_name" value="${esc(e.name)}" placeholder="例如：器械下拉"></div>
+    <div class="field"><label class="label">英文名（可留空）</label><input id="f_en" value="${esc(e.en||'')}"></div>
+    <div class="field"><label class="label">部位分類</label><select id="f_cat">${Object.keys(CATS).map(k=>`<option value="${k}" ${k===e.cat?'selected':''}>${CATS[k]}</option>`).join('')}</select></div>
+    <div class="three"><div><label class="label">組數</label><input id="f_sets" type="number" inputmode="numeric" value="${e.sets}"></div><div><label class="label">次數</label><input id="f_reps" type="number" inputmode="numeric" value="${e.reps}"></div><div><label class="label">休息 (秒)</label><input id="f_rest" type="number" inputmode="numeric" value="${e.rest}"></div></div>
+    <div class="sub small mt">參考：一般 60s、複合動作（下拉／划船／臥推／深蹲）120s、腹部 30s</div>
+   </div>
+   <div class="card">
+    <label class="label" style="margin-top:0">器材 1 及目前重量</label>
+    <div class="two"><select id="f_eq1" onchange="exFormEqHint()">${eqOpts(e.variants[0].eq)}</select><input id="f_w1" type="number" inputmode="decimal" step="0.5" value="${e.variants[0].weight}"></div>
+    <label class="label">器材 2（可留空，例如啞鈴／槓鈴兩種做法）</label>
+    <div class="two"><select id="f_eq2" onchange="exFormEqHint()"><option value="">— 無 —</option>${eqOpts(v2.eq)}</select><input id="f_w2" type="number" inputmode="decimal" step="0.5" value="${v2.weight}"></div>
+    <div class="help mt" id="eqHint"></div>
+    <div class="toggle mt" id="perSideRow" style="${hasStack?'':'display:none'}"><div><b>繩索兩邊配重 ×2</b><div class="sub small">龍門架兩邊配重合埋一齊用（例如下拉 30 ×2 = 60kg）</div></div><button class="switch ${e.perSide?'on':''}" id="f_perSide" onclick="this.classList.toggle('on')"></button></div>
+    <div class="toggle"><div><b>每次開始前問用邊種器材</b><div class="sub small">關閉就用下面嘅預設器材</div></div><button class="switch ${e.ask&&e.defaultEq==null?'on':''}" id="f_ask" onclick="this.classList.toggle('on')"></button></div>
+    <div class="field"><label class="label">預設器材</label><select id="f_def">${eqOpts(e.defaultEq||e.variants[0].eq)}</select></div>
+    <div class="sub small">冇你想要嘅器材？去「編輯 → 器材」新增。</div>
+   </div>
+   <div class="card"><label class="label" style="margin-top:0">動作指引／注意事項</label><textarea id="f_notes">${esc(e.notes||'')}</textarea></div>
+   ${!isNew?`<div class="sub small" style="margin:0 4px 12px">目前喺：${days.length?days.map(k=>'星期'+DAYS[k]).join('、'):'（未排入課表）'} — 排課去「編輯」嘅日子分頁。</div>`:''}
+   <div class="bottom"><button class="primary" onclick="saveForm()">儲存</button></div>
+`;
+}
+function exFormEqHint(){
+  const h=$('#eqHint'); if(!h) return;
+  const ids=[$('#f_eq1').value,$('#f_eq2').value].filter(Boolean);
+  h.innerHTML=ids.map(id=>{const q=equipOf(id);let t='';
+    if(q.kind==='plates') t=q.perSide?`填<b>每邊</b>配重片重量（總重 = ${fmtW(q.base||0)}kg + 兩邊）`:`填配重片總重`;
+    else if(q.kind==='notch') t=`填檔位重量${q.perHand?'（每隻手）':''}`;
+    else if(q.kind==='stack') t=`填配重塊數字（${fmtW(q.min)}–${fmtW(q.max)}${(q.addons||[]).length?'，加重片可以 +'+q.addons.map(a=>fmtW(a.w)).join('/'):''}）`;
+    else t='徒手，唔使填重量';
+    return `<b>${esc(q.name)}</b>：${t}`;}).join('<br>');
+  const ps=$('#perSideRow'); if(ps) ps.style.display=ids.some(id=>equipOf(id).kind==='stack')?'':'none';
+}
+function formBack(){ if(V.from==='workout') go('workout'); else if(V.from==='pick') go('pick',{tab:V.tab,key:V.key}); else go('edit',{tab:V.tab}); }
+function saveForm(){
+  const name=$('#f_name').value.trim(); if(!name){toast('請輸入名稱');return;}
+  const id=V.id&&S.ex[V.id]?V.id:('ex_'+uid());
+  const variants=[{eq:$('#f_eq1').value,weight:num($('#f_w1').value)||0}];
+  const eq2=$('#f_eq2').value; if(eq2&&eq2!==variants[0].eq) variants.push({eq:eq2,weight:num($('#f_w2').value)||0});
+  variants.forEach(v=>{v.weight=nearest(achievable(equipOf(v.eq)),v.weight,0);});
+  const ask=$('#f_ask').classList.contains('on')&&variants.length>1;
+  let def=$('#f_def').value; if(!variants.some(v=>v.eq===def)) def=variants[0].eq;
+  S.ex[id]=Object.assign(S.ex[id]||{id},{id,name,en:$('#f_en').value.trim(),cat:$('#f_cat').value,sets:Math.min(20,Math.max(1,parseInt($('#f_sets').value)||4)),reps:Math.min(200,Math.max(1,parseInt($('#f_reps').value)||12)),rest:Math.min(900,Math.max(0,isNaN(parseInt($('#f_rest').value))?60:parseInt($('#f_rest').value))),
+    perSide:$('#f_perSide').classList.contains('on'),variants,ask,defaultEq:ask?null:def,notes:$('#f_notes').value,mt:Date.now()});
+  delete S.deleted['ex:'+id];
+  if(V.from==='pick'){(S.schedule[V.tab]=S.schedule[V.tab]||{main:[],extras:[]})[V.key].push(id);touchSched();save();toast('已新增並加入');go('edit',{tab:V.tab});return;}
+  save();
+  if(V.from==='workout'&&W&&W.step&&W.step.ex===id){ if(!W.step.eq||!variants.some(v=>v.eq===W.step.eq)){W.step.eq=null;} else W.step.weight=nearest(achievable(equipOf(W.step.eq)),W.step.weight,0); saveSession(); }
+  toast('已儲存'); formBack();
+}
+
+/* 器材表單 */
+function renderEqForm(){
+  const isNew=!V.id||!S.equip[V.id];
+  const DEF={name:'',kind:'stack',min:5,max:70,step:5,addons:[{w:2.5,name:'快拆片'}],base:10,perSide:true,plates:[{w:20,n:2},{w:10,n:2},{w:5,n:2},{w:2.5,n:4}],notches:[],perHand:true};
+  const q=isNew?Object.assign({},DEF,{kind:V.kind||'stack'}):Object.assign({},DEF,S.equip[V.id]);
+  const kind=V.kind||q.kind;
+  let fields='';
+  if(kind==='notch') fields=`<div class="field"><label class="label">所有檔位（用逗號分開，kg）</label><textarea id="q_notches" style="min-height:60px">${(q.notches||[]).join(', ')}</textarea></div>
+    <div class="toggle"><div><b>顯示「每隻手」</b><div class="sub small">啞鈴一對嘅話開啟</div></div><button class="switch ${q.perHand?'on':''}" id="q_perHand" onclick="this.classList.toggle('on')"></button></div>`;
+  else if(kind==='stack') fields=`<div class="three"><div><label class="label">最低 kg</label><input id="q_min" type="number" inputmode="decimal" value="${q.min}"></div><div><label class="label">最高 kg</label><input id="q_max" type="number" inputmode="decimal" value="${q.max}"></div><div><label class="label">每格 kg</label><input id="q_step" type="number" inputmode="decimal" value="${q.step}"></div></div>
+    <div class="field"><label class="label">加重片（可以掛喺配重塊上面嘅，每種一個，逗號分開；留空代表冇）</label><input id="q_addons" value="${(q.addons||[]).map(a=>fmtW(a.w)).join(', ')}" placeholder="例如 2.5, 1.25"></div>
+    <div class="sub small">建議加重：一檔 = 每格（${fmtW(q.step)}kg），微加 = 加重片。</div>`;
+  else if(kind==='plates') fields=`<div class="two"><div><label class="label">基本重量 kg（槓本身，冇就 0）</label><input id="q_base" type="number" inputmode="decimal" value="${q.base||0}"></div><div><label class="label">　</label><div class="toggle" style="padding:6px 0;border:0"><b class="small">每邊各放</b><button class="switch ${q.perSide?'on':''}" id="q_perSide" onclick="this.classList.toggle('on')"></button></div></div></div>
+    <div class="field"><label class="label">你有嘅配重片：重量×數量，逗號分開（總數，唔係每邊）</label><input id="q_plates" value="${(q.plates||[]).map(p=>fmtW(p.w)+'x'+p.n).join(', ')}" placeholder="例如 20x2, 10x2, 5x2, 2.5x4"></div>
+    <div class="sub small">建議加重：一檔 = 最細嗰塊片${q.perSide?'（每邊，總重 ×2）':''}。買多咗片喺度加就得。</div>`;
+  else fields=`<div class="sub small">徒手動作只記錄難度。</div>`;
+  return `<div class="topbar"><button class="icon-btn" onclick="go('edit',{tab:'equip'})">${ICON.close}</button><div class="title">${isNew?'新增器材':'編輯器材'}</div>${SPACER}</div>
+   <div class="card"><div class="field"><label class="label">名稱</label><input id="q_name" value="${esc(q.name)}" placeholder="例如：壺鈴"></div>
+    <label class="label">類型</label><div class="seg">${Object.keys(KINDS).map(k=>`<button class="${kind===k?'on':''}" onclick="V.kind='${k}';V._keepName=document.getElementById('q_name').value;render()">${KINDS[k]}</button>`).join('')}</div>
+    <div class="help" style="margin:4px 2px 8px">${KIND_HELP[kind]}</div>${fields}</div>
+   <div class="bottom"><button class="primary" onclick="saveEquip()">儲存</button></div>
+`;
+}
+const parseNums=s=>String(s||'').split(/[,，、\s]+/).map(x=>parseFloat(x)).filter(x=>!isNaN(x)&&x>0);
+function saveEquip(){
+  const name=$('#q_name').value.trim(); if(!name){toast('請輸入名稱');return;}
+  const kind=V.kind||(S.equip[V.id]||{}).kind||'stack';
+  const id=V.id&&S.equip[V.id]?V.id:('eq_'+uid());
+  const q={id,name,kind,mt:Date.now()};
+  if(kind==='notch'){q.notches=[...new Set(parseNums($('#q_notches').value))].sort((a,b)=>a-b);q.perHand=$('#q_perHand').classList.contains('on');if(!q.notches.length){toast('請輸入檔位');return;}}
+  else if(kind==='stack'){q.min=num($('#q_min').value)||0;q.max=num($('#q_max').value)||q.min;q.step=num($('#q_step').value)||5;const oldAdd=((S.equip[id]||{}).addons)||[]; q.addons=parseNums($('#q_addons').value).map(w=>({w,name:(oldAdd.find(a=>Math.abs(a.w-w)<1e-9)||{}).name||'加重片'}));if(q.max<q.min){toast('最高要大過最低');return;}if(q.step<0.25){toast('每格最少 0.25kg');return;}if(q.addons.some(a=>a.w>=q.step-1e-9)){toast('加重片要細過每格（'+fmtW(q.step)+'kg）');return;}if((q.max-q.min)/q.step>400){toast('格數太多，請檢查最低／最高／每格');return;}}
+  else if(kind==='plates'){q.base=num($('#q_base').value)||0;q.perSide=$('#q_perSide').classList.contains('on');
+    q.plates=String($('#q_plates').value).split(/[,，]+/).map(s=>{const m=s.trim().match(/^([\d.]+)\s*[x×*]\s*(\d+)$/i);return m?{w:parseFloat(m[1]),n:parseInt(m[2])}:null;}).filter(p=>p&&p.w>0&&p.n>0).sort((a,b)=>b.w-a.w);
+    if(!q.plates.length){toast('請輸入配重片，例如 20x2, 10x2');return;}}
+  S.equip[id]=q; delete S.deleted['eq:'+id]; V.kind=null; V._keepName=null;
+  Object.values(S.ex).forEach(e=>e.variants.forEach(v=>{if(v.eq===id)v.weight=nearest(achievable(q),v.weight,0);}));
+  save(); toast('已儲存'); go('edit',{tab:'equip'});
+}
+
+/* ---------- 備份 ---------- */
+async function exportData(){
+  const name='gymlog-'+todayStr()+'.json', txt=JSON.stringify(S,null,1);
+  try{ const f=new File([txt],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){ await navigator.share({files:[f],title:'Gym Log 備份'}); return; } }
+  catch(e){ if(e&&e.name==='AbortError') return; }
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove();
+}
+function importData(inp){
+  const f=inp.files[0]; if(!f) return; const r=new FileReader();
+  r.onload=async()=>{try{let d=JSON.parse(r.result);if(!d.ex||!d.logs)throw 0;
+    if(await ask('匯入備份？會取代呢部機嘅資料'+(SY.token?'（有開同步：會同雲端資料合併）':'')+'。','匯入')){
+      const now=Date.now(); d=migrate(d); d.schedAt=now;
+      Object.values(d.ex).forEach(e=>{e.mt=now;delete d.deleted['ex:'+e.id];}); Object.values(d.equip).forEach(e=>{e.mt=now;delete d.deleted['eq:'+e.id];});
+      d.logs.forEach(l=>{l.mt=now;delete d.deleted[l.id];}); Object.values(d.schedule).forEach(s=>s.at=now);
+      S=d;save();toast('已匯入');render();}}
+    catch(e){toast('檔案格式唔正確');}};
+  r.readAsText(f); inp.value='';
+}
+async function resetAll(){
+  if(!(await ask('確定重設？呢部機所有紀錄會清除。（有開同步嘅話，先「中斷同步」再重設，否則會由雲端同步返落嚟）','重設'))) return;
+  S=defaultData(); saveLocal(); W=null; saveSession(); toast('已重設'); go('home');
+}
+
+/* ====================== 同步（GitHub Gist，iPhone ↔ iPad） ====================== */
+const GH='https://api.github.com', GFILE='gymlog.json', GDESC='Gym Log data';
+let SY=loadJSON(LS_SYNC)||{}, syncing=false, syncPending=false, syncTimer=null, syncStatus='';
+function saveSY(){try{localStorage.setItem(LS_SYNC,JSON.stringify(SY));}catch(e){}}
+function setSyncStatus(t){syncStatus=t;document.querySelectorAll('#syncLine,#syncLine2').forEach(e=>e.textContent=t);}
+function scheduleSync(){ if(!SY.token) return; clearTimeout(syncTimer); syncTimer=setTimeout(()=>syncNow(false),2000); setSyncStatus('有更改未同步…'); }
+function ghH(){return {'Authorization':'Bearer '+SY.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'};}
+async function ghJSON(url,opt){
+  const r=await fetch(url,Object.assign({headers:ghH(),cache:'no-store'},opt||{}));
+  if(r.status===401) throw new Error('Token 無效或者過期');
+  if(r.status===404) return null;
+  if(!r.ok) throw new Error('GitHub '+r.status);
+  return r.json();
+}
+async function ghFindGist(){
+  for(let p=1;p<=5;p++){const arr=await ghJSON(`${GH}/gists?per_page=100&page=${p}`); if(!arr) break;
+    const g=arr.find(g=>g.files&&g.files[GFILE]); if(g) return g.id; if(arr.length<100) break;}
+  return null;
+}
+async function ghRead(id){
+  const g=await ghJSON(`${GH}/gists/${id}`); if(!g) return {missing:true};
+  const f=g.files&&g.files[GFILE]; if(!f) return {data:null};
+  let c=f.content; if(f.truncated){c=await (await fetch(f.raw_url,{cache:'no-store'})).text();}
+  return {data:JSON.parse(c)};
+}
+async function ghWrite(id,data){
+  const files={[GFILE]:{content:JSON.stringify(data)}};
+  if(id){ await ghJSON(`${GH}/gists/${id}`,{method:'PATCH',body:JSON.stringify({files})}); return id; }
+  const g=await ghJSON(`${GH}/gists`,{method:'POST',body:JSON.stringify({description:GDESC,public:false,files})}); return g.id;
+}
+function mergeData(a,b){ // a = 呢部機, b = 雲端；同一時間（例如兩部機都係預設資料）以雲端為準
+  a=migrate(JSON.parse(JSON.stringify(a))); b=migrate(JSON.parse(JSON.stringify(Object.assign({ex:{},logs:[],schedule:{}},b))));
+  const del={}; [a.deleted||{},b.deleted||{}].forEach(m=>Object.keys(m).forEach(k=>{del[k]=Math.max(del[k]||0,m[k]);}));
+  const dead=(key,mt)=>del[key]!=null&&del[key]>=(mt||0);
+  const pick=(o,n)=>!o||(n.mt||0)>(o.mt||0)?n:o;
+  const byMt=(key,pre)=>{const out={};[b,a].forEach(src=>Object.values(src[key]||{}).forEach(e=>{if(!dead(pre+e.id,e.mt))out[e.id]=pick(out[e.id],e);}));return out;};
+  const ex=byMt('ex','ex:'), equip=byMt('equip','eq:');
+  // 有動作仲用緊嘅器材唔好刪
+  Object.values(ex).forEach(e=>e.variants.forEach(v=>{if(!equip[v.eq]){const src=(a.equip||{})[v.eq]||(b.equip||{})[v.eq];if(src){equip[v.eq]=src;delete del['eq:'+v.eq];}}}));
+  const logs={}; [b.logs,a.logs].forEach(arr=>arr.forEach(l=>{if(!dead(l.id,l.mt))logs[l.id]=pick(logs[l.id],l);}));
+  const schedule={};
+  new Set(Object.keys(a.schedule||{}).concat(Object.keys(b.schedule||{}))).forEach(k=>{
+    const sa=(a.schedule||{})[k], sb=(b.schedule||{})[k];
+    const s=!sb?sa:!sa?sb:((sa.at||0)>(sb.at||0)?sa:sb);
+    schedule[k]={main:s.main.filter(id=>ex[id]),extras:s.extras.filter(id=>ex[id]),at:s.at||0};
+  });
+  const sortObj=o=>{const s={};Object.keys(o).sort().forEach(k=>s[k]=o[k]);return s;};
+  return {v:3,ex:sortObj(ex),equip:sortObj(equip),schedule:sortObj(schedule),schedAt:Math.max(a.schedAt||0,b.schedAt||0),logs:Object.values(logs).sort((x,y)=>x.ts-y.ts||(x.id<y.id?-1:1)),deleted:sortObj(del)};
+}
+async function syncNow(manual){
+  if(!SY.token) return;
+  if(syncing){syncPending=true;return;}
+  syncing=true; setSyncStatus('同步中…');
+  try{
+    if(!SY.gistId){SY.gistId=await ghFindGist();saveSY();}
+    let remote=null;
+    if(SY.gistId){const r=await ghRead(SY.gistId); if(r.missing){SY.gistId=null;} else remote=r.data;}
+    const before=JSON.stringify(S);
+    const merged=remote?mergeData(S,remote):mergeData(S,{});
+    const out=JSON.stringify(merged);
+    S=merged; saveLocal();
+    if(!remote||out!==JSON.stringify(remote)){SY.gistId=await ghWrite(SY.gistId,merged);}
+    SY.last=Date.now(); saveSY();
+    const t=new Date(); setSyncStatus('已同步 '+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0'));
+    if(manual) toast('同步完成 ✓');
+    if(out!==before&&!$('#modal').classList.contains('show')&&!['exform','eqform'].includes(V.view)) render();
+  }catch(e){ setSyncStatus('同步失敗：'+e.message); if(manual) toast('同步失敗：'+e.message); }
+  finally{ syncing=false; if(syncPending){syncPending=false;syncNow(false);} }
+}
+function renderPrefsCard(){
+  const sup=!!navigator.wakeLock;
+  const opts=[[5,'5 分鐘'],[10,'10 分鐘'],[20,'20 分鐘'],[30,'30 分鐘'],[0,'永不（訓練完先熄）']];
+  return `<h2>螢幕（只影響呢部機）</h2><div class="card">
+    <div class="toggle"><div><b>訓練時保持螢幕開住</b><div class="sub small">${sup?'只喺訓練畫面生效；完成或者放棄訓練就會熄':'呢部機嘅系統唔支援（要 iOS 16.4 或以上）'}</div></div><button class="switch ${P.wake?'on':''}" onclick="P.wake=!P.wake;savePrefs();keepAwake(wakeWanted());render()"></button></div>
+    ${P.wake?`<div class="field" style="margin-top:10px"><label class="label" style="margin-top:0">幾耐冇撳螢幕就自動熄</label><select onchange="P.wakeIdle=+this.value;savePrefs();keepAwake(wakeWanted())">${opts.map(([v,t])=>`<option value="${v}" ${P.wakeIdle===v?'selected':''}>${t}</option>`).join('')}</select>
+    <div class="sub small mt">例如揀 10 分鐘：休息時唔會熄，但係你放低部機超過 10 分鐘冇掂，螢幕就會照平時咁熄；再撳一下又會保持開住。</div></div>`:''}
+    <div class="sub small mt">而家：${wakeLock?'<span style="color:var(--green)">保持開住中</span>':'正常（會自動熄）'}</div></div>`;
+}
+function renderSyncCard(){
+  if(!SY.token) return `<h2>iPhone ↔ iPad 同步</h2><div class="card">
+    <div class="help">用你嘅 GitHub 帳戶將紀錄存喺一個<b>私人 Gist</b>，每部機都會自動同步。每部機只需要做一次：
+    <ol><li>去 <b>github.com/settings/tokens</b> → Generate new token → <b>classic</b></li>
+    <li>Expiration 揀 No expiration，只剔 <code>gist</code></li>
+    <li>複製個 token（ghp_ 開頭）貼喺下面</li></ol>
+    iPad 用同一個 token 就會自動搵到同一份資料。</div>
+    <input id="tokenIn" type="password" placeholder="ghp_xxxxxxxx" class="mt" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button class="primary blue mt" onclick="connectSync()">連接同步</button></div>`;
+  return `<h2>iPhone ↔ iPad 同步</h2><div class="card">
+    <div class="row between"><div><b>已連接 GitHub</b><div class="sub small" id="syncLine2">${esc(syncStatus||'')}</div></div><span class="badge green">開啟</span></div>
+    <div class="row mt"><button class="secondary" onclick="syncNow(true)">立即同步</button><button class="secondary" onclick="disconnectSync()"><span class="danger">中斷同步</span></button></div>
+    <div class="help mt">每次改動後約 2 秒自動上載；開返 app 時會自動下載。</div></div>`;
+}
+async function connectSync(){ const t=($('#tokenIn').value||'').trim(); if(!t){toast('請貼上 token');return;} SY={token:t}; saveSY(); render(); await syncNow(true); render(); }
+async function disconnectSync(){ if(!(await ask('喺呢部機中斷同步？資料會保留喺呢部機同 GitHub，之後可以再連接。','中斷'))) return; SY={}; saveSY(); setSyncStatus(''); render(); }
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ syncNow(false); wakeLock=null; lastTouch=Date.now(); keepAwake(wakeWanted()); } });
+/* 訓練中保持螢幕唔熄（iOS 16.4+） */
+let wakeLock=null, wakeWant=false, wakeReq=null, lastTouch=Date.now();
+function wakeWanted(){ if(!P.wake||!W||!(V.view==='workout'||V.view==='extras')) return false;
+  if(P.wakeIdle>0&&Date.now()-lastTouch>P.wakeIdle*60000) return false; return true; }
+document.addEventListener('pointerdown',()=>{ const was=wakeWanted(); lastTouch=Date.now(); if(!was&&wakeWanted()) keepAwake(true); },{passive:true});
+setInterval(()=>{ if(wakeLock&&!wakeWanted()) keepAwake(false); },15000);
+async function keepAwake(on){
+  wakeWant=on;
+  try{
+    if(on){
+      if(wakeLock||wakeReq||!navigator.wakeLock||document.visibilityState!=='visible') return;
+      wakeReq=navigator.wakeLock.request('screen');
+      const l=await wakeReq; wakeReq=null; wakeLock=l;
+      l.addEventListener('release',()=>{ if(wakeLock===l) wakeLock=null; });
+      if(!wakeWant){ wakeLock=null; await l.release(); }
+    } else if(wakeLock){ const l=wakeLock; wakeLock=null; await l.release(); }
+  }catch(e){ wakeReq=null; }
+}
+try{ navigator.storage&&navigator.storage.persist&&navigator.storage.persist(); }catch(e){}
+let _rz=null; window.addEventListener('resize',()=>{clearTimeout(_rz);_rz=setTimeout(()=>{if(V.view==='progress'&&V.exId&&!drag)render();},200);});
+/* 離線：喺 gym 冇網都開到 */
+if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+window.addEventListener('online',()=>syncNow(false));
+
+render();
+syncNow(false);
+</script>
+</body>
+</html>
