@@ -16,7 +16,7 @@
 :root{
   --bg:#000;--card:#161618;--card2:#232326;--line:#2c2c30;
   --text:#f5f5f7;--muted:#8e8e93;
-  --green:#30d158;--red:#ff453a;--blue:#0a84ff;--purple:#bf5af2;--orange:#ff9f0a;
+  --green:#30d158;--red:#ff453a;--blue:#0a84ff;--purple:#bf5af2;--orange:#ff9f0a;--yellow:#ffd60a;
   --safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -56,9 +56,13 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
 .secondary:disabled{opacity:.4}
 .danger{color:var(--red)}
 .bottom{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(var(--safe-bottom) + 12px);background:linear-gradient(to top,var(--bg) 70%,transparent);max-width:560px;margin:0 auto;z-index:5}
-.bottom .row{gap:10px}
+.bottom .row{gap:8px}
 .row>.primary,.row>.secondary{flex:1;width:auto}
-.skip{flex:0 0 auto;padding:16px 18px;border-radius:16px;background:var(--card2);font-weight:700;font-size:16px;color:var(--muted)}
+.skip{flex:0 0 auto;padding:16px 13px;border-radius:16px;background:var(--card2);font-weight:700;font-size:15px;color:var(--muted);white-space:nowrap}
+.skip:disabled{opacity:.3}
+.bottom .primary{font-size:17px;padding:16px 8px;white-space:nowrap}
+.primary.off{background:var(--card2);color:var(--muted)}
+.primary .cnt{font-size:13px;font-weight:600;margin-left:6px;opacity:.8}
 .small{font-size:13px}
 .center{text-align:center}
 .mt{margin-top:12px}.mb{margin-bottom:12px}
@@ -104,12 +108,41 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
 .rpe-desc .code{font-size:12px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--card2);color:var(--muted);margin-left:6px;vertical-align:3px}
 .rpe-desc .d{color:var(--muted);font-size:14px;margin-top:4px;line-height:1.45}
 .rpe-desc .next{font-size:14px;font-weight:700;margin-top:6px}
-.sets{display:flex;gap:10px;justify-content:center;margin:10px 0}
-.sets button{width:38px;height:38px;border-radius:50%;background:var(--card2);font-weight:700;color:var(--muted);font-size:15px;text-align:center}
+/* 組數：黃圈 = 等緊做、綠圈 = 做緊、綠底 = 做完 */
+.sets{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:18px 0 8px}
+.sets button{position:relative;width:42px;height:42px;border-radius:50%;background:var(--card2);font-weight:800;color:var(--muted);font-size:16px;text-align:center;transition:background .3s,color .3s}
+.sets button::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:3px solid transparent;opacity:0;pointer-events:none}
+.sets button.wait{color:var(--yellow)}
+.sets button.wait::before{opacity:1;border-color:var(--yellow) transparent rgba(255,214,10,.22) var(--yellow);animation:spin 1.6s linear infinite}
+.sets button.wait.soon::before{animation-duration:.6s;box-shadow:0 0 14px rgba(255,214,10,.55)}
+.sets button.doing{color:var(--green)}
+.sets button.doing::before{opacity:1;border-color:var(--green) transparent rgba(48,209,88,.22) var(--green);animation:spin .9s linear infinite;box-shadow:0 0 14px rgba(48,209,88,.45)}
 .sets button.done{background:var(--green);color:#000}
-.timer{font-size:48px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.sets button.justdone{animation:fillIn .6s cubic-bezier(.3,1.5,.5,1)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fillIn{0%{background:transparent;color:var(--green);box-shadow:0 0 0 7px var(--green);transform:scale(1.2)}55%{transform:scale(.86)}100%{background:var(--green);box-shadow:0 0 0 0 rgba(48,209,88,0);transform:scale(1)}}
+.timer{font-size:48px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:1px;min-height:58px;line-height:58px}
+.timer.ready{color:var(--yellow);font-size:38px}
+.timer.doing{color:var(--green)}
 .timer.warn{color:var(--orange)}
 .timer.done{color:var(--green)}
+.timer.go{color:var(--green);animation:goPop .42s cubic-bezier(.3,1.7,.5,1)}
+@keyframes goPop{0%{transform:scale(.5);opacity:.2}100%{transform:scale(1);opacity:1}}
+.tcap{text-align:center;color:var(--muted);font-size:14px;font-weight:600;min-height:20px}
+.tcap.hot{color:var(--orange)}
+.restbar{height:4px;border-radius:2px;background:var(--card2);overflow:hidden;margin:10px 18% 0;opacity:0;transition:opacity .2s}
+.restbar.on{opacity:1}
+.restbar i{display:block;height:100%;width:0;background:var(--yellow);transition:width .25s linear}
+.setbtn{display:flex;align-items:center;justify-content:center;width:100%;padding:15px 10px;border-radius:14px;font-weight:800;font-size:16px;margin-top:14px;text-align:center}
+.setbtn.go{background:var(--yellow);color:#000}
+.setbtn.go.early{background:rgba(255,214,10,.13);color:var(--yellow)}
+.setbtn.fin{background:var(--green);color:#000}
+.tctl{display:flex;gap:8px;margin-top:8px}
+.tctl button{flex:1;padding:11px 0;border-radius:12px;background:var(--card2);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:5px}
+.tctl svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.flyring{position:fixed;z-index:60;border-radius:50%;border:4px solid var(--green);box-shadow:0 0 22px rgba(48,209,88,.75),inset 0 0 14px rgba(48,209,88,.45);pointer-events:none;will-change:transform}
+.card.pulse{animation:pulse 1.1s ease 2}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,214,10,0)}40%{box-shadow:0 0 0 3px rgba(255,214,10,.85)}}
 .last{text-align:right}
 .last .n{font-size:26px;font-weight:800;line-height:1}
 .last .n small{font-size:13px;color:var(--muted);font-weight:600}
@@ -160,6 +193,8 @@ svg.chart{width:100%;height:auto;display:block}
 code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
 @keyframes flash{0%{box-shadow:inset 0 0 0 0 rgba(48,209,88,0)}30%{box-shadow:inset 0 0 0 9999px rgba(48,209,88,.28)}100%{box-shadow:inset 0 0 0 0 rgba(48,209,88,0)}}
 body.flash{animation:flash .9s ease 2}
+@keyframes flash2{0%{box-shadow:inset 0 0 0 0 rgba(255,159,10,0)}30%{box-shadow:inset 0 0 0 9999px rgba(255,159,10,.2)}100%{box-shadow:inset 0 0 0 0 rgba(255,159,10,0)}}
+body.flash2{animation:flash2 .7s ease 1}
 .pr{color:#ffd60a}
 /* iPad／打橫：兩欄 */
 @media (min-width:800px){
@@ -171,6 +206,57 @@ body.flash{animation:flash .9s ease 2}
   .rpe-bar button{height:54px}
 }
 .kind-tag{font-size:11px;padding:2px 7px;border-radius:6px;background:var(--card2);color:var(--muted)}
+/* 提醒 */
+.memo{border:1px solid rgba(255,214,10,.35);background:rgba(255,214,10,.07)}
+.memo .notes{color:var(--text)}
+.warnc{border:1px solid rgba(255,159,10,.4);background:rgba(255,159,10,.08)}
+.warn-tag{display:inline-block;margin-top:5px;font-size:12px;font-weight:700;color:var(--orange)}
+.choice.clash{box-shadow:inset 0 0 0 1px rgba(255,159,10,.45)}
+/* 本週 */
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;margin:10px 0 2px}
+.wkd{display:flex;flex-direction:column;align-items:center;gap:5px}
+.wkd .lb{font-size:12px;color:var(--muted);font-weight:700}
+.wkd.istoday .lb{color:var(--text)}
+.chip{position:relative;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;background:var(--card2);color:var(--muted)}
+.chip.done{background:var(--green);color:#000}
+.chip.made{background:linear-gradient(135deg,var(--green),#64d2ff);color:#000}
+.chip.miss{background:transparent;border:2px dashed rgba(255,69,58,.65);color:var(--red);font-size:13px}
+.chip.today{background:transparent;border:2px solid var(--yellow);color:var(--yellow);font-size:13px;animation:breathe 2s ease-in-out infinite}
+.chip.todo{background:transparent;border:2px solid var(--line)}
+.chip.rest{width:7px;height:7px;margin:13.5px 0;background:var(--line)}
+.chip.extra{width:12px;height:12px;margin:11px 0;background:var(--green)}
+.chip.pop{animation:chipPop .7s 1.15s cubic-bezier(.3,1.7,.5,1) both}
+.chip.pop::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:3px solid var(--green);animation:ringOut .9s 1.3s ease-out both}
+.wkd .sb{font-size:10px;color:var(--muted);min-height:13px;white-space:nowrap;font-weight:600}
+@keyframes breathe{50%{box-shadow:0 0 0 4px rgba(255,214,10,.18)}}
+@keyframes chipPop{0%{transform:scale(0)}100%{transform:scale(1)}}
+@keyframes ringOut{0%{transform:scale(1);opacity:1}100%{transform:scale(2.2);opacity:0}}
+.wkmsg{font-size:14px;font-weight:600;margin-top:8px;line-height:1.45}
+.pill.makeup{background:rgba(100,210,255,.15);color:#64d2ff}
+/* 完成畫面 */
+.donecheck{width:116px;height:116px;margin:22px auto 6px;display:block}
+.donecheck .bg{fill:rgba(48,209,88,.14);transform-origin:60px 60px;animation:popIn .55s .45s cubic-bezier(.3,1.7,.5,1) both}
+.donecheck .ring{fill:none;stroke:var(--green);stroke-width:6;stroke-linecap:round;stroke-dasharray:315;stroke-dashoffset:315;transform:rotate(-90deg);transform-origin:60px 60px;animation:draw .7s ease-out forwards}
+.donecheck path{fill:none;stroke:var(--green);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:80;animation:draw .38s .62s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes popIn{0%{transform:scale(0)}100%{transform:scale(1)}}
+.rise{animation:rise .5s var(--d,0s) cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes rise{0%{transform:translateY(16px);opacity:0}100%{transform:none;opacity:1}}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 10px}
+.stats3>div{background:var(--card);border-radius:16px;padding:12px 4px;text-align:center}
+.stats3 b{display:block;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.stats3 span{font-size:12px;color:var(--muted);font-weight:600}
+.celmsg{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--card2)}
+.celmsg .ct{font-size:18px;font-weight:800}
+.celmsg .cs{font-size:14px;color:var(--muted);margin-top:3px;line-height:1.45}
+.celmsg.week{background:linear-gradient(135deg,rgba(48,209,88,.22),rgba(10,132,255,.22));box-shadow:inset 0 0 0 1px rgba(48,209,88,.5)}
+.celmsg.made{background:linear-gradient(135deg,rgba(100,210,255,.18),rgba(48,209,88,.16))}
+.celmsg.miss .ct span{display:inline-block;animation:flex 1s 1.6s ease-in-out 2}
+@keyframes flex{25%{transform:rotate(-14deg) scale(1.2)}75%{transform:rotate(10deg) scale(1.2)}}
+.confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
+.rocket{position:fixed;left:50%;bottom:-90px;font-size:68px;z-index:72;pointer-events:none;line-height:1}
+.puff{position:fixed;border-radius:50%;pointer-events:none;z-index:71;background:radial-gradient(circle,#fff 0,#ffd60a 40%,rgba(255,159,10,0) 72%)}
+@media (prefers-reduced-motion:reduce){.sets button::before,.chip.today{animation:none!important}}
 </style>
 </head>
 <body>
@@ -179,7 +265,7 @@ body.flash{animation:flash .9s ease 2}
 <div id="toast" class="toast"></div>
 <script>
 /* ====================== 常數 ====================== */
-const APP_VER='v5.2';
+const APP_VER='v6.0';
 const LS_PREFS='gymlog_prefs_v1';
 const LS='gymlog_v2', LS_SESSION='gymlog_session_v2', LS_SYNC='gymlog_sync_v1';
 const DAYS=['日','一','二','三','四','五','六'];
@@ -392,7 +478,7 @@ function migrate(d){
   if(!d.equip) d.equip=defaultEquip();
   Object.values(d.equip).forEach(e=>{if(e.mt==null)e.mt=0;});
   d.deleted=d.deleted||{}; d.schedAt=d.schedAt||0; d.ex=d.ex||{}; d.logs=Array.isArray(d.logs)?d.logs:[]; d.schedule=d.schedule||{};
-  Object.keys(d.schedule).forEach(k=>{const s=d.schedule[k]||{};d.schedule[k]={main:Array.isArray(s.main)?s.main:[],extras:Array.isArray(s.extras)?s.extras:[],at:s.at||0};});
+  Object.keys(d.schedule).forEach(k=>{const s=d.schedule[k]||{};d.schedule[k]={main:Array.isArray(s.main)?s.main:[],extras:Array.isArray(s.extras)?s.extras:[],at:s.at||0,memo:typeof s.memo==='string'?s.memo:''};});
   Object.values(d.ex).forEach(e=>{if(!Array.isArray(e.variants)||!e.variants.length)e.variants=[{eq:'bodyweight',weight:0}];
     e.sets=Math.min(20,Math.max(1,parseInt(e.sets)||4)); e.reps=Math.min(200,Math.max(1,parseInt(e.reps)||12)); e.rest=Math.min(900,Math.max(0,parseInt(e.rest)>=0?parseInt(e.rest):60));});
   if(d.ex.legraise&&!d.ex.calfraise&&!d.deleted['ex:calfraise']){const e=d.ex.legraise;delete d.ex.legraise;e.id='calfraise';e.name='槓鈴站立提踵';e.en='Standing Barbell Calf Raise';e.mt=Date.now();d.ex.calfraise=e;
@@ -430,19 +516,23 @@ function suggest(ex,eqId){
 /* ====================== 狀態 ====================== */
 let S=loadJSON(LS)||defaultData(); S=migrate(S);
 let W=loadJSON(LS_SESSION);
-let P=Object.assign({wake:true,wakeIdle:10},loadJSON(LS_PREFS)||{}); // 每部機各自設定
+let P=Object.assign({wake:true,wakeIdle:10,autoLast:30,prep:true},loadJSON(LS_PREFS)||{}); // 每部機各自設定
+if(W) W.hist=W.hist||[];
 function savePrefs(){try{localStorage.setItem(LS_PREFS,JSON.stringify(P));}catch(e){}}
 let V={view:'home'};
-function go(view,extra){V=Object.assign({view},extra||{});window.scrollTo(0,0);render();}
+function go(view,extra){
+  if(V.view==='summary'&&view!=='summary') document.querySelectorAll('.confetti,.rocket,.puff').forEach(e=>e.remove());
+  V=Object.assign({view},extra||{});window.scrollTo(0,0);render();
+}
 
 /* ====================== 彈出視窗 ====================== */
 let modalResolve=null, LE=null;
 function showModal(html){const m=$('#modal');m.innerHTML=`<div class="sheet" onclick="event.stopPropagation()">${html}</div>`;m.classList.add('show');}
 function closeModal(v){const m=$('#modal');m.classList.remove('show');m.innerHTML='';LE=null;const r=modalResolve;modalResolve=null;if(r)r(!!v);}
-function ask(msg,okText){
+function ask(msg,okText,tone){
   if(modalResolve) closeModal(false);
   return new Promise(res=>{modalResolve=res;
-    showModal(`<div class="mmsg">${esc(msg)}</div><div class="row mt"><button class="secondary" onclick="closeModal(false)">取消</button><button class="primary red" onclick="closeModal(true)">${esc(okText||'確定')}</button></div>`);});
+    showModal(`<div class="mmsg">${esc(msg)}</div><div class="row mt"><button class="secondary" onclick="closeModal(false)">取消</button><button class="primary ${tone==='ok'?'':'red'}" onclick="closeModal(true)">${esc(okText||'確定')}</button></div>`);});
 }
 
 /* ====================== 渲染 ====================== */
@@ -452,6 +542,8 @@ const ICON={
  back:'<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>',
  close:'<svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>',
  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+ rewind:'<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/></svg>',
+ stop:'<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>',
 };
 const SPACER='<div style="width:40px;flex:0 0 auto"></div>';
 function render(){
@@ -461,6 +553,7 @@ function render(){
   if(V.view==='exform') exFormEqHint();
   if(V.view==='eqform'&&V._keepName!=null){const n=$('#q_name');if(n)n.value=V._keepName;}
   tickTimer();
+  if(V.view==='summary'&&V.celebrate){V.celebrate=false;runCelebration();}
 }
 function sugBadge(sg){ if(!sg.tier||!sg.dir) return ''; const cls=sg.dir>0?(sg.u>=1.5?'strong':'green'):'red'; return `<span class="badge ${cls}">${sg.dir>0?sg.tier:(sg.u<=-1?'減重':'微減')} ${sg.dir>0?'↑':'↓'}</span>`; }
 
@@ -476,15 +569,17 @@ function renderHome(){
       <button class="badge green" style="font-size:15px;padding:8px 14px" onclick="resumeSession()">繼續</button></div>
       <button class="small danger mt" style="padding:6px 0" onclick="discardSession()">放棄呢次訓練</button></div>`;
   }
-  const wk=new Date(d); wk.setHours(0,0,0,0); wk.setDate(wk.getDate()-((wk.getDay()+6)%7)); const wks=dstr(wk);
-  const daysThisWeek=new Set(S.logs.filter(l=>!l.seed&&l.date>=wks).map(l=>l.date)).size;
-  html+=`<h1>星期${DAYS[dow]}</h1><div class="sub">${d.getMonth()+1}月${d.getDate()}日${V.dayOverride!=null?' · 改做其他日子嘅課表':''} · 今個星期練咗 <b style="color:var(--text)">${daysThisWeek}</b> 日</div>`;
+  const trainedToday=S.logs.some(l=>!l.seed&&l.date===todayStr());
+  html+=`<h1>星期${DAYS[dow]}</h1><div class="sub">${d.getMonth()+1}月${d.getDate()}日${V.dayOverride!=null?' · 改做其他日子嘅課表':''}${trainedToday?' · <span style="color:var(--green)">今日練咗 ✓</span>':''}</div>`;
+  html+=weekCardHome();
+  const memo=sch&&sch.memo;
+  if(memo) html+=`<div class="card memo"><div class="row between"><b>📌 星期${DAYS[dow]}提醒</b><button class="badge" onclick="openMemo('${dow}')">✎ 改</button></div><div class="notes mt">${esc(memo)}</div></div>`;
   if(!sch||!sch.main.length){
-    html+=`<div class="card mt"><div class="big">😴</div><div class="center"><b>今日係休息日</b><div class="sub mt">想照做？揀一日嘅課表：</div></div>
+    html+=`<div class="card"><div class="big" style="margin-top:14px">😴</div><div class="center"><b>今日係休息日</b><div class="sub mt">想照做？揀一日嘅課表：</div></div>
       <div class="pill-row mt" style="justify-content:center">${DAY_ORDER.filter(k=>S.schedule[k]&&S.schedule[k].main.length).map(k=>`<button class="pill" onclick="V.dayOverride=${k};render()">星期${DAYS[k]}</button>`).join('')}</div></div>`;
     return html;
   }
-  html+=`<div class="card mt">`+sch.main.map((id,i)=>{
+  html+=`<div class="card">`+sch.main.map((id,i)=>{
     const e=S.ex[id]; if(!e) return '';
     const eqId=e.defaultEq||e.variants[0].eq; const sg=suggest(e,eqId); const ls=logsFor(id,eqId);
     return `<div class="ex-item"><div class="mini">${i+1}</div><div class="grow"><div class="ex-name">${esc(e.name)}</div>
@@ -500,23 +595,24 @@ function renderHome(){
 /* ---------- 訓練流程 ---------- */
 async function startSession(dow){
   if(W&&W.queue&&W.queue.length&&!(await ask('有一個未完成嘅訓練，要放棄佢重新開始？（已記錄嘅動作會保留）','重新開始'))) return;
-  timerEnd=0;
-  W={dow,date:todayStr(),start:Date.now(),queue:S.schedule[dow].main.filter(id=>S.ex[id]),idx:0,done:[],step:null,extraMode:false};
-  if(!W.queue.length){toast('呢日未有動作');W=null;return;}
+  W={dow,date:todayStr(),start:Date.now(),queue:S.schedule[dow].main.filter(id=>S.ex[id]),idx:0,done:[],step:null,extraMode:false,hist:[]};
+  clearRest();
+  if(!W.queue.length){toast('呢日未有動作');W=null;saveSession();return;}
   enterExercise(); saveSession(); go('workout');
 }
-function resumeSession(){ if(!W.step) enterExercise(); if(!W.step){go('extras');return;} go('workout'); }
+function resumeSession(){ W.hist=W.hist||[]; if(!W.step) enterExercise(); if(!W.step){go('extras');return;} go('workout'); }
 async function discardSession(){
   if(!(await ask('放棄呢次訓練？已經記錄咗嘅動作會保留。','放棄'))) return;
-  W=null; saveSession(); timerEnd=0; toast('已放棄'); go('home');
+  W=null; clearRest(); saveSession(); toast('已放棄'); go('home');
 }
 function enterExercise(){
+  clearRest();
   while(W.idx<W.queue.length&&!S.ex[W.queue[W.idx]]) W.idx++;
   if(W.idx>=W.queue.length){W.step=null;return;}
   const ex=S.ex[W.queue[W.idx]];
   const needAsk=ex.variants.length>1&&ex.ask&&ex.defaultEq==null;
   const eq=needAsk?null:(ex.defaultEq&&ex.variants.some(v=>v.eq===ex.defaultEq)?ex.defaultEq:ex.variants[0].eq);
-  W.step={ex:ex.id,eq,weight:eq?suggest(ex,eq).w:null,rpe:null,sets:0};
+  W.step={ex:ex.id,eq,weight:eq?suggest(ex,eq).w:null,rpe:null,sets:0,doing:false};
 }
 function chooseEq(eq,remember){
   const ex=S.ex[W.step.ex];
@@ -531,35 +627,223 @@ function adjW(dir){
 }
 function toggleAddon(i){const st=W.step;const eq=equipOf(st.eq);const p=stackParts(eq,st.weight);const a=eq.addons[i].w;setW(p.mask&(1<<i)?st.weight-a:st.weight+a);}
 function adjPlate(w,dir){const st=W.step;const t=r2(st.weight+w*dir);if(achievable(equipOf(st.eq)).some(v=>Math.abs(v-t)<1e-9))setW(t);}
-document.addEventListener('pointerdown',()=>{if(AC&&AC.state!=='running')unlockAudio();},{passive:true});
-function setRpe(r){ W.step.rpe=W.step.rpe===r?null:r; saveSession(); render(); }
-function tapSet(i){
-  const st=W.step; const ex=S.ex[st.ex];
-  if(i<st.sets){ st.sets=i; saveSession(); render(); return; }
-  st.sets=i+1; saveSession(); unlockAudio(); startTimer(ex.rest); render();
-  if(st.sets>=ex.sets) toast('全部組數完成！揀返難度 👇');
+function setRpe(r){
+  const st=W.step; st.rpe=st.rpe===r?null:r; saveSession();
+  const ex=S.ex[st.ex]; const d=$('#rpeDyn'); if(d) d.innerHTML=rpeDynHTML(ex,equipOf(st.eq),st,logsFor(ex.id,st.eq));
+  const bb=$('#bottomBar'); if(bb) bb.innerHTML=workoutBottomInner(); paintTimer();
 }
-function doneSet(){ const st=W.step; const ex=S.ex[st.ex]; if(st.sets<ex.sets) tapSet(st.sets); }
+function setNote(v){ if(W&&W.step){W.step.note=v;saveSession();} }
+
+/* ---- 組數狀態：等緊（黃圈）→ 做緊（綠圈）→ 做完（綠底）→ 休息 → 下一組 ---- */
+const setsComplete=(st,ex)=>!!st&&!!ex&&(st.sets>=ex.sets||!!st.early);
+function fmtRest(s){ s=+s||0; if(s<60) return s+' 秒'; const m=Math.floor(s/60),r=s%60; return r?`${m} 分 ${r} 秒`:`${m} 分鐘`; }
+const fmtClock=s=>{s=Math.max(0,Math.floor(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+function startSetBtn(){ unlockAudio(); beginSet(false); }
+function beginSet(fromRest){
+  const st=W&&W.step, ex=st&&S.ex[st.ex];
+  if(!ex||!st.eq||st.doing||setsComplete(st,ex)||Date.now()<flyUntil) return;
+  const at=fromRest&&timerEnd?Math.min(timerEnd,Date.now()):Date.now();
+  clearRest(); st.doing=true; st.doingStart=at; saveSession();
+  if(fromRest){sound('go');flash('go');} else sound('start');
+  goAnim(st.sets);
+}
+// 「GO!」彈出 → 變成一個綠圈飛去嗰組嘅數字度，再圍住佢轉
+function goAnim(i){
+  const t=$('#timer'), target=$('#set'+i);
+  if(V.view!=='workout'||!t||!target||document.hidden||reduceMotion()){ refreshParts(); return; }
+  flyUntil=Date.now()+1300;
+  t.textContent='GO!'; t.className='timer go';
+  const cap=$('#timerCap'); if(cap){cap.textContent=`第 ${i+1} 組開始！`;cap.className='tcap';}
+  const bar=$('#restBar'); if(bar) bar.classList.remove('on');
+  const sb=$('#setsCard .setbtn'); if(sb){ sb.disabled=true; sb.className='setbtn fin'; sb.style.opacity='.45'; sb.textContent=`第 ${i+1} 組開始 💪`; }
+  const tc=$('#setsCard .tctl'); if(tc) tc.remove();
+  setTimeout(()=>{
+    const tt=$('#timer'), tg=$('#set'+i); if(!tt||!tg){flyUntil=0;refreshParts();return;}
+    const a=tt.getBoundingClientRect(), b=tg.getBoundingClientRect(), s0=74, s1=b.width+12;
+    const ring=document.createElement('div'); ring.className='flyring';
+    Object.assign(ring.style,{left:(a.left+a.width/2-s0/2)+'px',top:(a.top+a.height/2-s0/2)+'px',width:s0+'px',height:s0+'px'});
+    document.body.appendChild(ring); tt.textContent='';
+    const dx=(b.left+b.width/2)-(a.left+a.width/2), dy=(b.top+b.height/2)-(a.top+a.height/2), sc=s1/s0;
+    let fin=false; const end=()=>{if(fin)return;fin=true;ring.remove();flyUntil=0;refreshParts();};
+    try{
+      const an=ring.animate([
+        {transform:'translate(0,0) scale(.55)',opacity:.3},
+        {transform:'translate(0,0) scale(1.06)',opacity:1,offset:.2},
+        {transform:`translate(${dx*.5}px,${dy*.5-48}px) scale(${(1+sc)/2})`,opacity:1,offset:.62},
+        {transform:`translate(${dx}px,${dy}px) scale(${sc})`,opacity:1}],{duration:660,easing:'cubic-bezier(.45,0,.25,1)'});
+      an.onfinish=end; an.oncancel=end;
+    }catch(e){ end(); }
+    setTimeout(end,900);
+  },440);
+}
+function finishSet(auto){
+  const st=W&&W.step, ex=st&&S.ex[st.ex]; if(!ex||st.sets>=ex.sets) return;
+  st.sets++; st.doing=false; justDone=st.sets-1;
+  if(st.sets<ex.sets) startRest(ex.rest); else clearRest();
+  saveSession(); sound('set'); refreshParts(); setTimeout(()=>{justDone=-1;},900);
+  if(st.sets>=ex.sets) allSetsDone(auto?'最後一組已自動當完成 ✓ 揀返難度 👇':'全部組數完成！揀返難度 👇');
+}
+function allSetsDone(msg){ toast(msg); setTimeout(scrollRpe,450); }
+function scrollRpe(){ const r=$('#rpeCard'); if(!r) return; r.scrollIntoView({behavior:'smooth',block:'center'}); r.classList.remove('pulse'); void r.offsetWidth; r.classList.add('pulse'); }
+function tapSet(i){
+  const st=W.step, ex=S.ex[st.ex]; if(!ex||!st.eq||Date.now()<flyUntil) return; unlockAudio();
+  if(i<st.sets){ st.sets=i; st.doing=false; st.early=false; clearRest(); saveSession(); refreshParts(); toast(`已撤回，返到第 ${i+1} 組`); return; }
+  st.sets=i; st.doing=false; finishSet(false);
+}
+async function earlyFinish(){
+  const st=W.step, ex=S.ex[st.ex]; if(!st.eq){toast('請先揀器材');return;}
+  if(!st.sets){toast(`做完 ${ex.sets} 組先可以完成；今日唔做就撳「跳過」`);return;}
+  if(!(await ask(`仲有 ${ex.sets-st.sets} 組未做（做咗 ${st.sets}/${ex.sets} 組）。提早完成呢個動作？`,'提早完成','ok'))) return;
+  if(!W||W.step!==st) return;
+  st.early=true; st.doing=false; clearRest(); saveSession(); refreshParts(); allSetsDone('已提早完成，揀返難度 👇');
+}
+/* 休息計時 */
+function startRest(sec){ sec=+sec||0; if(sec<=0){clearRest();return;} timerTotal=sec; timerEnd=Date.now()+sec*1000; prepDone=sec<=12||!P.prep; if(W){W.timerEnd=timerEnd;W.timerTotal=sec;W.prep=prepDone;saveSession();} }
+function clearRest(){ timerEnd=0; timerTotal=0; prepDone=true; if(W){W.timerEnd=0;W.timerTotal=0;W.prep=true;saveSession();} }
+function addRest(sec){ unlockAudio(); if(!timerEnd) return; const rem=Math.max(0,timerEnd-Date.now()); timerEnd=Date.now()+rem+sec*1000; timerTotal+=sec; if(timerEnd-Date.now()>11000&&P.prep) prepDone=false; if(W){W.timerEnd=timerEnd;W.timerTotal=timerTotal;W.prep=prepDone;saveSession();} paintTimer(); }
+function restartRest(){ unlockAudio(); const ex=W&&W.step&&S.ex[W.step.ex]; if(ex) startRest(ex.rest); refreshParts(); toast('由頭再計'); }
+function zeroRest(){ clearRest(); refreshParts(); toast('已歸零，準備好就開始'); }
+function setsCardHTML(ex,st){
+  const n=Math.min(20,Math.max(1,ex.sets|0)); const done=setsComplete(st,ex);
+  const nums=Array.from({length:n},(_,i)=>{let c='';
+    if(i<st.sets) c='done'+(i===justDone?' justdone':'');
+    else if(i===st.sets&&!done) c=st.doing?'doing':'wait';
+    return `<button class="${c}" id="set${i}" onclick="tapSet(${i})">${i+1}</button>`;}).join('');
+  let btn='';
+  if(!done){
+    if(st.doing){ const last=st.sets===n-1; btn=`<button class="setbtn fin" onclick="finishSet(false)">${last?`完成第 ${st.sets+1} 組（最後一組）✓`:`完成第 ${st.sets+1} 組 · 休息 ${fmtRest(ex.rest)}`}</button>`; }
+    else btn=`<button class="setbtn go${timerEnd?' early':''}" onclick="startSetBtn()">${timerEnd?'唔使等，即刻開始':'開始'}第 ${st.sets+1} 組</button>`;
+  }
+  const ctrl=timerEnd&&!st.doing&&!done?`<div class="tctl"><button onclick="addRest(30)">+30 秒</button><button onclick="restartRest()">${ICON.rewind}重新計</button><button onclick="zeroRest()">${ICON.stop}歸零</button></div>`:'';
+  return `<div class="row between"><b>組數</b><span class="sub small">撳數字可以手動剔／撤回</span></div>
+    <div class="sets">${nums}</div>
+    <div class="timer" id="timer"></div><div class="tcap" id="timerCap"></div><div class="restbar" id="restBar"><i></i></div>
+    ${btn}${ctrl}`;
+}
+function refreshParts(){
+  if(V.view==='workout'&&W&&W.step&&S.ex[W.step.ex]){
+    const ex=S.ex[W.step.ex];
+    const sc=$('#setsCard'); if(sc&&W.step.eq) sc.innerHTML=setsCardHTML(ex,W.step);
+    const bb=$('#bottomBar'); if(bb) bb.innerHTML=workoutBottomInner();
+  }
+  paintTimer();
+}
+function paintTimer(){
+  const e=$('#timer'); if(!e||!W||!W.step) return;
+  if(Date.now()<flyUntil) return;
+  const st=W.step, ex=S.ex[st.ex]; if(!ex) return;
+  const c=$('#timerCap'), bar=$('#restBar'), now=Date.now();
+  let big,cls,cap,hot=false,pct=-1;
+  if(setsComplete(st,ex)){ big='✓'; cls='done'; cap=st.rpe==null?'組數完成 · 揀返難度 👇':`完成 · 撳下面「${W.idx+1>=W.queue.length?'完成動作':'下一個'}」`; }
+  else if(st.doing){ const el=(now-(st.doingStart||now))/1000; big=fmtClock(el); cls='doing'; const last=st.sets===ex.sets-1;
+    cap=last?(P.autoLast>0?`最後一組做緊 · ${Math.max(0,Math.ceil(P.autoLast-el))} 秒後自動當完成`:'最後一組做緊 · 做完撳下面'):`第 ${st.sets+1} 組做緊 · 做完撳下面`; }
+  else if(timerEnd){ const r=Math.max(0,Math.ceil((timerEnd-now)/1000)); big=fmtClock(r); hot=r<=10; cls=hot?'warn':'';
+    cap=hot?`準備好姿勢！第 ${st.sets+1} 組就嚟開始`:`休息緊 · 之後做第 ${st.sets+1} 組`;
+    pct=timerTotal?Math.max(0,Math.min(100,(timerEnd-now)/(timerTotal*1000)*100)):0; }
+  else { big='準備'; cls='ready'; cap=`準備好就撳「開始第 ${st.sets+1} 組」`; }
+  if(e.textContent!==big) e.textContent=big; const nc='timer '+cls; if(e.className!==nc) e.className=nc;
+  if(c){ c.textContent=cap; c.className='tcap'+(hot?' hot':''); }
+  if(bar){ bar.classList.toggle('on',pct>=0); if(pct>=0&&bar.firstChild) bar.firstChild.style.width=pct+'%'; }
+  const wb=$('#set'+st.sets); if(wb) wb.classList.toggle('soon',hot);
+}
+let timerEnd=0, timerTotal=0, prepDone=true, flyUntil=0, justDone=-1, AC=null;
+if(W&&W.timerEnd){ timerEnd=W.timerEnd; timerTotal=W.timerTotal||0; prepDone=W.prep!==false; }
+function tickTimer(){
+  const now=Date.now();
+  if(W&&W.step&&S.ex[W.step.ex]){
+    const st=W.step, ex=S.ex[st.ex];
+    if(timerEnd&&!st.doing&&!setsComplete(st,ex)){
+      const rem=timerEnd-now;
+      if(!prepDone&&rem<=10500&&rem>0){ prepDone=true; W.prep=true; saveSession(); if(rem>7000){ sound('prep'); flash('prep'); } }
+      if(rem<=0){ const late=now-timerEnd;
+        if(late<=60000) beginSet(true);
+        else { clearRest(); refreshParts(); flash('go'); toast(`休息時間過咗 ${fmtClock(late/1000)}，準備好就開始第 ${st.sets+1} 組`); } }
+    } else if(timerEnd) clearRest();
+    if(st.doing&&st.sets===ex.sets-1&&P.autoLast>0&&now>=flyUntil&&now-(st.doingStart||now)>=P.autoLast*1000) finishSet(true);
+  } else if(timerEnd) clearRest();
+  paintTimer();
+}
+setInterval(tickTimer,250);
+
+/* ---- 聲音（iPhone 要撳過一下先出到聲） ---- */
+const reduceMotion=()=>!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+function unlockAudio(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state!=='running')AC.resume();if(!AC._u){const b=AC.createBuffer(1,1,22050),s=AC.createBufferSource();s.buffer=b;s.connect(AC.destination);s.start(0);AC._u=1;}}catch(e){}}
+['touchend','pointerup','click'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true,capture:true}));
+function tone(f,t,dur,vol,type){ const o=AC.createOscillator(),g=AC.createGain(); o.type=type||'sine'; o.frequency.value=f; o.connect(g); g.connect(AC.destination);
+  const s=AC.currentTime+t; g.gain.setValueAtTime(0.0001,s); g.gain.exponentialRampToValueAtTime(vol,s+0.012); g.gain.exponentialRampToValueAtTime(0.0001,s+dur); o.start(s); o.stop(s+dur+0.03); }
+function sound(kind){
+  try{ if(!AC) return; if(AC.state!=='running') AC.resume();
+    if(kind==='go') [0,.24,.48].forEach(t=>tone(880,t,.17,.38));
+    else if(kind==='prep'){ tone(523,0,.13,.32); tone(523,.2,.13,.32); }
+    else if(kind==='start'){ tone(660,0,.08,.25); tone(990,.08,.13,.25); }
+    else if(kind==='set'){ tone(1046,0,.12,.2,'triangle'); tone(1568,.07,.2,.16,'triangle'); }
+    else if(kind==='win'){ [523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,i*.11,.3,.28,'triangle')); tone(1318.5,.48,.6,.22,'triangle'); tone(1046.5,.48,.6,.14,'triangle'); }
+    else if(kind==='rocket'){ const s=AC.currentTime, len=Math.floor(AC.sampleRate*1.5), buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0);
+      for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+      const src=AC.createBufferSource(), fl=AC.createBiquadFilter(), g=AC.createGain(); src.buffer=buf; fl.type='bandpass'; fl.Q.value=1.3;
+      fl.frequency.setValueAtTime(250,s); fl.frequency.exponentialRampToValueAtTime(3200,s+1.35);
+      g.gain.setValueAtTime(0.0001,s); g.gain.exponentialRampToValueAtTime(0.4,s+0.25); g.gain.exponentialRampToValueAtTime(0.0001,s+1.45);
+      src.connect(fl); fl.connect(g); g.connect(AC.destination); src.start(s); src.stop(s+1.5); }
+  }catch(e){}
+}
+function flash(kind){
+  try{const b=document.body;b.classList.remove('flash','flash2');void b.offsetWidth;b.classList.add(kind==='prep'?'flash2':'flash');setTimeout(()=>b.classList.remove('flash','flash2'),2000);}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate(kind==='prep'?[80,60,80]:[200,100,200]);}catch(e){}
+}
+
+/* ---- 上一個／跳過 ---- */
+function pushHist(logId){ W.hist=W.hist||[]; W.hist.push({queue:W.queue.slice(),idx:W.idx,step:W.step?JSON.parse(JSON.stringify(W.step)):null,extraMode:!!W.extraMode,logId:logId||null}); if(W.hist.length>60) W.hist.shift(); }
 function advance(){ W.idx++; enterExercise(); saveSession(); if(W.step) go('workout'); else go('extras'); }
+function goBack(){
+  const h=W&&(W.hist||[]).pop(); if(!h){toast('已經係第一個動作');return;}
+  let undone=false;
+  if(h.logId){ const i=S.logs.findIndex(l=>l.id===h.logId); if(i>=0){ const old=S.logs[i]; S.logs.splice(i,1); S.deleted[old.id]=Date.now(); refreshVariant(old.ex,old.eq,old.pw); save(); undone=true; } }
+  W.queue=h.queue; W.idx=h.idx; W.extraMode=h.extraMode; clearRest();
+  W.step=h.step&&S.ex[h.step.ex]?Object.assign(h.step,{doing:false}):null;
+  if(undone&&W.done.length) W.done.pop();
+  saveSession(); toast(undone?'已返回上一個動作，嗰條紀錄撤回咗（改完再撳一次就會記錄）':'已返回');
+  if(W.step) go('workout'); else go('extras');
+}
+function skipMenu(){
+  if(modalResolve) closeModal(false);
+  const ex=S.ex[W.step.ex]; const left=W.queue.length-W.idx-1; const nxt=left>0?S.ex[W.queue[W.idx+1]]:null;
+  showModal(`<div class="mmsg" style="margin-bottom:12px">「${esc(ex.name)}」想點？</div>
+    ${nxt?`<button class="choice" style="background:var(--card2)" onclick="skipChoice('next')"><b>⇅ 先做下一個</b><span>先做「${esc(nxt.name)}」，做完返嚟做呢個</span></button>`:''}
+    ${left>1?`<button class="choice" style="background:var(--card2)" onclick="skipChoice('end')"><b>⤓ 排到最後先做</b><span>做晒其他動作先返嚟做</span></button>`:''}
+    <button class="choice" style="background:var(--card2)" onclick="skipChoice('skip')"><b style="color:var(--red)">✕ 今日唔做</b><span>直接跳過，唔會記錄</span></button>
+    <button class="secondary" onclick="closeModal(false)">取消</button>`);
+}
+function skipChoice(k){
+  closeModal(false); if(!W||!W.step) return;
+  const q=W.queue, i=W.idx, cur=S.ex[q[i]], name=cur?cur.name:'';
+  pushHist(null);
+  if(k==='next'&&i<q.length-1){ [q[i],q[i+1]]=[q[i+1],q[i]]; enterExercise(); saveSession(); toast(`先做呢個，「${name}」排喺佢後面`); go('workout'); return; }
+  if(k==='end'&&i<q.length-1){ q.push(q.splice(i,1)[0]); enterExercise(); saveSession(); toast(`「${name}」排咗去最後`); go('workout'); return; }
+  toast('已跳過（冇記錄）'); advance();
+}
 function nextExercise(){
   const st=W.step; const ex=S.ex[st.ex];
   if(!st.eq){toast('請先揀器材');return;}
-  if(st.rpe==null){toast('請先揀難度 1–10，或者撳「跳過」');return;}
+  if(!setsComplete(st,ex)){earlyFinish();return;}
+  if(st.rpe==null){toast('揀返難度 1–10 先');scrollRpe();return;}
   const v=variantOf(ex,st.eq); const now=Date.now(); const isBody=equipOf(st.eq).kind==='body';
   const prev=logsFor(ex.id,st.eq); const prevMax=prev.length?Math.max(...prev.map(l=>l.weight)):null;
-  const pr=!isBody&&prevMax!=null&&st.weight>prevMax+1e-9;
-  S.logs.push({id:uid(),date:W.date,ts:now,ex:ex.id,eq:st.eq,weight:st.weight,rpe:st.rpe,sets:st.sets||ex.sets,extra:!!W.extraMode,pw:v.weight,pr:pr||undefined,note:(st.note||'').trim()||undefined,mt:now});
+  const pr=!isBody&&prevMax!=null&&st.weight>prevMax+1e-9; const id=uid();
+  S.logs.push({id,date:W.date,ts:now,ex:ex.id,eq:st.eq,weight:st.weight,rpe:st.rpe,sets:st.sets||ex.sets,sd:String(W.dow),extra:!!W.extraMode,pw:v.weight,pr:pr||undefined,note:(st.note||'').trim()||undefined,mt:now});
   if(!isBody&&ex.variants.some(x=>x.eq===st.eq)) v.weight=st.weight; // 唔改 mt：重量由紀錄推算，避免同步時覆蓋另一部機嘅動作設定
-  save(); W.done.push(ex.id); toast(pr?`🏆 新重量紀錄！${fmtW(st.weight)}kg（之前 ${fmtW(prevMax)}kg）`:'已記錄 ✓'); advance();
+  pushHist(id); save(); W.done.push(ex.id);
+  toast(pr?`🏆 新重量紀錄！${fmtW(st.weight)}kg（之前 ${fmtW(prevMax)}kg）`:'已記錄 ✓'); advance();
 }
-function skipExercise(){ toast('已跳過（冇記錄）'); advance(); }
-function swapNext(){ // 同下一個動作對調
-  if(W.idx>=W.queue.length-1){toast('已經係最後一個');return;}
-  const q=W.queue; [q[W.idx],q[W.idx+1]]=[q[W.idx+1],q[W.idx]];
-  const cur=S.ex[q[W.idx+1]]; enterExercise(); saveSession(); toast('先做呢個，'+(cur?cur.name:'')+' 排第二'); go('workout');
+function workoutBottomInner(){
+  const st=W.step, ex=S.ex[st.ex]; const isLast=W.idx+1>=W.queue.length;
+  const back=`<button class="skip" onclick="goBack()" ${(W.hist||[]).length?'':'disabled'}>‹ 返回</button>`;
+  let main;
+  if(!st.eq) main=`<button class="primary off" onclick="toast('請先揀器材')">${isLast?'完成動作':'下一個'}</button>`;
+  else if(!setsComplete(st,ex)) main=`<button class="primary off" onclick="earlyFinish()">${isLast?'完成動作':'下一個'}<span class="cnt">${st.sets}/${ex.sets} 組</span></button>`;
+  else if(st.rpe==null) main=`<button class="primary" onclick="scrollRpe()">揀難度 ↓</button>`;
+  else main=`<button class="primary" onclick="nextExercise()">${isLast?'完成動作 ✓':'下一個 ›'}</button>`;
+  return `<div class="row">${back}${main}<button class="skip" onclick="skipMenu()">跳過 ›</button></div>`;
 }
-function addRest(sec){ if(!timerEnd||Date.now()>timerEnd) startTimer(sec); else {timerEnd+=sec*1000;timerBeeped=false;if(W){W.timerEnd=timerEnd;saveSession();}} tickTimer(); }
-function setNote(v){ if(W&&W.step){W.step.note=v;saveSession();} }
 function weightUI(ex,eq,w){
   if(eq.kind==='body') return `<div class="center" style="font-size:30px;font-weight:800;margin:14px 0 6px">徒手</div>`;
   if(eq.kind==='missing') return `<div class="center" style="font-size:30px;font-weight:800;margin:14px 0 6px">${fmtW(w)}kg</div><div class="sub center small">呢個器材已經刪咗，去「編輯 → 器材」加返</div>`;
@@ -574,18 +858,30 @@ function weightUI(ex,eq,w){
   const lw=longW(ex,eq,w); if(lw) html+=`<div class="sub center small mt">${lw}</div>`;
   return html;
 }
+function rpeDynHTML(ex,eq,st,ls){
+  let desc=`<div class="d" style="margin-top:14px">做完之後，揀最貼近<b>最後一組</b>感覺嘅數字。下面會即刻話你下次建議幾重。</div>`;
+  if(st.rpe){
+    const R=RPE[st.rpe]; const {u,why,target}=planNext(st.rpe,st.weight,ls,null);
+    let nxt;
+    if(eq.kind==='body') nxt=u>0?'下次：加次數或者加難度':u<0?'下次：減少次數':'下次：維持';
+    else{const nw=target!=null?nearest(achievable(eq),target,0):applyUnits(eq,st.weight,u);const d=r2(nw-st.weight);nxt=d>0?`下次：${tierOf(u)} +${fmtW(d)}kg → ${fmtW(nw)}kg`:d<0?`下次：減 ${fmtW(-d)}kg → ${fmtW(nw)}kg`:`下次：維持 ${fmtW(nw)}kg`;}
+    desc=`<div class="t" style="color:${colorOf(st.rpe)}">${st.rpe}　${R.t}${R.code?`<span class="code">舊：${R.code}</span>`:''}</div><div class="d">${R.d}</div><div class="next" style="color:${u>0?'var(--green)':u<0?'var(--red)':'var(--text)'}">${nxt}<span class="sub small" style="font-weight:500">　${esc(why)}</span></div>`;
+  }
+  return `<div class="rpe-desc">${desc}</div><div class="rpe-bar">${Array.from({length:10},(_,i)=>`<button class="${st.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="setRpe(${i+1})">${i+1}</button>`).join('')}</div>`;
+}
 function renderWorkout(){
   if(!W||!W.step) return renderHome();
   const st=W.step; const ex=S.ex[st.ex];
-  if(ex&&st.eq&&!ex.variants.some(v=>v.eq===st.eq)){ st.eq=ex.variants.length>1?null:ex.variants[0].eq; if(st.eq) st.weight=suggest(ex,st.eq).w; saveSession(); }
   if(!ex){W.idx++;enterExercise();saveSession();if(!W.step){V.view='extras';return renderExtras();}return renderWorkout();}
-  const pct=Math.round(W.idx/W.queue.length*100); const isLast=W.idx+1>=W.queue.length;
+  if(st.eq&&!ex.variants.some(v=>v.eq===st.eq)){ st.eq=ex.variants.length>1?null:ex.variants[0].eq; if(st.eq) st.weight=suggest(ex,st.eq).w; saveSession(); }
+  if(st.sets>ex.sets) st.sets=ex.sets;
+  const pct=Math.round(W.idx/W.queue.length*100);
   let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button>
     <div class="title small">${W.idx+1} / ${W.queue.length}${W.extraMode?' · 加操':''}</div>
     <button class="icon-btn" onclick="go('exform',{id:'${ex.id}',from:'workout'})">${ICON.edit}</button></div>
     <div class="progress-line"><i style="width:${pct}%"></i></div>
-    <h1 style="font-size:26px">${esc(ex.name)}</h1><div class="sub">${ex.en?esc(ex.en)+' · ':''}${CATS[ex.cat]||''} · ${ex.sets}×${ex.reps} · 休息 ${ex.rest}s${W.idx<W.queue.length-1&&S.ex[W.queue[W.idx+1]]?` <button class="badge" onclick="swapNext()">⇅ 先做下一個（${esc(S.ex[W.queue[W.idx+1]].name)}）</button>`:''}</div>`;
-  const bottom=`<div class="bottom"><div class="row"><button class="primary" onclick="nextExercise()">${isLast?'完成呢個動作':'下一個'}</button><button class="skip" onclick="skipExercise()">跳過 ›</button></div></div>`;
+    <h1 style="font-size:26px">${esc(ex.name)}</h1><div class="sub">${ex.en?esc(ex.en)+' · ':''}${CATS[ex.cat]||''} · ${ex.sets}×${ex.reps} · 休息 ${fmtRest(ex.rest)}</div>`;
+  const bottom=`<div class="bottom" id="bottomBar">${workoutBottomInner()}</div>`;
   if(!st.eq){
     html+=`<div class="card mt"><b>今日用邊種器材？</b><div class="sub mb">揀「記住」之後就唔會再問（可以喺編輯度改返）。</div>`+
       ex.variants.map(v=>{const sg=suggest(ex,v.eq);const q=equipOf(v.eq);return `<button class="choice" style="background:var(--card2)" onclick="chooseEq('${v.eq}',false)"><b>${esc(q.name)}</b><span>${shortW(ex,q,sg.w)} · ${esc(sg.msg)}</span></button>`;}).join('')+
@@ -595,63 +891,36 @@ function renderWorkout(){
   const eq=equipOf(st.eq); const sg=suggest(ex,st.eq); const ls=logsFor(ex.id,st.eq); const last=ls[0];
   const cls=sg.dir>0?(sg.u>=1.5?'strong':'up'):sg.dir<0?'down':'keep'; const arrow=sg.dir>0?'↑':sg.dir<0?'↓':'→';
   const tierTxt=sg.dir>0?sg.tier:sg.dir<0?(sg.u<=-1?'減重':'微減'):(sg.tier?'維持':'');
-  html+=`<div class="card mt"><div class="row between" style="align-items:flex-start">
+  html+=`<div class="wgrid"><div><div class="card mt"><div class="row between" style="align-items:flex-start">
       <div><span class="suggest ${cls}">${arrow} ${tierTxt?tierTxt+'：':''}${esc(sg.msg)}</span><div class="sub small mt">${esc(eq.name)}${ex.variants.length>1?` <button class="badge" onclick="W.step.eq=null;saveSession();render()">轉器材</button>`:''}</div></div>
       <div class="last">${last?`<div class="n" style="color:${colorOf(last.rpe)}">${last.rpe}<small>/10</small></div><div class="sub small">上次 ${eq.kind==='body'?'徒手':fmtW(last.weight)+'kg'} · ${fmtD(last.date)}</div>`:`<div class="sub small">未有紀錄</div>`}</div></div>`;
   html+=weightUI(ex,eq,st.weight)+`</div>`;
-  html=html.replace('<div class="card mt"><div class="row between" style="align-items:flex-start">','<div class="wgrid"><div><div class="card mt"><div class="row between" style="align-items:flex-start">');
-  html+=`<div class="card"><div class="row between"><b>組數</b><span class="sub small">撳數字記錄／撤回 · 休息 ${ex.rest}s</span></div>
-    <div class="sets">${Array.from({length:Math.min(20,Math.max(1,ex.sets|0))},(_,i)=>`<button class="${i<st.sets?'done':''}" onclick="tapSet(${i})">${i+1}</button>`).join('')}</div>
-    <div class="timer" id="timer">--:--</div>
-    <div class="row mt"><button class="secondary" onclick="doneSet()" ${st.sets>=ex.sets?'disabled':''}>完成一組 → 休息</button><button class="secondary" style="flex:0 0 auto;width:auto;padding:13px 14px" onclick="unlockAudio();addRest(30)">+30s</button><button class="secondary" style="flex:0 0 auto;width:auto;padding:13px 16px" onclick="unlockAudio();startTimer(${ex.rest})">⏱</button></div></div></div><div class="wcol2">`;
-  let desc=`<div class="d" style="margin-top:14px">做完之後，揀最貼近<b>最後一組</b>感覺嘅數字。下面會即刻話你下次建議幾重。</div>`;
-  if(st.rpe){
-    const R=RPE[st.rpe]; const {u,why,target}=planNext(st.rpe,st.weight,ls,null);
-    let nxt;
-    if(eq.kind==='body') nxt=u>0?'下次：加次數或者加難度':u<0?'下次：減少次數':'下次：維持';
-    else{const nw=target!=null?nearest(achievable(eq),target,0):applyUnits(eq,st.weight,u);const d=r2(nw-st.weight);nxt=d>0?`下次：${tierOf(u)} +${fmtW(d)}kg → ${fmtW(nw)}kg`:d<0?`下次：減 ${fmtW(-d)}kg → ${fmtW(nw)}kg`:`下次：維持 ${fmtW(nw)}kg`;}
-    desc=`<div class="t" style="color:${colorOf(st.rpe)}">${st.rpe}　${R.t}${R.code?`<span class="code">舊：${R.code}</span>`:''}</div><div class="d">${R.d}</div><div class="next" style="color:${u>0?'var(--green)':u<0?'var(--red)':'var(--text)'}">${nxt}<span class="sub small" style="font-weight:500">　${esc(why)}</span></div>`;
-  }
-  html+=`<div class="card"><div class="row between"><b>今日難度</b><span class="sub small">1 輕鬆 ─ 10 力竭</span></div>
-    <div class="rpe-desc">${desc}</div>
-    <div class="rpe-bar">${Array.from({length:10},(_,i)=>`<button class="${st.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="setRpe(${i+1})">${i+1}</button>`).join('')}</div>
+  html+=`<div class="card" id="setsCard">${setsCardHTML(ex,st)}</div></div><div class="wcol2">`;
+  html+=`<div class="card" id="rpeCard"><div class="row between"><b>今日難度</b><span class="sub small">1 輕鬆 ─ 10 力竭</span></div>
+    <div id="rpeDyn">${rpeDynHTML(ex,eq,st,ls)}</div>
     <input class="mt" placeholder="備註（可留空）例如：左膊有少少痛、用咗闊握" value="${esc(st.note||'')}" oninput="setNote(this.value)"></div>`;
   if(ex.notes) html+=`<div class="card"><b>動作指引</b><div class="notes mt">${esc(ex.notes)}</div></div>`;
   if(ls.length) html+=`<div class="card"><div class="row between"><b>最近紀錄</b><span class="sub small">撳一條可以改／刪</span></div>${ls.slice(0,4).map(l=>logRow(l,false)).join('')}</div>`;
   return html+`</div></div>`+bottom;
 }
 
-/* ---------- 計時 ---------- */
-let timerEnd=0, timerBeeped=true, AC=null;
-function startTimer(sec){timerEnd=Date.now()+sec*1000;timerBeeped=false;if(W){W.timerEnd=timerEnd;saveSession();}tickTimer();}
-function tickTimer(){
-  if(timerEnd&&!timerBeeped&&Date.now()>=timerEnd){timerBeeped=true;beep();}
-  if(timerEnd&&Date.now()-timerEnd>60000){timerEnd=0;if(W&&W.timerEnd){W.timerEnd=0;saveSession();}}
-  const e=$('#timer'); if(!e) return;
-  if(!timerEnd){e.textContent='--:--';e.className='timer';return;}
-  const r=Math.max(0,Math.ceil((timerEnd-Date.now())/1000));
-  e.textContent=r>0?String(Math.floor(r/60)).padStart(2,'0')+':'+String(r%60).padStart(2,'0'):'GO!';
-  e.className='timer'+(r<=5&&r>0?' warn':r===0?' done':'');
-}
-if(W&&W.timerEnd){timerEnd=W.timerEnd;timerBeeped=Date.now()>=timerEnd;}
-setInterval(tickTimer,250);
-function unlockAudio(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state!=='running')AC.resume();}catch(e){}}
-function beep(){
-  try{document.body.classList.remove('flash');void document.body.offsetWidth;document.body.classList.add('flash');setTimeout(()=>document.body.classList.remove('flash'),2000);}catch(e){}
-  try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}
-  try{if(!AC)return;if(AC.state!=='running')AC.resume();[0,0.25,0.5].forEach(t=>{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.frequency.value=880;g.gain.value=.3;o.start(AC.currentTime+t);o.stop(AC.currentTime+t+.15);});}catch(e){}
-}
-
 /* ---------- 加操 ---------- */
+function tomorrowInfo(date){ const k=String((dowOf(date)+1)%7); const s=S.schedule[k]; if(!s||!s.main.length) return null;
+  const ids=s.main.filter(id=>S.ex[id]); return {k,ids,cats:new Set(ids.map(id=>S.ex[id].cat).filter(c=>c!=='other'))}; }
+function clashOf(id,tm){ const e=S.ex[id]; if(!tm||!e) return ''; if(tm.ids.includes(id)) return `聽日（星期${DAYS[tm.k]}）有做呢個`; if(tm.cats.has(e.cat)) return `聽日（星期${DAYS[tm.k]}）要練${CATS[e.cat]}`; return ''; }
 function renderExtras(){
   if(!W) return renderHome();
   const sch=S.schedule[W.dow]||{extras:[]};
-  const done=new Set(W.queue);
+  const done=new Set(W.queue); const tm=tomorrowInfo(W.date);
   const recentIds=[...new Set(S.logs.filter(l=>l.extra).sort((a,b)=>b.ts-a.ts).map(l=>l.ex))].filter(id=>S.ex[id]&&!done.has(id)).slice(0,6);
   const sugg=sch.extras.filter(id=>S.ex[id]&&!done.has(id));
-  const btn=id=>{const e=S.ex[id];const eqId=e.defaultEq||e.variants[0].eq;const sg=suggest(e,eqId);return `<button class="choice" onclick="addExtra('${id}')"><b>${esc(e.name)}</b><span>${CATS[e.cat]||''} · ${shortW(e,equipOf(eqId),sg.w)} · ${esc(sg.msg)}</span></button>`;};
-  let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button><div class="title">今日有冇加動作？</div>${SPACER}</div>
-    <div class="sub center mb">主課表完成 🎉 想加操就揀一個，唔加就撳「完成今日訓練」。</div>`;
+  const btn=id=>{const e=S.ex[id];const eqId=e.defaultEq||e.variants[0].eq;const sg=suggest(e,eqId);const c=clashOf(id,tm);
+    return `<button class="choice${c?' clash':''}" onclick="addExtra('${id}')"><b>${esc(e.name)}</b><span>${CATS[e.cat]||''} · ${shortW(e,equipOf(eqId),sg.w)} · ${esc(sg.msg)}</span>${c?`<span class="warn-tag">⚠ ${esc(c)}</span>`:''}</button>`;};
+  let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button><div class="title">今日要唔要加動作？</div>${SPACER}</div>
+    <div class="sub center mb">主課表做完 🎉 想加就揀一個；唔加就撳「完成今日訓練」。</div>`;
+  const memo=sch.memo||'';
+  html+=`<div class="card memo"><div class="row between"><b>📌 星期${DAYS[W.dow]}提醒</b><button class="badge" onclick="openMemo('${W.dow}')">✎ ${memo?'改':'寫低'}</button></div>${memo?`<div class="notes mt">${esc(memo)}</div>`:'<div class="sub small mt">可以寫低想提醒自己嘅嘢，例如「聽日練腹，今日唔好加腹部」。</div>'}</div>`;
+  if(tm) html+=`<div class="card warnc"><b>⚠ 聽日星期${DAYS[tm.k]}要練：${[...tm.cats].map(c=>CATS[c]).join('、')||'—'}</b><div class="sub small mt">${tm.ids.map(id=>esc(S.ex[id].name)).join('、')}</div><div class="sub small mt">下面標住 ⚠ 嘅動作，今日做咗可能會影響聽日。</div></div>`;
   if(sugg.length) html+=`<h2>今日建議加</h2>`+sugg.map(btn).join('');
   if(recentIds.length) html+=`<h2>最近加過</h2>`+recentIds.map(btn).join('');
   DAY_ORDER.forEach(k=>{const s=S.schedule[k]; if(!s) return;
@@ -660,19 +929,155 @@ function renderExtras(){
   const scheduled=new Set(); Object.values(S.schedule).forEach(s=>s.main.concat(s.extras).forEach(id=>scheduled.add(id)));
   const others=Object.keys(S.ex).filter(id=>!scheduled.has(id)&&!done.has(id));
   if(others.length) html+=`<h2>其他</h2>`+others.map(btn).join('');
-  html+=`<div class="bottom"><button class="primary" onclick="finishSession()">完成今日訓練</button></div>`;
+  html+=`<div class="bottom"><div class="row"><button class="skip" onclick="goBack()" ${(W.hist||[]).length?'':'disabled'}>‹ 返回</button><button class="primary" onclick="finishSession()">完成今日訓練</button></div></div>`;
   return html;
 }
-function addExtra(id){ W.queue.push(id); W.extraMode=true; W.idx=W.queue.length-1; enterExercise(); saveSession(); go('workout'); }
-function finishSession(){ const d=W; W=null; saveSession(); timerEnd=0; go('summary',{date:d.date,dow:d.dow,mins:d.start?Math.round((Date.now()-d.start)/60000):null}); }
+async function addExtra(id){
+  const e=S.ex[id]; if(!W||!e) return; const c=clashOf(id,tomorrowInfo(W.date));
+  if(c&&!(await ask(`${c}。今日再加「${e.name}」可能會影響聽日表現，照加？`,'照加','ok'))) return;
+  if(!W) return;
+  pushHist(null); W.queue.push(id); W.extraMode=true; W.idx=W.queue.length-1; enterExercise(); saveSession(); go('workout');
+}
+/* 每日提醒 */
+function setMemo(k,v){ if(!S.schedule[k]) S.schedule[k]={main:[],extras:[],at:0,memo:''}; S.schedule[k].memo=v; touchSched(k); }
+let _memoT=null;
+function memoEdit(k,v){ setMemo(k,v); clearTimeout(_memoT); _memoT=setTimeout(save,600); }
+function openMemo(k){
+  if(modalResolve) closeModal(false); k=String(k); const s=S.schedule[k]||{};
+  showModal(`<div class="row between"><b style="font-size:18px">📌 星期${DAYS[k]}提醒</b><button class="mini" onclick="closeModal(false)">✕</button></div>
+    <div class="sub small mt">會喺主頁同「加動作」頁顯示。例如：聽日練腹，今日唔好加腹部動作。</div>
+    <textarea id="memoIn" class="mt" placeholder="寫低想提醒自己嘅嘢">${esc(s.memo||'')}</textarea>
+    <button class="primary mt" onclick="saveMemo('${k}')">儲存</button>`);
+}
+function saveMemo(k){ const v=(($('#memoIn')||{}).value||'').trim(); setMemo(k,v); save(); closeModal(false); toast(v?'已儲存提醒':'已清除提醒'); render(); }
+
+/* ---------- 每週進度 ---------- */
+function weekStartDate(ref){ const x=new Date(ref); x.setHours(12,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+// 呢條紀錄係跟邊日嘅課表做（舊紀錄冇記低就估）
+function sdOf(l){
+  if(l.sd!=null) return String(l.sd);
+  const k=String(dowOf(l.date)); const s=S.schedule[k];
+  if(s&&(s.main.includes(l.ex)||s.extras.includes(l.ex))) return k;
+  return DAY_ORDER.find(d=>S.schedule[d]&&S.schedule[d].main.includes(l.ex))||k;
+}
+function weekInfo(ref){
+  const ws=weekStartDate(ref); const dates=DAY_ORDER.map((k,i)=>{const d=new Date(ws);d.setDate(ws.getDate()+i);return dstr(d);});
+  const today=todayStr(); const logs=S.logs.filter(l=>!l.seed&&l.date>=dates[0]&&l.date<=dates[6]);
+  const days=DAY_ORDER.map((k,i)=>{
+    const date=dates[i], s=S.schedule[k], planned=!!(s&&s.main.length);
+    const own=logs.filter(l=>sdOf(l)===k), ownDates=[...new Set(own.map(l=>l.date))].sort();
+    let status;
+    if(planned){ if(own.length) status=ownDates.includes(date)?'done':'made'; else status=date<today?'miss':date===today?'today':'todo'; }
+    else status=logs.some(l=>l.date===date)?'extra':'rest';
+    return {k,date,planned,status,madeOn:status==='made'?ownDates[0]:null,isToday:date===today};
+  });
+  const pl=days.filter(d=>d.planned);
+  return {days,dates,planned:pl.length,done:pl.filter(d=>d.status==='done'||d.status==='made').length,missed:pl.filter(d=>d.status==='miss'),todo:pl.filter(d=>d.status==='todo'||d.status==='today')};
+}
+function weekStrip(wi,popK){
+  return `<div class="wk">${wi.days.map(d=>{let t='',sb='';
+    if(d.status==='done') t='✓';
+    else if(d.status==='made'){ t='✓'; sb='週'+DAYS[dowOf(d.madeOn)]+(d.madeOn<d.date?'做':'補'); }
+    else if(d.status==='miss'){ t='!'; sb='未做'; }
+    else if(d.status==='today') t='今';
+    return `<div class="wkd${d.isToday?' istoday':''}"><span class="lb">${DAYS[d.k]}</span><span class="chip ${d.status}${popK!=null&&popK===d.k?' pop':''}">${t}</span><span class="sb">${sb}</span></div>`;}).join('')}</div>`;
+}
+function weekCardHome(){
+  const wi=weekInfo(new Date()); if(!wi.planned) return '';
+  const usedBefore=S.logs.some(l=>!l.seed&&l.date<wi.dates[0]); const lw=usedBefore?weekInfo(new Date(Date.now()-7*DAY)):null;
+  let msg;
+  if(wi.done>=wi.planned) msg=`<span style="color:var(--green)">🚀 今個星期 ${wi.planned} 日全部做齊！</span>`;
+  else if(wi.missed.length) msg=`星期${wi.missed.map(d=>DAYS[d.k]).join('、')}未做 — 搵日補返佢就得 💪`;
+  else msg=`今個星期做咗 ${wi.done}/${wi.planned} 日${wi.done?'，繼續保持 🔥':''}`;
+  const pills=wi.missed.filter(d=>V.dayOverride==null||+V.dayOverride!==+d.k).map(d=>`<button class="pill makeup" onclick="V.dayOverride=${d.k};render()">↺ 今日補返星期${DAYS[d.k]}</button>`).join('');
+  return `<div class="card mt"><div class="row between"><b>今個星期</b><span class="sub small">${wi.done}/${wi.planned} 日${lw&&lw.planned?` · 上星期 ${lw.done}/${lw.planned}${lw.done>=lw.planned?' ✓':''}`:''}</span></div>${weekStrip(wi)}<div class="wkmsg">${msg}</div>${pills?`<div class="pill-row mt" style="padding-bottom:0">${pills}</div>`:''}</div>`;
+}
+function weekStreak(){
+  let n=0; const ws=weekStartDate(new Date());
+  for(let w=0;w<156;w++){ const a=new Date(ws); a.setDate(a.getDate()-7*w); const b=new Date(a); b.setDate(b.getDate()+6); const as=dstr(a), bs=dstr(b);
+    if(S.logs.some(l=>!l.seed&&l.date>=as&&l.date<=bs)) n++; else if(w>0) break; }
+  return n;
+}
+function celebrateMsg(wi,k,date){
+  const dk=wi.days.find(d=>d.k===k);
+  const made=dk&&dk.status==='made'&&dk.date<date, early=dk&&dk.status==='made'&&dk.date>date;
+  if(wi.planned&&wi.done>=wi.planned) return {kind:'week',title:'🚀 成個星期全部做齊！',sub:`${wi.planned} 日全部完成${made?`（包括補返星期${DAYS[k]}）`:''}，你好犀利！下星期繼續 💪`};
+  const left=wi.missed.filter(d=>d.k!==k);
+  if(made) return {kind:'made',title:`🚀 補返星期${DAYS[k]} ✓`,sub:'漏咗都識補返，呢份堅持好難得！'+(left.length?`仲有星期${left.map(d=>DAYS[d.k]).join('、')}，有機會都補埋佢。`:`今個星期 ${wi.done}/${wi.planned} 日。`)};
+  if(early) return {kind:'made',title:`⚡ 提早做咗星期${DAYS[k]}`,sub:`今個星期 ${wi.done}/${wi.planned} 日，好主動！`};
+  if(left.length) return {kind:'miss',title:`今個星期 ${wi.done}/${wi.planned} 日 <span>💪</span>`,sub:`星期${left.map(d=>DAYS[d.k]).join('、')}未做 — 冇問題，搵日補返佢，下次做返就得！`};
+  return {kind:'ok',title:`今個星期 ${wi.done}/${wi.planned} 日 ✓`,sub:wi.todo.length?`仲有 ${wi.todo.length} 日，繼續保持 🔥`:'繼續保持 🔥'};
+}
+
+/* ---------- 完成 ---------- */
+function finishSession(){
+  const d=W; W=null; clearRest(); saveSession();
+  go('summary',{date:d.date,dow:d.dow,start:d.start,mins:d.start?Math.round((Date.now()-d.start)/60000):null,celebrate:true,prevW:d});
+}
+function reopenSession(){ if(!V.prevW) return; W=V.prevW; W.hist=W.hist||[]; W.step=null; W.idx=W.queue.length; saveSession(); toast('已返回，可以繼續加動作'); go('extras'); }
 function renderSummary(){
-  const ls=S.logs.filter(l=>l.date===V.date&&!l.seed).sort((a,b)=>a.ts-b.ts);
-  const avg=ls.length?(ls.reduce((a,l)=>a+l.rpe,0)/ls.length).toFixed(1):'-';
-  const prs=ls.filter(isPR).length;
-  return `<div class="big">💪</div><h1 class="center">訓練完成</h1><div class="sub center">星期${DAYS[V.dow]} · ${fmtD(V.date)} · ${ls.length} 個動作 · 平均難度 ${avg}${V.mins!=null&&V.mins<600?' · 用時 '+V.mins+' 分鐘':''}${prs?` · <span class="pr">🏆 ${prs} 個新紀錄</span>`:''}</div>
-    <div class="card mt">${ls.map(l=>logRow(l,true)).join('')||'<div class="empty">今次冇記錄</div>'}</div>
+  const ls=S.logs.filter(l=>!l.seed&&l.date===V.date&&(!V.start||l.ts>=V.start-1000)).sort((a,b)=>a.ts-b.ts);
+  const setsN=ls.reduce((a,l)=>a+(+l.sets||0),0), prs=ls.filter(isPR).length;
+  const wi=weekInfo(new Date(V.date+'T12:00:00')), k=String(V.dow), dk=wi.days.find(d=>d.k===k);
+  const cel=ls.length?celebrateMsg(wi,k,V.date):{kind:'none'}; V._cel=cel;
+  const streak=weekStreak(), nth=new Set(S.logs.filter(l=>!l.seed).map(l=>l.date)).size;
+  const popK=dk&&(dk.status==='done'||dk.status==='made')?k:null;
+  let html=ls.length?`<svg class="donecheck" viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="50"/><circle class="ring" cx="60" cy="60" r="50"/><path d="M37 62l15 15 31-33"/></svg>`:`<div class="big">🤷</div>`;
+  html+=`<h1 class="center rise" style="--d:.55s">${ls.length?'今日訓練完成！':'今次冇記錄'}</h1>
+    <div class="sub center rise" style="--d:.7s">星期${DAYS[V.dow]} · ${fmtD(V.date)}${ls.length?` · 你嘅第 ${nth} 次訓練`:''}${streak>=2?` · 🔥 連續 ${streak} 個星期`:''}</div>`;
+  if(ls.length) html+=`<div class="stats3">${[[ls.length,'個動作'],[setsN,'組'],[V.mins!=null&&V.mins<600?V.mins:'–','分鐘']].map(([n,t],i)=>`<div class="rise" style="--d:${.8+i*.1}s"><b${typeof n==='number'?` class="cnum" data-n="${n}"`:''}>${n}</b><span>${t}</span></div>`).join('')}</div>`
+    +(prs?`<div class="center rise" style="--d:1.1s;margin-bottom:12px"><span class="pr" style="font-weight:800">🏆 ${prs} 個新重量紀錄</span></div>`:'');
+  if(wi.planned&&ls.length) html+=`<div class="card rise" style="--d:1s"><div class="row between"><b>今個星期</b><span class="sub small">${wi.done}/${wi.planned} 日</span></div>${weekStrip(wi,popK)}<div class="celmsg ${cel.kind} rise" style="--d:1.6s"><div class="ct">${cel.title}</div><div class="cs">${cel.sub}</div></div></div>`;
+  html+=`<div class="card">${ls.map(l=>logRow(l,true)).join('')||'<div class="empty">今次冇記錄</div>'}</div>
     <div class="sub small center">撳任何一條可以修改或者刪除</div>
+    ${V.prevW?`<button class="secondary mt" onclick="reopenSession()">‹ 未做完？返回繼續加動作</button>`:''}
     <div class="bottom"><button class="primary blue" onclick="go('home')">返回主頁</button></div>`;
+  return html;
+}
+function runCelebration(){
+  const cel=V._cel; if(!cel||cel.kind==='none') return;
+  sound('win');
+  document.querySelectorAll('.cnum').forEach(el=>countUp(el,+el.dataset.n,900,800));
+  if(reduceMotion()) return;
+  setTimeout(()=>confetti(cel.kind==='week'?170:110,false),600);
+  if(cel.kind==='week'){ setTimeout(()=>{launchRocket(true);sound('rocket');},1800); setTimeout(()=>confetti(150,true),3300); }
+  else if(cel.kind==='made') setTimeout(()=>{launchRocket(false);sound('rocket');},1800);
+}
+function countUp(el,n,dur,delay){ el.textContent='0'; const t0=performance.now()+delay;
+  const f=t=>{ if(!el.isConnected) return; const p=Math.min(1,Math.max(0,(t-t0)/dur)); el.textContent=Math.round(n*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
+function confetti(n,fromTop){
+  const c=document.createElement('canvas'); c.className='confetti'; document.body.appendChild(c);
+  const dpr=Math.min(2,window.devicePixelRatio||1), cw=innerWidth, chh=innerHeight; c.width=cw*dpr; c.height=chh*dpr;
+  const x=c.getContext('2d'); if(!x){c.remove();return;} x.scale(dpr,dpr);
+  const cols=['#30d158','#0a84ff','#ffd60a','#ff9f0a','#bf5af2','#ff453a','#64d2ff','#ffffff'];
+  const ps=Array.from({length:n},()=>Object.assign(fromTop?{x:Math.random()*cw,y:-20-Math.random()*chh*.5,vx:(Math.random()-.5)*3,vy:Math.random()*3+2}:{x:cw/2+(Math.random()-.5)*60,y:chh*.3,vx:(Math.random()-.5)*17,vy:-Math.random()*15-5},
+    {r:Math.random()*6.28,vr:(Math.random()-.5)*.35,w:5+Math.random()*6,h:8+Math.random()*8,c:cols[Math.random()*cols.length|0],round:Math.random()<.3}));
+  const t0=performance.now();
+  const f=t=>{ const el=t-t0; x.clearRect(0,0,cw,chh); let alive=0;
+    ps.forEach(p=>{ p.vy=Math.min(p.vy+.32,7); p.vx*=.985; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; if(p.y<chh+30) alive++;
+      x.save(); x.translate(p.x,p.y); x.rotate(p.r); x.globalAlpha=el>2700?Math.max(0,1-(el-2700)/700):1; x.fillStyle=p.c;
+      if(p.round){x.beginPath();x.arc(0,0,p.w/2,0,6.28);x.fill();} else x.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.r*1.3))+1);
+      x.restore(); });
+    if(alive&&el<3500) requestAnimationFrame(f); else c.remove(); };
+  requestAnimationFrame(f);
+}
+function launchRocket(big){
+  const r=document.createElement('div'); r.className='rocket'; r.textContent='🚀'; if(!big) r.style.fontSize='54px'; document.body.appendChild(r);
+  const H=innerHeight, dur=big?2000:1600;
+  let an; try{ an=r.animate([
+    {transform:'translate(-50%,0) rotate(-45deg) scale(.7)'},
+    {transform:'translate(-50%,-110px) rotate(-45deg) scale(1)',offset:.16},
+    {transform:'translate(-58%,-104px) rotate(-50deg) scale(1)',offset:.24},
+    {transform:'translate(-44%,-108px) rotate(-40deg) scale(1)',offset:.3},
+    {transform:`translate(-50%,${-H*.45}px) rotate(-45deg) scale(1.1)`,offset:.62},
+    {transform:`translate(-50%,${-H-220}px) rotate(-45deg) scale(1.35)`}],{duration:dur,easing:'cubic-bezier(.5,0,.75,.35)'}); }catch(e){ r.remove(); return; }
+  const t0=performance.now();
+  (function trail(){ if(!r.isConnected) return; const b=r.getBoundingClientRect();
+    if(b.bottom>-40&&performance.now()-t0>dur*.1){ const s=10+Math.random()*18, p=document.createElement('div'); p.className='puff';
+      Object.assign(p.style,{left:(b.left+b.width/2-s/2+(Math.random()-.5)*12)+'px',top:(b.bottom-10)+'px',width:s+'px',height:s+'px'}); document.body.appendChild(p);
+      try{ p.animate([{transform:'scale(.6)',opacity:1},{transform:`translate(${(Math.random()-.5)*36}px,${30+Math.random()*40}px) scale(2.6)`,opacity:0}],{duration:750,easing:'ease-out'}).onfinish=()=>p.remove(); }catch(e){ p.remove(); } }
+    setTimeout(trail,38); })();
+  an.onfinish=()=>r.remove(); setTimeout(()=>r.remove(),dur+300);
 }
 
 /* ---------- 紀錄：一行 + 修改／刪除 ---------- */
@@ -889,7 +1294,8 @@ function renderEdit(){
       <button class="mini" onclick="moveEx('${key}',${i},-1)">↑</button><button class="mini" onclick="moveEx('${key}',${i},1)">↓</button>
       <button class="mini" onclick="go('exform',{id:'${id}',from:'edit',tab:V.tab})">✎</button><button class="mini danger" onclick="removeFrom('${key}',${i})">✕</button></div>`;}).join('')||'<div class="empty small">未有動作</div>';
   html+=`<h2>星期${DAYS[V.tab]} 主課表</h2><div class="card">${list(sch.main,'main')}<button class="secondary mt" onclick="go('pick',{key:'main',tab:V.tab})">＋ 加入動作</button></div>
-    <h2>有時間先加</h2><div class="card">${list(sch.extras,'extras')}<button class="secondary mt" onclick="go('pick',{key:'extras',tab:V.tab})">＋ 加入動作</button></div>`;
+    <h2>有時間先加</h2><div class="card">${list(sch.extras,'extras')}<button class="secondary mt" onclick="go('pick',{key:'extras',tab:V.tab})">＋ 加入動作</button></div>
+    <h2>📌 星期${DAYS[V.tab]}提醒</h2><div class="card"><textarea placeholder="例如：聽日練腹，今日唔好加腹部動作" oninput="memoEdit('${V.tab}',this.value)">${esc(sch.memo||'')}</textarea><div class="sub small mt">會喺主頁同「加動作」頁顯示</div></div>`;
   return html;
 }
 function touchSched(day){const now=Date.now();S.schedAt=now;const d=day!=null?day:V.tab;if(S.schedule[d])S.schedule[d].at=now;}
@@ -1050,7 +1456,16 @@ async function resetAll(){
 /* ====================== 同步（GitHub Gist，iPhone ↔ iPad） ====================== */
 const GH='https://api.github.com', GFILE='gymlog.json', GDESC='Gym Log data';
 let SY=loadJSON(LS_SYNC)||{}, syncing=false, syncPending=false, syncTimer=null, syncStatus='';
-function saveSY(){try{localStorage.setItem(LS_SYNC,JSON.stringify(SY));}catch(e){}}
+function saveSY(){try{localStorage.setItem(LS_SYNC,JSON.stringify(SY));}catch(e){} idbSet('sync',SY);}
+/* token 另外喺 IndexedDB 留一份：localStorage 唔見咗都可以自動搵返 */
+function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('gymlog',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}catch(e){rej(e);}});}
+async function idbSet(k,v){try{const db=await idbOpen();await new Promise((res,rej)=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(JSON.parse(JSON.stringify(v)),k);t.oncomplete=res;t.onerror=()=>rej(t.error);});db.close();}catch(e){}}
+async function idbGet(k){try{const db=await idbOpen();const v=await new Promise((res,rej)=>{const t=db.transaction('kv','readonly');const q=t.objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});db.close();return v;}catch(e){return undefined;}}
+const STANDALONE=!!((window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone);
+async function restoreSY(){
+  if(SY.token){ if(!(await idbGet('sync'))) idbSet('sync',SY); return; }
+  const b=await idbGet('sync'); if(b&&b.token&&!SY.token){ SY=b; try{localStorage.setItem(LS_SYNC,JSON.stringify(SY));}catch(e){} render(); syncNow(false); }
+}
 function setSyncStatus(t){syncStatus=t;document.querySelectorAll('#syncLine,#syncLine2').forEach(e=>e.textContent=t);}
 function scheduleSync(){ if(!SY.token) return; clearTimeout(syncTimer); syncTimer=setTimeout(()=>syncNow(false),2000); setSyncStatus('有更改未同步…'); }
 function ghH(){return {'Authorization':'Bearer '+SY.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'};}
@@ -1090,8 +1505,10 @@ function mergeData(a,b){ // a = 呢部機, b = 雲端；同一時間（例如兩
   const schedule={};
   new Set(Object.keys(a.schedule||{}).concat(Object.keys(b.schedule||{}))).forEach(k=>{
     const sa=(a.schedule||{})[k], sb=(b.schedule||{})[k];
-    const s=!sb?sa:!sa?sb:((sa.at||0)>(sb.at||0)?sa:sb);
-    schedule[k]={main:s.main.filter(id=>ex[id]),extras:s.extras.filter(id=>ex[id]),at:s.at||0};
+    const s=!sb?sa:!sa?sb:((sa.at||0)>(sb.at||0)?sa:sb), o=s===sa?sb:sa;
+    // 舊版 app 同步時會漏咗提醒：同一時間嘅話保留有寫嘢嗰個
+    const memo=s.memo||(o&&(o.at||0)===(s.at||0)?o.memo:'')||'';
+    schedule[k]={main:s.main.filter(id=>ex[id]),extras:s.extras.filter(id=>ex[id]),at:s.at||0,memo};
   });
   const sortObj=o=>{const s={};Object.keys(o).sort().forEach(k=>s[k]=o[k]);return s;};
   return {v:3,ex:sortObj(ex),equip:sortObj(equip),schedule:sortObj(schedule),schedAt:Math.max(a.schedAt||0,b.schedAt||0),logs:Object.values(logs).sort((x,y)=>x.ts-y.ts||(x.id<y.id?-1:1)),deleted:sortObj(del)};
@@ -1112,14 +1529,21 @@ async function syncNow(manual){
     SY.last=Date.now(); saveSY();
     const t=new Date(); setSyncStatus('已同步 '+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0'));
     if(manual) toast('同步完成 ✓');
-    if(out!==before&&!$('#modal').classList.contains('show')&&!['exform','eqform'].includes(V.view)) render();
+    const typing=document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    if(out!==before&&!typing&&Date.now()>=flyUntil&&!$('#modal').classList.contains('show')&&!['exform','eqform','summary'].includes(V.view)) render();
   }catch(e){ setSyncStatus('同步失敗：'+e.message); if(manual) toast('同步失敗：'+e.message); }
   finally{ syncing=false; if(syncPending){syncPending=false;syncNow(false);} }
 }
 function renderPrefsCard(){
   const sup=!!navigator.wakeLock;
   const opts=[[5,'5 分鐘'],[10,'10 分鐘'],[20,'20 分鐘'],[30,'30 分鐘'],[0,'永不（訓練完先熄）']];
-  return `<h2>螢幕（只影響呢部機）</h2><div class="card">
+  const autoOpts=[[20,'20 秒'],[30,'30 秒'],[45,'45 秒'],[60,'60 秒'],[90,'90 秒'],[0,'關閉（自己撳完成）']];
+  return `<h2>計時（只影響呢部機）</h2><div class="card">
+    <div class="toggle"><div><b>倒數 10 秒提示音</b><div class="sub small">休息仲有 10 秒會「嘟嘟」兩聲，提你準備好姿勢</div></div><button class="switch ${P.prep?'on':''}" onclick="P.prep=!P.prep;savePrefs();render()"></button></div>
+    <div class="field" style="margin-top:10px"><label class="label" style="margin-top:0">最後一組開始後幾耐自動當完成</label><select onchange="P.autoLast=+this.value;savePrefs()">${autoOpts.map(([v,t])=>`<option value="${v}" ${P.autoLast===v?'selected':''}>${t}</option>`).join('')}</select>
+    <div class="sub small mt">時間一到就會轉綠色，提你揀難度；做慢咗都冇所謂，揀難度前可以撳數字改返。</div></div>
+    <div class="help mt">⚠ iPhone 嘅網頁 app 轉咗去其他 app 或者鎖咗機，系統唔俾佢喺背景出聲，要返到 app 先會提你（返嚟會即刻閃同響）。建議開住下面「訓練時保持螢幕開住」。</div></div>
+    <h2>螢幕（只影響呢部機）</h2><div class="card">
     <div class="toggle"><div><b>訓練時保持螢幕開住</b><div class="sub small">${sup?'只喺訓練畫面生效；完成或者放棄訓練就會熄':'呢部機嘅系統唔支援（要 iOS 16.4 或以上）'}</div></div><button class="switch ${P.wake?'on':''}" onclick="P.wake=!P.wake;savePrefs();keepAwake(wakeWanted());render()"></button></div>
     ${P.wake?`<div class="field" style="margin-top:10px"><label class="label" style="margin-top:0">幾耐冇撳螢幕就自動熄</label><select onchange="P.wakeIdle=+this.value;savePrefs();keepAwake(wakeWanted())">${opts.map(([v,t])=>`<option value="${v}" ${P.wakeIdle===v?'selected':''}>${t}</option>`).join('')}</select>
     <div class="sub small mt">例如揀 10 分鐘：休息時唔會熄，但係你放低部機超過 10 分鐘冇掂，螢幕就會照平時咁熄；再撳一下又會保持開住。</div></div>`:''}
@@ -1132,16 +1556,21 @@ function renderSyncCard(){
     <li>Expiration 揀 No expiration，只剔 <code>gist</code></li>
     <li>複製個 token（ghp_ 開頭）貼喺下面</li></ol>
     iPad 用同一個 token 就會自動搵到同一份資料。</div>
+    ${whereHelp()}
     <input id="tokenIn" type="password" placeholder="ghp_xxxxxxxx" class="mt" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button class="primary blue mt" onclick="connectSync()">連接同步</button></div>`;
   return `<h2>iPhone ↔ iPad 同步</h2><div class="card">
     <div class="row between"><div><b>已連接 GitHub</b><div class="sub small" id="syncLine2">${esc(syncStatus||'')}</div></div><span class="badge green">開啟</span></div>
     <div class="row mt"><button class="secondary" onclick="syncNow(true)">立即同步</button><button class="secondary" onclick="disconnectSync()"><span class="danger">中斷同步</span></button></div>
-    <div class="help mt">每次改動後約 2 秒自動上載；開返 app 時會自動下載。</div></div>`;
+    <div class="help mt">每次改動後約 2 秒自動上載；開返 app 時會自動下載。Token 儲存喺：<b>${STANDALONE?'主畫面 App':'瀏覽器（Safari）'}</b>（${esc(location.host)}）。</div></div>`;
+}
+function whereHelp(){
+  return `<div class="help mt" style="padding:10px 12px;border-radius:12px;background:var(--card2)">而家開緊：<b style="color:var(--text)">${STANDALONE?'主畫面 App':'瀏覽器（Safari）'}</b> · ${esc(location.host)}<br>
+    ⚠ iPhone 嘅「主畫面 App」同「Safari」係<b>分開儲存</b>嘅：喺 Safari 貼咗 token，開主畫面 App 係見唔到嘅（反之亦然）。請喺你平時開嘅嗰個度貼。${STANDALONE?'':'<br>Safari 仲會喺你 7 日冇開嘅時候清走資料，建議用主畫面 App。'}</div>`;
 }
 async function connectSync(){ const t=($('#tokenIn').value||'').trim(); if(!t){toast('請貼上 token');return;} SY={token:t}; saveSY(); render(); await syncNow(true); render(); }
 async function disconnectSync(){ if(!(await ask('喺呢部機中斷同步？資料會保留喺呢部機同 GitHub，之後可以再連接。','中斷'))) return; SY={}; saveSY(); setSyncStatus(''); render(); }
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ syncNow(false); wakeLock=null; lastTouch=Date.now(); keepAwake(wakeWanted()); } });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ tickTimer(); syncNow(false); wakeLock=null; lastTouch=Date.now(); keepAwake(wakeWanted()); } });
 /* 訓練中保持螢幕唔熄（iOS 16.4+） */
 let wakeLock=null, wakeWant=false, wakeReq=null, lastTouch=Date.now();
 function wakeWanted(){ if(!P.wake||!W||!(V.view==='workout'||V.view==='extras')) return false;
@@ -1168,6 +1597,7 @@ window.addEventListener('online',()=>syncNow(false));
 
 render();
 syncNow(false);
+restoreSY();
 </script>
 </body>
 </html>
