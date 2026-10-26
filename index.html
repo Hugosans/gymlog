@@ -122,11 +122,10 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
    一個 cycle：圈轉 252°，弧頭自己行 108°（47 單位），加埋啱啱 360°，所以 cycle 頭尾接得上、冇回帶 */
 .sets .wait{color:var(--yellow)}
 .sets .wait .rg{animation:rotW 2.4s cubic-bezier(.5,.08,.5,.92) var(--pr,0s) infinite}
-.sets .wait .ar{animation:arcBreath 2.4s cubic-bezier(.45,0,.55,1) var(--pr,0s) infinite}
+.sets .wait .ar{animation:arcBreath 2.4s cubic-bezier(.45,0,.55,1) var(--pr,0s) infinite;filter:drop-shadow(0 0 1.5px rgba(255,214,10,.5))}
 .sets .wait .n{animation:nb 2.4s ease-in-out var(--pr,0s) infinite}
 .sets .wait.appear .rw{animation:appear .6s .32s cubic-bezier(.3,1.7,.5,1) both}
-.sets .wait.soon .rg{animation-duration:1.2s;filter:drop-shadow(0 0 4px rgba(255,214,10,.85))}
-.sets .wait.soon .ar,.sets .wait.soon .n{animation-duration:1.2s}
+.sets .wait.soon .ar{filter:drop-shadow(0 0 4px rgba(255,214,10,.9))}
 .sets .wait.catch .rw{transform:scale(1.28);opacity:.25}
 /* 做緊：頭追尾咁轉，快慢交替 */
 .sets .doing{color:var(--green);animation:halo 1.5s ease-in-out var(--pd,0s) infinite}
@@ -323,7 +322,7 @@ body.flash2{animation:flash2 .7s ease 1}
 <div id="toast" class="toast"></div>
 <script>
 /* ====================== 常數 ====================== */
-const APP_VER='v6.4';
+const APP_VER='v6.5';
 const LS_PREFS='gymlog_prefs_v1';
 const LS='gymlog_v2', LS_SESSION='gymlog_session_v2', LS_SYNC='gymlog_sync_v1';
 const DAYS=['日','一','二','三','四','五','六'];
@@ -962,11 +961,27 @@ function paintTimer(){
   if(c){ if(c.textContent!==cap) c.textContent=cap; c.className='tcap'+(hot?' hot':''); }
   if(bar){ bar.classList.toggle('on',pct>=0); bar.classList.toggle('hot',hot); if(pct>=0&&bar.firstChild) bar.firstChild.style.width=pct+'%'; }
   const wb=$('#set'+st.sets);
-  if(wb&&wb.classList.contains('wait')&&wb.classList.contains('soon')!==hot){
-    // 轉速時要對返相位（2.4s ↔ 1.2s），唔係個圈會跳一下
-    const t=now%600000, from=hot?2400:1200, to=hot?1200:2400, ph=(t%from)/from;
-    wb.style.setProperty('--pr',(-ph*to)+'ms'); wb.classList.toggle('soon',hot); wb.classList.remove('appear');
-    wb.replaceWith(wb.cloneNode(true)); // 改 duration 唔會重新開始動畫，要換個新元素先會用新相位
+  if(wb&&wb.classList.contains('wait')){
+    // 最後 10 秒加快動畫，但唔改 CSS duration／唔複製 DOM；用 WAAPI 改播放速度，保留目前相位，避免黃圈閃位或倒退。
+    const wantSoon=!!hot;
+    if(wb.classList.contains('soon')!==wantSoon){
+      wb.classList.toggle('soon',wantSoon);
+      wb.classList.remove('appear');
+    }
+    const rate=wantSoon?2:1;
+    if(wb.dataset.animRate!==String(rate)){
+      const anims=[];
+      [wb.querySelector('.rg'),wb.querySelector('.ar'),wb.querySelector('.n')].forEach(el=>{
+        if(el&&typeof el.getAnimations==='function') anims.push(...el.getAnimations());
+      });
+      // 只喺瀏覽器支援同步播放速度時先加速；舊版寧願保持原速，都唔會為咗加速而跳位。
+      if(anims.length&&anims.every(a=>typeof a.updatePlaybackRate==='function')){
+        anims.forEach(a=>{try{a.updatePlaybackRate(rate);}catch(_){ }});
+        wb.dataset.animRate=String(rate);
+      }else if(anims.length){
+        wb.dataset.animRate='steady';
+      }
+    }
   }
 }
 let tState=null, tFx='', tFxUntil=0;
