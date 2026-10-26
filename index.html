@@ -118,15 +118,35 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
 .sets .rg{display:block;width:56px;height:56px;overflow:visible}
 .sets .rg circle{fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round}
 .sets .rg .tr{opacity:.15}
-/* 等緊：一直向前轉（唔會慢到停）；條弧個頭向前伸長，然後條尾追上嚟縮短，頭永遠唔會倒後行
-   一個 cycle：圈轉 252°，弧頭自己行 108°（47 單位），加埋啱啱 360°，所以 cycle 頭尾接得上、冇回帶 */
+/* 等緊／組間休息準備：黃色圈沿用綠色「做緊」圈同一套弧線動畫，
+   包括相同嘅長短變化、速度曲線同旋轉節奏；只換成黃色，令收短再延長嘅動作自然一致。
+   最後 10 秒由 JS 用 WAAPI 調整播放速度，保留當前相位，避免跳位。 */
 .sets .wait{color:var(--yellow)}
-.sets .wait .rg{animation:rotW 2.4s cubic-bezier(.5,.08,.5,.92) var(--pr,0s) infinite}
-.sets .wait .ar{animation:arcBreath 2.4s cubic-bezier(.45,0,.55,1) var(--pr,0s) infinite;filter:drop-shadow(0 0 1.5px rgba(255,214,10,.5))}
+.sets .wait .rg{filter:none}
+.sets .wait .ar{filter:drop-shadow(0 0 3px rgba(255,214,10,.78))}
 .sets .wait .n{animation:nb 2.4s ease-in-out var(--pr,0s) infinite}
 .sets .wait.appear .rw{animation:appear .6s .32s cubic-bezier(.3,1.7,.5,1) both}
-.sets .wait.soon .ar{filter:drop-shadow(0 0 4px rgba(255,214,10,.9))}
+.sets .wait.soon .ar{filter:drop-shadow(0 0 5px rgba(255,214,10,.95))}
 .sets .wait.catch .rw{transform:scale(1.28);opacity:.25}
+/* 三款黃色倒數圈：預覽與實際訓練共用同一套動畫 */
+.sets .wait.ring-style-green .rg,.ring-preview.ring-style-green .rg{animation:rot 2s cubic-bezier(.4,.12,.6,.88) var(--pr,0s) infinite}
+.sets .wait.ring-style-green .ar,.ring-preview.ring-style-green .ar{animation:chase 1.5s cubic-bezier(.45,0,.25,1) var(--pr,0s) infinite}
+.sets .wait.ring-style-soft .rg,.ring-preview.ring-style-soft .rg{animation:rot 2.4s cubic-bezier(.4,.12,.6,.88) var(--pr,0s) infinite}
+.sets .wait.ring-style-soft .ar,.ring-preview.ring-style-soft .ar{animation:chaseSoft 2.4s cubic-bezier(.4,0,.2,1) var(--pr,0s) infinite}
+.sets .wait.ring-style-fixed .rg,.ring-preview.ring-style-fixed .rg{animation:rot 2.8s linear var(--pr,0s) infinite}
+.sets .wait.ring-style-fixed .ar,.ring-preview.ring-style-fixed .ar{stroke-dasharray:68 89.1;stroke-dashoffset:0;animation:none}
+.ring-preview{width:72px;height:72px;flex:0 0 72px;margin:0 auto;color:var(--yellow);display:flex;align-items:center;justify-content:center}
+.ring-preview .rg{display:block;width:72px;height:72px;overflow:visible}
+.ring-preview .rg circle{fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round}
+.ring-preview .tr{opacity:.15}
+.ring-preview .ar{filter:drop-shadow(0 0 3px rgba(255,214,10,.78))}
+.ring-options{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.ring-option{border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:12px}
+.ring-option.selected{border-color:var(--green);box-shadow:inset 0 0 0 1px rgba(48,209,88,.35)}
+.ring-option-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ring-option .desc{font-size:13px;color:var(--muted);line-height:1.4;margin-top:3px}
+.ring-select{width:100%;margin-top:10px}
+.ring-select.active{background:rgba(48,209,88,.16);color:var(--green)}
 /* 做緊：頭追尾咁轉，快慢交替 */
 .sets .doing{color:var(--green);animation:halo 1.5s ease-in-out var(--pd,0s) infinite}
 .sets .doing .rg{animation:rot 2s cubic-bezier(.4,.12,.6,.88) var(--pr,0s) infinite;filter:drop-shadow(0 0 3px rgba(48,209,88,.8))}
@@ -144,9 +164,9 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
 .sets .justdone .n{animation:ndone .5s .16s cubic-bezier(.3,1.6,.5,1) both}
 .sets .justdone .rw{animation:collapse .4s cubic-bezier(.5,0,.8,.4) both}
 @keyframes rot{from{transform:rotate(-90deg)}to{transform:rotate(270deg)}}
-@keyframes rotW{from{transform:rotate(-90deg)}to{transform:rotate(162deg)}}
-@keyframes arcBreath{0%{stroke-dasharray:25.1 132;stroke-dashoffset:0}50%{stroke-dasharray:72 85.1;stroke-dashoffset:0}100%{stroke-dasharray:25.1 132;stroke-dashoffset:-47}}
+@keyframes rotW{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes chase{0%{stroke-dasharray:94.2 62.9;stroke-dashoffset:0}50%{stroke-dasharray:12.6 144.5;stroke-dashoffset:-110}100%{stroke-dasharray:94.2 62.9;stroke-dashoffset:-157.1}}
+@keyframes chaseSoft{0%{stroke-dasharray:76 81.1;stroke-dashoffset:0}50%{stroke-dasharray:53 104.1;stroke-dashoffset:-78.55}100%{stroke-dasharray:76 81.1;stroke-dashoffset:-157.1}}
 @keyframes unwrap{0%,28%{stroke-dasharray:157.1 0;stroke-dashoffset:0}100%{stroke-dasharray:94.2 62.9;stroke-dashoffset:0}}
 @keyframes squash{0%{transform:scale(1.18,.78)}32%{transform:scale(.88,1.12)}62%{transform:scale(1.05,.96)}100%{transform:none}}
 @keyframes nbounce{0%{transform:scale(.55)}100%{transform:none}}
@@ -322,7 +342,7 @@ body.flash2{animation:flash2 .7s ease 1}
 <div id="toast" class="toast"></div>
 <script>
 /* ====================== 常數 ====================== */
-const APP_VER='v6.5';
+const APP_VER='v6.8';
 const LS_PREFS='gymlog_prefs_v1';
 const LS='gymlog_v2', LS_SESSION='gymlog_session_v2', LS_SYNC='gymlog_sync_v1';
 const DAYS=['日','一','二','三','四','五','六'];
@@ -574,7 +594,7 @@ function suggest(ex,eqId){
 let S=loadJSON(LS)||defaultData(); S=migrate(S);
 let W=loadJSON(LS_SESSION);
 const storedPrefs=loadJSON(LS_PREFS)||{};
-let P=Object.assign({wake:true,wakeIdle:10,autoLast:180,prep:true,tick:true,vol:1.6,exRest:true,exRestSec:300,autoGo:true,voice:false,warmup:true,warmupAll:false,lastNote:true,clock:true,flash:true,celebrate:true},storedPrefs); // 每部機各自設定
+let P=Object.assign({wake:true,wakeIdle:10,autoLast:180,prep:true,tick:true,vol:1.6,exRest:true,exRestSec:300,autoGo:true,voice:false,warmup:true,warmupAll:false,lastNote:true,clock:true,flash:true,celebrate:true,ringStyle:'green'},storedPrefs); // 每部機各自設定
 if(W) W.hist=W.hist||[];
 function savePrefs(){try{localStorage.setItem(LS_PREFS,JSON.stringify(P));}catch(e){}}
 // 舊版預設係 30 秒：首次升級時轉成 3 分鐘；之後仍然可以自行揀其他時間。
@@ -915,7 +935,7 @@ function setsCardHTML(ex,st){
     if(i<st.sets){ c='done'; if(i===justDone){c+=' justdone';ring=true;} }
     else if(i===st.sets&&!done){ ring=true;
       if(st.doing){ c='doing'+(landing?' land':''); sty=`--pr:${-(now-st.ringT0)}ms;--pd:${-(now-st.ringT0-LAND_MS)}ms`; }
-      else { c='wait'+(justDone>=0&&i===justDone+1?' appear':''); sty=`--pr:${g}ms`; } }
+      else { c='wait ring-style-'+(P.ringStyle||'green')+(justDone>=0&&i===justDone+1?' appear':''); sty=`--pr:${g}ms`; } }
     return `<button class="${c}" id="set${i}" style="${sty}" onclick="tapSet(${i})">${ring?RING:''}<span class="n">${i+1}</span></button>`;}).join('');
   let btn='';
   if(!done){
@@ -1854,6 +1874,28 @@ async function syncNow(manual){
   }catch(e){ setSyncStatus('同步失敗：'+e.message); if(manual) toast('同步失敗：'+e.message); }
   finally{ syncing=false; if(syncPending){syncPending=false;syncNow(false);} }
 }
+function ringAnimationSettingsHTML(){
+  const styles=[
+    ['green','綠色同款','伸長、收短嘅節奏同綠色做緊嗰個一樣。','最接近你話鍾意嘅綠圈'],
+    ['soft','柔和伸縮','弧線只會輕輕收短再延長，變化冇咁大。','節奏較柔和'],
+    ['fixed','固定長度','弧線長度保持不變，只沿住圓圈旋轉。','唔會伸縮']
+  ];
+  return `<h2>組數倒數圈動畫（預覽及選擇）</h2><div class="card">
+    <div class="sub small">下面三款會一直動，睇吓邊款最順眼。撳每款下面嘅「選擇呢個」，就會即時套用到訓練畫面；之後可以再返嚟改。</div>
+    <div class="ring-options">${styles.map(([id,title,desc,tag])=>`<div class="ring-option ${P.ringStyle===id?'selected':''}">
+      <div class="ring-option-top"><div class="grow"><b>${title}</b><div class="desc">${desc}</div><div class="sub small" style="margin-top:5px">${tag}</div></div>
+        <div class="ring-preview ring-style-${id}" aria-hidden="true"><svg class="rg" viewBox="0 0 56 56"><circle class="tr" cx="28" cy="28" r="25"/><circle class="ar" cx="28" cy="28" r="25"/></svg></div></div>
+      <button class="secondary ring-select ${P.ringStyle===id?'active':''}" onclick="chooseRingStyle('${id}')">${P.ringStyle===id?'✓ 已選用':'選擇呢個'}</button>
+    </div>`).join('')}</div>
+  </div>`;
+}
+function chooseRingStyle(id){
+  if(!['green','soft','fixed'].includes(id)) return;
+  P.ringStyle=id; savePrefs(); render();
+  const names={green:'綠色同款',soft:'柔和伸縮',fixed:'固定長度'};
+  toast('已選用：'+names[id]);
+}
+
 function renderPrefsCard(){
   const sup=!!navigator.wakeLock;
   const opts=[[5,'5 分鐘'],[10,'10 分鐘'],[20,'20 分鐘'],[30,'30 分鐘'],[0,'永不（訓練完先熄）']];
@@ -1866,6 +1908,7 @@ function renderPrefsCard(){
     <div class="toggle"><div><b>顯示上次備註</b><div class="sub small">上次做呢個動作有寫備註（例如「左膊痛」「用闊握」），開頭會提返你</div></div><button class="switch ${P.lastNote?'on':''}" onclick="P.lastNote=!P.lastNote;savePrefs();render()"></button></div>
     <div class="toggle"><div><b>顯示訓練總時間</b><div class="sub small">頂部顯示由開始訓練到而家練咗幾耐</div></div><button class="switch ${P.clock?'on':''}" onclick="P.clock=!P.clock;savePrefs();render()"></button></div>
     <div class="toggle"><div><b>完成慶祝動畫</b><div class="sub small">完成訓練時嘅彩紙、火箭同音效</div></div><button class="switch ${P.celebrate?'on':''}" onclick="P.celebrate=!P.celebrate;savePrefs();render()"></button></div></div>
+    ${ringAnimationSettingsHTML()}
     <h2>動作之間（只影響呢部機）</h2><div class="card">
     <div class="toggle"><div><b>做完一個動作後問要唔要休息</b><div class="sub small">記錄咗難度、撳「下一個」之後會先去休息頁倒數；跳過動作就唔會問</div></div><button class="switch ${P.exRest?'on':''}" onclick="P.exRest=!P.exRest;savePrefs();render()"></button></div>
     ${P.exRest?`<div class="field" style="margin-top:10px"><label class="label" style="margin-top:0">動作之間休息幾耐</label><select onchange="P.exRestSec=+this.value;savePrefs()">${brkOpts.map(([v,t])=>`<option value="${v}" ${P.exRestSec===v?'selected':''}>${t}</option>`).join('')}</select>
