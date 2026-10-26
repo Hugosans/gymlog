@@ -1,5 +1,5 @@
 /* Gym Log 離線快取：網頁先試網絡（3 秒內），失敗就用快取；GitHub 同步請求唔經呢度 */
-const CACHE='gymlog-v6.1';
+const CACHE='gymlog-v6.3';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())); });
 self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())); });
