@@ -99,6 +99,18 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
 .suggest.strong{background:var(--green);color:#000}
 .suggest.down{background:rgba(255,69,58,.16);color:var(--red)}
 .suggest.keep{background:var(--card2);color:var(--muted)}
+.sugbox{display:flex;align-items:center;gap:10px;margin:12px 0 2px;padding:10px 12px;border-radius:14px;background:var(--card2)}
+.sugbox .sb-t{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sugbox .sb-d{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+.sugbox.up{background:rgba(48,209,88,.12);box-shadow:inset 0 0 0 1px rgba(48,209,88,.35)}.sugbox.up .sb-t{color:var(--green)}
+.sugbox.down{background:rgba(255,69,58,.12);box-shadow:inset 0 0 0 1px rgba(255,69,58,.35)}.sugbox.down .sb-t{color:var(--red)}
+.sugbox.keep .sb-t{color:var(--text)}
+.sb-btn{flex:0 0 auto;padding:9px 16px;border-radius:11px;font-weight:800;font-size:14px;background:var(--green);color:#000;text-align:center}
+.sugbox.down .sb-btn{background:var(--red);color:#fff}
+.sb-btn.ghost{background:transparent!important;color:var(--text)!important;box-shadow:inset 0 0 0 1px var(--line);font-size:13px;line-height:1.2}
+.sb-btn small{display:block;font-size:10.5px;color:var(--muted);font-weight:600}
+.sdots{display:inline-flex;gap:4px}.sdots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.sdots i.on{background:var(--green)}
+.stepper.sm{gap:22px;margin:4px 0 2px}.stepper.sm button{width:40px;height:40px;font-size:22px}.stepper.sm .w{font-size:28px;min-width:100px}
 .rpe-bar{display:flex;gap:4px;margin-top:12px}
 .rpe-bar button{flex:1;height:46px;border-radius:10px;font-weight:800;font-size:15px;color:rgba(255,255,255,.8);transition:transform .12s;opacity:.5;text-align:center}
 .rpe-bar button.on{opacity:1;transform:scaleY(1.2);color:#fff;box-shadow:0 0 0 2px #fff inset}
@@ -140,12 +152,14 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
 .ring-preview .rg circle{fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round}
 .ring-preview .tr{opacity:.15}
 .ring-preview .ar{filter:drop-shadow(0 0 3px rgba(255,214,10,.78))}
-.ring-options{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.ring-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+@media (min-width:520px){.ring-options{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .ring-option{border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:12px}
 .ring-option.selected{border-color:var(--green);box-shadow:inset 0 0 0 1px rgba(48,209,88,.35)}
-.ring-option-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ring-option-top{display:flex;flex-direction:column-reverse;align-items:stretch;text-align:center;gap:8px}
+.ring-option{display:flex;flex-direction:column;justify-content:space-between}
 .ring-option .desc{font-size:13px;color:var(--muted);line-height:1.4;margin-top:3px}
-.ring-select{width:100%;margin-top:10px}
+.ring-select{width:100%;margin-top:10px;padding:9px 0!important;font-size:14px}
 .ring-select.active{background:rgba(48,209,88,.16);color:var(--green)}
 /* 做緊：頭追尾咁轉，快慢交替 */
 .sets .doing{color:var(--green);animation:halo 1.5s ease-in-out var(--pd,0s) infinite}
@@ -163,6 +177,31 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
 .sets .justdone::after{animation-delay:.26s}
 .sets .justdone .n{animation:ndone .5s .16s cubic-bezier(.3,1.6,.5,1) both}
 .sets .justdone .rw{animation:collapse .4s cubic-bezier(.5,0,.8,.4) both}
+.sets .wait.ring-style-dots .rg,.ring-preview.ring-style-dots .rg{animation:rot 3.2s linear var(--pr,0s) infinite}
+.sets .wait.ring-style-dots .ar,.ring-preview.ring-style-dots .ar{stroke-dasharray:.01 9.8175;stroke-width:5.2;animation:dotPulse 1.6s ease-in-out var(--pr,0s) infinite}
+.sets .wait.ring-style-breathe .rg,.ring-preview.ring-style-breathe .rg{animation:breatheR 2.6s ease-in-out var(--pr,0s) infinite}
+.sets .wait.ring-style-breathe .ar,.ring-preview.ring-style-breathe .ar{stroke-dasharray:none;animation:breatheA 2.6s ease-in-out var(--pr,0s) infinite}
+.sets .wait.ring-style-tick .rg,.ring-preview.ring-style-tick .rg{animation:rot 4.8s steps(12,end) var(--pr,0s) infinite}
+.sets .wait.ring-style-tick .ar,.ring-preview.ring-style-tick .ar{stroke-dasharray:20 137.1;stroke-dashoffset:0;animation:none}
+.sets .wait.ring-style-swing .rg,.ring-preview.ring-style-swing .rg{animation:swing 1.5s cubic-bezier(.45,0,.55,1) var(--pr,0s) infinite alternate}
+.sets .wait.ring-style-swing .ar,.ring-preview.ring-style-swing .ar{stroke-dasharray:58 99.1;stroke-dashoffset:0;animation:none}
+.sets .wait.ring-style-draw .rg,.ring-preview.ring-style-draw .rg{transform:rotate(-90deg);animation:none}
+.sets .wait.ring-style-draw .ar,.ring-preview.ring-style-draw .ar{stroke-dasharray:157.1;animation:drawLoop 2.4s cubic-bezier(.55,0,.35,1) var(--pr,0s) infinite}
+.sets .wait.ring-style-twin .rg,.ring-preview.ring-style-twin .rg{animation:rot 1.8s linear var(--pr,0s) infinite}
+.sets .wait.ring-style-twin .ar,.ring-preview.ring-style-twin .ar{animation:twin 1.8s ease-in-out var(--pr,0s) infinite}
+.sets .wait.ring-style-orbit .rg,.ring-preview.ring-style-orbit .rg{animation:rot 1.6s cubic-bezier(.6,.05,.4,.95) var(--pr,0s) infinite}
+.sets .wait.ring-style-orbit .ar,.ring-preview.ring-style-orbit .ar{stroke-dasharray:.01 157.07;stroke-width:7.5;animation:none}
+.sets .wait.ring-style-orbit .tr,.ring-preview.ring-style-orbit .tr{opacity:.38}
+.sets .wait.ring-style-heart .rg,.ring-preview.ring-style-heart .rg{transform:rotate(-90deg);animation:heartR 1.3s ease-out var(--pr,0s) infinite}
+.sets .wait.ring-style-heart .ar,.ring-preview.ring-style-heart .ar{stroke-dasharray:none;animation:heartA 1.3s ease-out var(--pr,0s) infinite}
+@keyframes dotPulse{0%,100%{stroke-width:4.2;opacity:.75}50%{stroke-width:6.4;opacity:1}}
+@keyframes breatheR{0%,100%{transform:rotate(-90deg) scale(.86)}50%{transform:rotate(-90deg) scale(1.06)}}
+@keyframes breatheA{0%,100%{opacity:.3;stroke-width:2.2}50%{opacity:1;stroke-width:4.6}}
+@keyframes swing{from{transform:rotate(-200deg)}to{transform:rotate(20deg)}}
+@keyframes drawLoop{0%{stroke-dashoffset:157.1}50%{stroke-dashoffset:0}100%{stroke-dashoffset:-157.1}}
+@keyframes twin{0%,100%{stroke-dasharray:46 32.54}50%{stroke-dasharray:10 68.54}}
+@keyframes heartR{0%,42%,100%{transform:rotate(-90deg) scale(1)}12%{transform:rotate(-90deg) scale(1.13)}24%{transform:rotate(-90deg) scale(.97)}32%{transform:rotate(-90deg) scale(1.08)}}
+@keyframes heartA{0%,45%,100%{opacity:.55}12%,32%{opacity:1}}
 @keyframes rot{from{transform:rotate(-90deg)}to{transform:rotate(270deg)}}
 @keyframes rotW{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes chase{0%{stroke-dasharray:94.2 62.9;stroke-dashoffset:0}50%{stroke-dasharray:12.6 144.5;stroke-dashoffset:-110}100%{stroke-dasharray:94.2 62.9;stroke-dashoffset:-157.1}}
@@ -267,6 +306,8 @@ svg.chart{width:100%;height:auto;display:block}
 .mmsg{font-size:17px;font-weight:600;line-height:1.45;padding:4px 2px}
 .help{font-size:13px;color:var(--muted);line-height:1.55}
 .help ol{padding-left:20px;margin:6px 0}
+.wpick .help{margin-top:6px}
+.wpick select:disabled{opacity:.6}
 code{background:var(--card2);padding:1px 5px;border-radius:5px;font-size:12px}
 @keyframes flash{0%{box-shadow:inset 0 0 0 0 rgba(48,209,88,0)}30%{box-shadow:inset 0 0 0 9999px rgba(48,209,88,.28)}100%{box-shadow:inset 0 0 0 0 rgba(48,209,88,0)}}
 body.flash{animation:flash .9s ease 2}
@@ -350,10 +391,10 @@ const DAY_ORDER=['1','2','3','4','5','6','0'];
 const CATS={back:'背',biceps:'二頭',chest:'胸',triceps:'三頭',shoulders:'肩',legs:'腿',abs:'腹',forearm:'前臂',other:'其他'};
 const KINDS={notch:'固定檔位',plates:'加配重片',stack:'配重塊',body:'自重'};
 const KIND_HELP={
-  notch:'一排固定重量嘅器材，例如啞鈴架。輸入所有檔位，建議加重會直接跳落一檔。',
+  notch:'一排固定重量嘅器材，例如啞鈴架。輸入所有檔位，建議加重會揀最近嘅檔位（最少跳一檔）。',
   plates:'用配重片砌重量，例如槓鈴（每邊各放）或者手持槓鈴片。輸入基本重量（槓本身）同你有嘅配重片數量，app 會幫你計每邊放咩片。',
   stack:'插銷式配重塊，例如龍門架／繩索機。輸入最低、最高同每格重量；有快拆加重片就加落「加重片」度。',
-  body:'冇重量，只記錄難度。'};
+  body:'冇重量，記錄難度同次數；建議只會加／減次數。'};
 
 /* 難度 1–10：頭加「太輕鬆」、中間加「開始有挑戰」、尾加「力竭」，其餘對返舊 y / n 代號 */
 const RPE_COLORS=[null,'#3b82f6','#0ea5e9','#14b8a6','#22c55e','#84cc16','#eab308','#f97316','#ef4444','#d946ef','#9333ea'];
@@ -370,42 +411,89 @@ const RPE=[null,
  {t:'力竭',       code:'',     d:'幾組都做唔夠，第二、三組已經跌晒次數，完全冇力。'},
 ];
 
-/* ====================== 建議算法（單位 = 器材「一檔」：繩索 5、槓鈴每邊 2.5、啞鈴跳一格；0.5 檔 = 繩索快拆 2.5）
-   r0 = 今次難度, r1 = 上次, sameW = 上次同今次同一重量 */
-function ruleUnits(r0,r1,sameW){
-  const has=r1!=null; let u=0, why='';
-  switch(r0){
-    case 1: u=1.5; why='太輕鬆'; break;
-    case 2: u=1;   why='好輕鬆'; break;
-    case 3: if(has&&r1<=3){u=1.5;why='連續兩次輕鬆';}else{u=1;why='輕鬆';} break;
-    case 4: u=0.5; why='OK，微加'; break;
-    case 5: if(has&&r1<=5){u=0.5;why='連續兩次唔算難';}else{u=0;why='維持多一次再加';} break;
-    case 6: u=0; why='剛剛好，維持'; break;
-    case 7: u=0; why='維持，練到穩先加'; break;
-    case 8: if(has&&r1>=8){u=-0.5;why='連續兩次好辛苦';}else{u=0;why='維持再試一次';} break;
-    case 9: if(has&&r1>=9){u=-1;why='連續兩次太重';}else{u=-0.5;why='太重，減少少';} break;
-    case 10: u=-1; why='力竭'; break;
+/* ====================== 建議算法 v2 ======================
+   參考：
+   · NSCA／ACSM「2-for-2」：要連續幾次都明顯有餘力先加，唔會因為一次好狀態就加
+   · RIR（仲剩幾多下）自動調節（Helms 等 2016／2018、Graham & Cleather 2021）：餘力越多加越多
+   · NSCA 加重幅度：上身約 2.5–5%、下身約 5–10%；減重／停練後約減 5–10%
+   · Plotkin 等 2022（PeerJ）：加次數同加重量，增肌效果相近 → 每個動作可以揀加重量、加次數或者兩者輪流
+   規則（同一重量 + 同一次數先計連續）：
+   · 加：最近連續 N 次（預設 3）難度都 ≤ 門檻（預設 5）
+   · 加幾多：按嗰 N 次平均 RIR 超出「剛剛好」幾多，上身每 1 RIR 約 +2%、下身約 +3.5%（上身最多 7.5%、下身 10%），
+     最少加一個最細可以加嘅重量；次數：平均難度 ≤3 加 2 下，否則加 1 下
+   · 減：力竭（10）一次減約 7.5%；連續兩次 ≥8 減約 5%；連續三次 ≥8 減約 10%；啱啱加完就 ≥9 → 返返上次
+   · 停練：21 日或以上唔加；42 日或以上減約 10%
+   · 建議唔會自動套用：今日預設用返上次嘅重量同次數，建議寫喺旁邊，撳「套用」先改 */
+const RPE_RIR={1:6,2:5,3:4,4:3.5,5:2.5,6:1.5,7:0.5,8:0,9:0,10:0};
+const PROG_LBL={weight:'加重量',auto:'先加次數，夠數再加重',reps:'只加次數'};
+function cfg(){ const c=Object.assign({upN:3,upMax:5},S&&S.cfg||{}); c.upN=Math.min(6,Math.max(1,+c.upN||3)); c.upMax=Math.min(7,Math.max(1,+c.upMax||5)); return c; }
+function progOf(ex,eq){ if(eq&&eq.kind==='body') return 'reps'; return ['weight','auto','reps'].includes(ex&&ex.prog)?ex.prog:'weight'; }
+function repsOfLog(l,ex){ const r=parseInt(l&&l.reps); return r>0?r:(ex?ex.reps:12); }
+function repsMaxOf(ex){ const m=parseInt(ex.repsMax); return m>ex.reps?Math.min(200,m):Math.min(200,ex.reps+3); }
+// 按總重百分比加／減，再揀砌得到嘅重量；最少郁一格
+function loadStep(ex,eq,w,pct){
+  if(!eq||eq.kind==='body'||eq.kind==='missing'||!pct) return w;
+  const dir=Math.sign(pct); let w2;
+  if(eq.kind==='plates'){ const T=totalKg(ex,eq,w)*(1+pct); w2=Math.max(0,(T-(eq.base||0))/(eq.perSide?2:1)); }
+  else w2=w*(1+pct);
+  let t=nearest(achievable(eq),r2(w2),dir);
+  if(dir>0&&t<=w+1e-9) t=stepTo(eq,w,1);
+  if(dir<0&&t>=w-1e-9) t=stepTo(eq,w,-1);
+  return t;
+}
+/* hist = 呢個動作＋器材嘅紀錄（新→舊）；回傳 {base:{w,reps}, w, reps, dir, why, streak, need, mode} */
+function planFrom(ex,eq,hist,now){
+  const C=cfg(), mode=progOf(ex,eq), l0=hist[0], v=variantOf(ex,eq.id);
+  const base={w:l0?l0.weight:(eq.kind==='body'?0:v.weight), reps:l0?repsOfLog(l0,ex):ex.reps};
+  const res={base,w:base.w,reps:base.reps,dir:0,why:'',streak:0,need:C.upN,mode,hasLog:!!l0};
+  if(!l0){ res.why='未有紀錄'; return res; }
+  const same=[]; for(const l of hist){ if(Math.abs(l.weight-base.w)>1e-9||repsOfLog(l,ex)!==base.reps) break; same.push(l); }
+  let easy=0; for(const l of same){ if(l.rpe<=C.upMax) easy++; else break; }
+  let hard=0; for(const l of same){ if(l.rpe>=8) hard++; else break; }
+  res.streak=Math.min(easy,C.upN);
+  const gap=now?Math.round((now-l0.ts)/86400000):0, r0=l0.rpe, l1=hist[same.length];
+  const heavierThanPrev=l1&&same.length===1&&(base.w>l1.weight+1e-9||(Math.abs(base.w-l1.weight)<1e-9&&base.reps>repsOfLog(l1,ex)));
+  const legs=ex.cat==='legs';
+  let act=null;
+  if(gap>=42) act={t:'down',pct:-0.10,dr:-2,why:`${gap} 日冇練，先減約 10% 重新適應`};
+  else if(heavierThanPrev&&r0>=9){ res.w=l1.weight; res.reps=repsOfLog(l1,ex); res.dir=-1; res.why='啱啱加完但太辛苦，返返上次'; return res; }
+  else if(r0>=10) act={t:'down',pct:-0.075,dr:-2,why:'力竭、次數跌咗，減少少'};
+  else if(hard>=3) act={t:'down',pct:-0.10,dr:-2,why:'連續三次好辛苦，減重重新儲力'};
+  else if(hard>=2) act={t:'down',pct:-0.05,dr:-1,why:'連續兩次好辛苦，減少少'};
+  else if(easy>=C.upN){
+    if(gap>=21){ res.why=`${gap} 日冇練，先維持多一次`; return res; }
+    const rs=same.slice(0,C.upN).map(l=>l.rpe), avgR=rs.reduce((a,b)=>a+b,0)/rs.length;
+    const rir=rs.reduce((a,r)=>a+(RPE_RIR[r]||0),0)/rs.length, ex1=Math.max(.5,rir-1.5);
+    const pct=Math.min(legs?.10:.075,ex1*(legs?.035:.02));
+    act={t:'up',pct,dr:avgR<=3?2:1,why:`連續 ${C.upN} 次都輕鬆（平均 ${fmtW(Math.round(avgR*10)/10)}）`};
+  } else {
+    res.why=r0>=9?'太重：再試一次，連續兩次先減':r0>=8?'好辛苦：維持，練到穩':easy>0?`輕鬆 ${easy}/${C.upN} 次，再穩多 ${C.upN-easy} 次先加`:r0>=6?'剛剛好，維持':'維持';
+    return res;
   }
-  // 成長趨勢：同一重量，比上次輕鬆咗 → 每輕鬆 1 級多加 0.5 檔（最多 +1）
-  if(has&&sameW&&r0<=6&&r1-r0>=1){const b=Math.min(r0>=6?0.5:1,(r1-r0)*0.5);why=`同一重量比上次輕鬆 ${r1-r0} 級`+(u>0?'，'+why:'');u+=b;}
-  u=Math.max(-1,Math.min(1.5,u));
-  return [u,why];
+  // 執行加／減
+  const rMin=ex.reps, rMax=repsMaxOf(ex), canW=eq.kind!=='body'&&eq.kind!=='missing';
+  const doW=()=>{ const t=loadStep(ex,eq,base.w,act.pct); if(Math.abs(t-base.w)<1e-9) return false; res.w=t; return true; };
+  const doR=(lo,hi)=>{ const t=Math.max(lo,Math.min(hi,base.reps+act.dr)); if(t===base.reps) return false; res.reps=t; return true; };
+  let ok=false;
+  if(act.t==='up'){
+    if(mode==='reps') ok=doR(1,200);
+    else if(mode==='auto'){ if(base.reps<rMax) ok=doR(1,rMax); else if(canW&&doW()){ res.reps=rMin; ok=true; act.why+='，次數夠晒，加重再由 '+rMin+' 下做起'; } else ok=doR(1,200); }
+    else { ok=canW&&doW(); if(!ok){ ok=doR(1,200); if(ok) act.why+='（已經最重，改加次數）'; } }
+  } else {
+    if(mode==='reps') ok=doR(1,200);
+    else if(mode==='auto'){ ok=base.reps>rMin?doR(rMin,200):false; if(!ok) ok=canW&&doW(); if(!ok) ok=doR(1,200); }
+    else { ok=canW&&doW(); if(!ok) ok=doR(1,200); }
+  }
+  res.dir=ok?(act.t==='up'?1:-1):0; res.why=ok?act.why:(act.t==='up'?'已經去到最重／最多次':'已經去到最輕');
+  return res;
 }
-/* 用成個歷史計下次：r0/w0 = 今次難度／重量，prev = 之前嘅紀錄（新→舊），now = 今次嘅時間 */
-function planNext(r0,w0,prev,now){
-  const l1=prev[0]; const same=l1&&Math.abs(l1.weight-w0)<1e-9;
-  let [u,why]=ruleUnits(r0,l1?l1.rpe:null,!!same); let target=null;
-  const sw=[r0]; for(const l of prev){ if(Math.abs(l.weight-w0)>1e-9) break; sw.push(l.rpe); }  // 連續幾次都係呢個重量
-  if(sw.length>=3&&sw.slice(0,3).every(r=>r>=6&&r<=7)&&u<0.5){u=0.5;why='連續三次都係剛剛好，試吓微加';}
-  if(sw.length>=3&&sw.slice(0,3).every(r=>r>=8)){u=-1;why='連續三次好辛苦，減重重新儲力';}
-  if(l1&&w0<l1.weight-1e-9&&u>0.5){u=0.5;why='啱啱減完重量，慢慢加返';}
-  if(l1&&w0>l1.weight+1e-9&&r0>=9){target=l1.weight;u=-0.5;why='加重後太辛苦，返返上次重量';}
-  if(l1&&now){ const gap=Math.round((now-l1.ts)/86400000);
-    if(gap>=42&&u>-0.5){u=-0.5;why=`${gap} 日冇練，先減少少`;} else if(gap>=21&&u>0){u=0;why=`${gap} 日冇練，先維持`;} }
-  u=Math.max(-1,Math.min(1.5,u));
-  return {u,why,target};
+// 建議嘅文字：例如「+2.5kg → 32.5kg」「+1 下 → 13 下」
+function sugChange(ex,eq,sg){
+  const p=[]; const dw=r2(sg.w-sg.base.w), dr=sg.reps-sg.base.reps;
+  if(Math.abs(dw)>1e-9) p.push(`${dw>0?'+':'−'}${fmtW(Math.abs(dw))}kg → ${shortW(ex,eq,sg.w)}`);
+  if(dr) p.push(Math.abs(dw)>1e-9&&Math.sign(dr)!==Math.sign(dw)?`次數返返 ${sg.reps} 下`:`${dr>0?'+':'−'}${Math.abs(dr)} 下 → ${sg.reps} 下`);
+  return p.join('，');
 }
-function tierOf(u){return u>=1.5?'強烈加重':u>=1?'加重':u>0?'微加':u===0?'維持':u>-1?'微減':'減重';}
 
 /* ====================== 器材 ====================== */
 function defaultEquip(){
@@ -549,12 +637,12 @@ function defaultData(){
     logs.push({id:'seed_'+e.id,date:dstr(d),ts:d.getTime(),ex:e.id,eq:seq,weight:v.weight,rpe:SEED_RPE[code]||6,sets:4,seed:true,mt:0});
   });
   Object.values(schedule).forEach(s=>s.at=0);
-  return {v:3,ex,equip:defaultEquip(),schedule,schedAt:0,logs,deleted:{}};
+  return {v:3,cfg:{upN:3,upMax:5,mt:0},ex,equip:defaultEquip(),schedule,schedAt:0,logs,deleted:{}};
 }
 function migrate(d){
   if(!d.equip) d.equip=defaultEquip();
   Object.values(d.equip).forEach(e=>{if(e.mt==null)e.mt=0;});
-  d.deleted=d.deleted||{}; d.schedAt=d.schedAt||0; d.ex=d.ex||{}; d.logs=Array.isArray(d.logs)?d.logs:[]; d.schedule=d.schedule||{};
+  d.deleted=d.deleted||{}; d.schedAt=d.schedAt||0; d.cfg=Object.assign({upN:3,upMax:5,mt:0},d.cfg||{}); d.ex=d.ex||{}; d.logs=Array.isArray(d.logs)?d.logs:[]; d.schedule=d.schedule||{};
   Object.keys(d.schedule).forEach(k=>{const s=d.schedule[k]||{};d.schedule[k]={main:Array.isArray(s.main)?s.main:[],extras:Array.isArray(s.extras)?s.extras:[],at:s.at||0,memo:typeof s.memo==='string'?s.memo:''};});
   Object.values(d.ex).forEach(e=>{if(!Array.isArray(e.variants)||!e.variants.length)e.variants=[{eq:'bodyweight',weight:0}];
     e.sets=Math.min(20,Math.max(1,parseInt(e.sets)||4)); e.reps=Math.min(200,Math.max(1,parseInt(e.reps)||12)); e.rest=Math.min(900,Math.max(0,parseInt(e.rest)>=0?parseInt(e.rest):60));});
@@ -582,19 +670,15 @@ const colorOf=r=>RPE_COLORS[r]||'#666';
 function logsFor(exId,eq){return S.logs.filter(l=>l.ex===exId&&(!eq||l.eq===eq)).sort((a,b)=>b.ts-a.ts);}
 function variantOf(ex,eq){return ex.variants.find(v=>v.eq===eq)||ex.variants[0];}
 function suggest(ex,eqId){
-  const eq=equipOf(eqId); const v=variantOf(ex,eqId); const ls=logsFor(ex.id,eqId);
-  if(!ls.length) return {w:v.weight,u:0,dir:0,tier:'',msg:'未有紀錄，用預設重量'};
-  const l0=ls[0]; const {u,why,target}=planNext(l0.rpe,l0.weight,ls.slice(1),Date.now());
-  if(eq.kind==='body') return {w:0,u,dir:Math.sign(u),tier:tierOf(u),msg:u>0?'上次輕鬆：加次數或者加難度':u<0?'上次太辛苦：減少次數':why};
-  const w=target!=null?nearest(achievable(eq),target,0):applyUnits(eq,l0.weight,u); const d=r2(w-l0.weight);
-  return {w,u,dir:Math.sign(d),tier:tierOf(u),msg:why+(d?`（${d>0?'+':''}${fmtW(d)}kg）`:'')};
+  const eq=equipOf(eqId); const sg=planFrom(ex,eq,logsFor(ex.id,eqId),Date.now());
+  sg.chg=sg.dir?sugChange(ex,eq,sg):''; sg.msg=sg.why+(sg.chg?'：'+sg.chg:''); return sg;
 }
 
 /* ====================== 狀態 ====================== */
 let S=loadJSON(LS)||defaultData(); S=migrate(S);
 let W=loadJSON(LS_SESSION);
 const storedPrefs=loadJSON(LS_PREFS)||{};
-let P=Object.assign({wake:true,wakeIdle:10,autoLast:180,prep:true,tick:true,vol:1.6,exRest:true,exRestSec:300,autoGo:true,voice:false,warmup:true,warmupAll:false,lastNote:true,clock:true,flash:true,celebrate:true,ringStyle:'green'},storedPrefs); // 每部機各自設定
+let P=Object.assign({wake:true,wakeIdle:10,autoLast:180,prep:true,tick:true,vol:1.6,exRest:true,exRestSec:300,autoGo:true,brkAutoGo:true,voice:false,warmup:true,warmupAll:false,lastNote:true,clock:true,flash:true,celebrate:true,ringStyle:'green'},storedPrefs); // 每部機各自設定
 if(W) W.hist=W.hist||[];
 function savePrefs(){try{localStorage.setItem(LS_PREFS,JSON.stringify(P));}catch(e){}}
 // 舊版預設係 30 秒：首次升級時轉成 3 分鐘；之後仍然可以自行揀其他時間。
@@ -635,7 +719,7 @@ function render(){
   tickTimer();
   if(V.view==='summary'&&V.celebrate){V.celebrate=false;runCelebration();}
 }
-function sugBadge(sg){ if(!sg.tier||!sg.dir) return ''; const cls=sg.dir>0?(sg.u>=1.5?'strong':'green'):'red'; return `<span class="badge ${cls}">${sg.dir>0?sg.tier:(sg.u<=-1?'減重':'微減')} ${sg.dir>0?'↑':'↓'}</span>`; }
+function sugBadge(sg){ if(!sg.dir) return sg.hasLog&&sg.streak>0&&sg.streak<sg.need?`<span class="badge">輕鬆 ${sg.streak}/${sg.need}</span>`:''; return `<span class="badge ${sg.dir>0?'green':'red'}">${sg.dir>0?'建議加 ↑':'建議減 ↓'}</span>`; }
 
 /* ---------- 主頁 ---------- */
 function renderHome(){
@@ -663,7 +747,7 @@ function renderHome(){
     const e=S.ex[id]; if(!e) return '';
     const eqId=e.defaultEq||e.variants[0].eq; const sg=suggest(e,eqId); const ls=logsFor(id,eqId);
     return `<div class="ex-item"><div class="mini">${i+1}</div><div class="grow"><div class="ex-name">${esc(e.name)}</div>
-      <div class="ex-meta">${e.ask&&e.defaultEq==null?e.variants.map(v=>esc(equipOf(v.eq).name)).join('／')+' · ':''}${shortW(e,equipOf(eqId),sg.w)} · ${e.sets}×${e.reps}${ls.length?` · 上次 <b style="color:${colorOf(ls[0].rpe)}">${ls[0].rpe}</b>/10`:''}</div></div>${sugBadge(sg)}</div>`;
+      <div class="ex-meta">${e.ask&&e.defaultEq==null?e.variants.map(v=>esc(equipOf(v.eq).name)).join('／')+' · ':''}${equipOf(eqId).kind==='body'?'徒手':shortW(e,equipOf(eqId),sg.base.w)} · ${e.sets}×${sg.base.reps}${ls.length?` · 上次 <b style="color:${colorOf(ls[0].rpe)}">${ls[0].rpe}</b>/10`:''}</div></div>${sugBadge(sg)}</div>`;
   }).join('')+`</div>`;
   if(sch.extras.length) html+=`<div class="sub small" style="margin:0 4px 12px">有時間可以加：${sch.extras.map(id=>S.ex[id]?esc(S.ex[id].name):'').filter(Boolean).join('、')}</div>`;
   if(V.dayOverride!=null) html+=`<button class="secondary mb" onclick="V.dayOverride=null;render()">返回今日</button>`;
@@ -697,12 +781,12 @@ function enterExercise(){
   const ex=S.ex[W.queue[W.idx]];
   const needAsk=ex.variants.length>1&&ex.ask&&ex.defaultEq==null;
   const eq=needAsk?null:(ex.defaultEq&&ex.variants.some(v=>v.eq===ex.defaultEq)?ex.defaultEq:ex.variants[0].eq);
-  W.step={ex:ex.id,eq,weight:eq?suggest(ex,eq).w:null,rpe:null,sets:0,doing:false};
+  const b0=eq?suggest(ex,eq).base:null; W.step={ex:ex.id,eq,weight:b0?b0.w:null,reps:b0?b0.reps:ex.reps,rpe:null,sets:0,doing:false};
 }
 function chooseEq(eq,remember){
   const ex=S.ex[W.step.ex];
   if(remember){ex.defaultEq=eq;ex.ask=false;ex.mt=Date.now();save();toast('已設定預設：'+equipOf(eq).name);}
-  W.step.eq=eq; W.step.weight=suggest(ex,eq).w; saveSession(); render();
+  const b0=suggest(ex,eq).base; W.step.eq=eq; W.step.weight=b0.w; W.step.reps=b0.reps; saveSession(); render();
 }
 function setW(w){W.step.weight=r2(w);saveSession();render();}
 function adjW(dir){
@@ -710,6 +794,10 @@ function adjW(dir){
   if(eq.kind==='stack'){const p=stackParts(eq,st.weight);const b=Math.min(eq.max,Math.max(eq.min,r2(p.base+eq.step*dir)));setW(b+p.extra);}
   else setW(stepTo(eq,st.weight,dir));
 }
+function adjR(d){ const st=W.step; st.reps=Math.min(200,Math.max(1,(st.reps||S.ex[st.ex].reps)+d)); saveSession(); render(); }
+function applySug(){ const st=W&&W.step, ex=st&&S.ex[st.ex]; if(!ex||!st.eq) return; const sg=suggest(ex,st.eq); if(!sg.dir) return;
+  st.weight=sg.w; st.reps=sg.reps; saveSession(); render(); toast('已套用建議：'+sugChange(ex,equipOf(st.eq),sg)); }
+function undoSug(){ const st=W&&W.step, ex=st&&S.ex[st.ex]; if(!ex||!st.eq) return; const b=suggest(ex,st.eq).base; st.weight=b.w; st.reps=b.reps; saveSession(); render(); toast('用返上次'); }
 function toggleAddon(i){const st=W.step;const eq=equipOf(st.eq);const p=stackParts(eq,st.weight);const a=eq.addons[i].w;setW(p.mask&(1<<i)?st.weight-a:st.weight+a);}
 function adjPlate(w,dir){const st=W.step;const t=r2(st.weight+w*dir);if(achievable(equipOf(st.eq)).some(v=>Math.abs(v-t)<1e-9))setW(t);}
 function setRpe(r){
@@ -849,12 +937,20 @@ function renderBreak(){
       <div class="tctl brk" style="width:100%"><button onclick="breakAdd(-30)">−30 秒</button><button onclick="breakAdd(30)">+30 秒</button><button onclick="breakReset()">${ICON.rewind}重新計</button><button onclick="breakZero()">${ICON.stop}歸零</button></div>
     </div>
     <div class="card brk-next mt"><div class="lbl">下一個動作</div><div class="nm">${esc(ex.name)}</div>
-      <div class="sub small mt" style="margin-top:4px">${ex.en?esc(ex.en)+' · ':''}${CATS[ex.cat]||''} · ${ex.sets}×${ex.reps} · 組間休息 ${fmtRest(ex.rest)}</div>
-      <div class="row between mt"><span class="suggest ${sg.dir>0?(sg.u>=1.5?'strong':'up'):sg.dir<0?'down':'keep'}">${sg.dir>0?'↑':sg.dir<0?'↓':'→'} ${shortW(ex,eq,sg.w)}</span>
+      <div class="sub small mt" style="margin-top:4px">${ex.en?esc(ex.en)+' · ':''}${CATS[ex.cat]||''} · ${ex.sets} 組 · 組間休息 ${fmtRest(ex.rest)}</div>
+      <div class="row between mt"><span class="suggest keep">${eq.kind==='body'?'徒手':shortW(ex,eq,st.eq?st.weight:sg.base.w)} × ${st.reps||sg.base.reps} 下</span>
         ${last?`<span class="sub small">上次 <b style="color:${colorOf(last.rpe)}">${last.rpe}</b>/10 · ${fmtD(last.date)}</span>`:'<span class="sub small">未有紀錄</span>'}</div>
+      ${sg.dir?`<div class="sugbox ${sg.dir>0?'up':'down'}" style="margin-top:10px"><div class="grow"><div class="sb-t">${sg.dir>0?'↑ 建議加':'↓ 建議減'}：${esc(sg.chg)}</div><div class="sb-d">${esc(sg.why)} · 入到動作頁可以撳「套用」</div></div></div>`:''}
       ${ex.notes?`<div class="notes mt">${esc(ex.notes)}</div>`:''}</div>
-    <div class="sub small center">時間到會自動入去下一個動作；可以喺「編輯 → 計時」改休息幾耐或者關掉呢頁</div>
+    <div class="sub small center">${P.brkAutoGo!==false&&st.eq?'時間到會自動開始下一個動作嘅第 1 組（綠圈）':'時間到會自動入去下一個動作'}；可以喺「編輯 → 設定」改</div>
     <div class="bottom" id="brkBottom">${breakBottomInner()}</div>`;
+}
+// 休息／準備倒數完：入去動作頁並直接開始第 1 組（綠圈），唔使再撳
+function autoFirstSet(late){
+  const st=W&&W.step;
+  if(P.brkAutoGo===false||!st||!st.eq||st.doing||st.sets>0||late>60000) return false;
+  go('workout'); setTimeout(()=>{ if(W&&W.step===st&&!st.doing&&V.view==='workout') beginSet(true); },90);
+  toast('第 1 組開始 💪'); return true;
 }
 function skipPreWorkout(){
   unlockAudio(); if(!W||!W.step) return;
@@ -885,7 +981,7 @@ function renderPrep(){
       <div class="sub small mt">${ex.en?esc(ex.en)+' · ':''}${CATS[ex.cat]||''} · ${ex.sets}×${ex.reps} · 組間休息 ${fmtRest(ex.rest)}</div>
       <div class="sub small mt">器材：${esc(eq.name)}</div>
     </div>
-    <div class="sub small center">倒數完會自動進入第一個動作；如果已經準備好，可以直接開始。</div>
+    <div class="sub small center">${P.brkAutoGo!==false&&W.step.eq?'倒數完會自動開始第一個動作嘅第 1 組':'倒數完會自動進入第一個動作'}；如果已經準備好，可以直接開始。</div>
     <div class="bottom" id="prepBottom"><div class="row"><button class="skip" onclick="go('home')">‹ 主頁</button><button class="primary" onclick="skipPreWorkout()">準備好，開始第一個動作 ›</button></div></div>`;
 }
 let prepState=null, prepFx='', prepFxUntil=0, prepTick=0;
@@ -1058,7 +1154,7 @@ function tickTimer(){
       if(!p.prep&&rem<=10500&&rem>0){ p.prep=true; saveSession(); if(rem>7000){ sound('prep'); flash('prep'); speak('仲有十秒，準備開始'); } }
       prepTick=tickSound(rem,prepTick);
       if(rem<=0){ const late=now-p.end; W.preStart=null; prepTick=0; saveSession();
-        if(V.view==='prep'){ sound('go'); flash('go'); speak('準備時間完，開始第一個動作'); go('workout'); toast(late>60000?'準備時間已過，開始第一個動作 💪':'準備完成，開始第一個動作 💪'); }
+        if(V.view==='prep'&&!autoFirstSet(late)){ sound('go'); flash('go'); speak('準備時間完，開始第一個動作'); go('workout'); toast(late>60000?'準備時間已過，開始第一個動作 💪':'準備完成，開始第一個動作 💪'); }
       }
     }
     if(V.view==='prep') paintPrep();
@@ -1071,7 +1167,7 @@ function tickTimer(){
       if(!b.prep&&rem<=10500&&rem>0){ b.prep=true; saveSession(); if(rem>7000){ sound('prep'); flash('prep'); speak('仲有十秒'); } }
       brkTick=tickSound(rem,brkTick);
       if(rem<=0){ W.brk=null; brkTick=0; saveSession();
-        if(V.view==='break'){ sound('go'); flash('go'); speak('休息完，開始下一個動作'); go('workout'); toast(now-b.end>60000?`休息過咗 ${fmtClock((now-b.end)/1000)}，開始啦`:'休息完，開始下一個動作 💪'); } }
+        if(V.view==='break'&&!autoFirstSet(now-b.end)){ sound('go'); flash('go'); speak('休息完，開始下一個動作'); go('workout'); toast(now-b.end>60000?`休息過咗 ${fmtClock((now-b.end)/1000)}，開始啦`:'休息完，開始下一個動作 💪'); } }
     }
     if(V.view==='break') paintBreak();
   }
@@ -1168,7 +1264,7 @@ function nextExercise(){
   const v=variantOf(ex,st.eq); const now=Date.now(); const isBody=equipOf(st.eq).kind==='body';
   const prev=logsFor(ex.id,st.eq); const prevMax=prev.length?Math.max(...prev.map(l=>l.weight)):null;
   const pr=!isBody&&prevMax!=null&&st.weight>prevMax+1e-9; const id=uid();
-  S.logs.push({id,date:W.date,ts:now,ex:ex.id,eq:st.eq,weight:st.weight,rpe:st.rpe,sets:st.sets||ex.sets,sd:String(W.dow),extra:!!W.extraMode,pw:v.weight,pr:pr||undefined,note:(st.note||'').trim()||undefined,mt:now});
+  S.logs.push({id,date:W.date,ts:now,ex:ex.id,eq:st.eq,weight:st.weight,reps:st.reps||ex.reps,rpe:st.rpe,sets:st.sets||ex.sets,sd:String(W.dow),extra:!!W.extraMode,pw:v.weight,pr:pr||undefined,note:(st.note||'').trim()||undefined,mt:now});
   if(!isBody&&ex.variants.some(x=>x.eq===st.eq)) v.weight=st.weight; // 唔改 mt：重量由紀錄推算，避免同步時覆蓋另一部機嘅動作設定
   pushHist(id); save(); W.done.push(ex.id);
   toast(pr?`🏆 新重量紀錄！${fmtW(st.weight)}kg（之前 ${fmtW(prevMax)}kg）`:'已記錄 ✓'); advance(true);
@@ -1183,8 +1279,13 @@ function workoutBottomInner(){
   else main=`<button class="primary" onclick="nextExercise()">${isLast?'完成動作 ✓':'下一個 ›'}</button>`;
   return `<div class="row">${back}${main}<button class="skip" onclick="skipMenu()">跳過 ›</button></div>`;
 }
+function repsUI(ex,eq,st){
+  const r=st.reps||ex.reps, big=eq.kind==='body', mode=progOf(ex,eq);
+  const range=mode==='auto'?`目標 ${ex.reps}–${repsMaxOf(ex)} 下`:'每組次數';
+  return `<div class="stepper ${big?'':'sm'}"><button onclick="adjR(-1)" ${r<=1?'disabled':''}>−</button><div class="w">${r}<small>下</small><span class="step">${big?'徒手 · ':''}${range}</span></div><button onclick="adjR(1)" ${r>=200?'disabled':''}>＋</button></div>`;
+}
 function weightUI(ex,eq,w){
-  if(eq.kind==='body') return `<div class="center" style="font-size:30px;font-weight:800;margin:14px 0 6px">徒手</div>`;
+  if(eq.kind==='body') return '';
   if(eq.kind==='missing') return `<div class="center" style="font-size:30px;font-weight:800;margin:14px 0 6px">${fmtW(w)}kg</div><div class="sub center small">呢個器材已經刪咗，去「編輯 → 器材」加返</div>`;
   const a=achievable(eq); let atMin=w<=a[0]+1e-9, atMax=w>=a[a.length-1]-1e-9;
   if(eq.kind==='stack'){const sp=stackParts(eq,w);atMin=sp.base<=eq.min+1e-9;atMax=sp.base>=eq.max-1e-9;}
@@ -1200,40 +1301,51 @@ function weightUI(ex,eq,w){
 function rpeDynHTML(ex,eq,st,ls){
   let desc=`<div class="d" style="margin-top:14px">做完之後，揀最貼近<b>最後一組</b>感覺嘅數字。下面會即刻話你下次建議幾重。</div>`;
   if(st.rpe){
-    const R=RPE[st.rpe]; const {u,why,target}=planNext(st.rpe,st.weight,ls,null);
-    let nxt;
-    if(eq.kind==='body') nxt=u>0?'下次：加次數或者加難度':u<0?'下次：減少次數':'下次：維持';
-    else{const nw=target!=null?nearest(achievable(eq),target,0):applyUnits(eq,st.weight,u);const d=r2(nw-st.weight);nxt=d>0?`下次：${tierOf(u)} +${fmtW(d)}kg → ${fmtW(nw)}kg`:d<0?`下次：減 ${fmtW(-d)}kg → ${fmtW(nw)}kg`:`下次：維持 ${fmtW(nw)}kg`;}
-    desc=`<div class="t" style="color:${colorOf(st.rpe)}">${st.rpe}　${R.t}${R.code?`<span class="code">舊：${R.code}</span>`:''}</div><div class="d">${R.d}</div><div class="next" style="color:${u>0?'var(--green)':u<0?'var(--red)':'var(--text)'}">${nxt}<span class="sub small" style="font-weight:500">　${esc(why)}</span></div>`;
+    const R=RPE[st.rpe]; const fake={weight:st.weight,reps:st.reps||ex.reps,rpe:st.rpe,ts:Date.now()};
+    const sg=planFrom(ex,eq,[fake].concat(ls),null); const chg=sg.dir?sugChange(ex,eq,sg):'';
+    const nxt=sg.dir>0?`下次建議加：${chg}`:sg.dir<0?`下次建議減：${chg}`:'下次：維持';
+    desc=`<div class="t" style="color:${colorOf(st.rpe)}">${st.rpe}　${R.t}${R.code?`<span class="code">舊：${R.code}</span>`:''}</div><div class="d">${R.d}</div><div class="next" style="color:${sg.dir>0?'var(--green)':sg.dir<0?'var(--red)':'var(--text)'}">${nxt}<span class="sub small" style="font-weight:500">　${esc(sg.why)}</span></div>${sg.dir?'<div class="sub small" style="margin-top:3px">只係建議，下次唔會自動改，喺重量旁邊撳「套用」先會用</div>':''}`;
   }
   return `<div class="rpe-desc">${desc}</div><div class="rpe-bar">${Array.from({length:10},(_,i)=>`<button class="${st.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="setRpe(${i+1})">${i+1}</button>`).join('')}</div>`;
+}
+function sugBoxHTML(ex,eq,st,sg){
+  const dots=n=>`<span class="sdots">${Array.from({length:sg.need},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
+  if(!sg.dir){
+    if(!sg.hasLog) return `<div class="sugbox keep"><div class="sb-t">第一次做：揀一個做得穩陣嘅重量</div></div>`;
+    return `<div class="sugbox keep"><div class="grow"><div class="sb-t">→ 維持${sg.streak>0?dots(sg.streak):''}</div><div class="sb-d">${esc(sg.why)}</div></div></div>`;
+  }
+  const applied=Math.abs(st.weight-sg.w)<1e-9&&(st.reps||ex.reps)===sg.reps;
+  const atBase=Math.abs(st.weight-sg.base.w)<1e-9&&(st.reps||ex.reps)===sg.base.reps;
+  const k=sg.dir>0?'up':'down';
+  return `<div class="sugbox ${k}"><div class="grow"><div class="sb-t">${sg.dir>0?'↑ 建議加':'↓ 建議減'}：${esc(sg.chg)}</div><div class="sb-d">${esc(sg.why)}${atBase?' · 而家用緊上次':''}</div></div>
+    ${applied?`<button class="sb-btn ghost" onclick="undoSug()">✓ 已套用<small>撳返用上次</small></button>`:`<button class="sb-btn" onclick="applySug()">套用</button>`}</div>`;
 }
 function renderWorkout(){
   if(!W||!W.step) return renderHome();
   const st=W.step; const ex=S.ex[st.ex];
   if(!ex){W.idx++;enterExercise();saveSession();if(!W.step){V.view='extras';return renderExtras();}return renderWorkout();}
-  if(st.eq&&!ex.variants.some(v=>v.eq===st.eq)){ st.eq=ex.variants.length>1?null:ex.variants[0].eq; if(st.eq) st.weight=suggest(ex,st.eq).w; saveSession(); }
+  if(st.eq&&!ex.variants.some(v=>v.eq===st.eq)){ st.eq=ex.variants.length>1?null:ex.variants[0].eq; if(st.eq){ const b0=suggest(ex,st.eq).base; st.weight=b0.w; st.reps=b0.reps; } saveSession(); }
   if(st.sets>ex.sets) st.sets=ex.sets;
   const pct=Math.round(W.idx/W.queue.length*100);
   let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button>
     <div class="title small">${W.idx+1} / ${W.queue.length}${W.extraMode?' · 加操':''}${CLOCK()}</div>
     <button class="icon-btn" onclick="go('exform',{id:'${ex.id}',from:'workout'})">${ICON.edit}</button></div>
     <div class="progress-line"><i style="width:${pct}%"></i></div>
-    <h1 style="font-size:26px">${esc(ex.name)}</h1><div class="sub">${ex.en?esc(ex.en)+' · ':''}${CATS[ex.cat]||''} · ${ex.sets}×${ex.reps} · 休息 ${fmtRest(ex.rest)}</div>`;
+    <h1 style="font-size:26px">${esc(ex.name)}</h1><div class="sub">${ex.en?esc(ex.en)+' · ':''}${CATS[ex.cat]||''} · ${ex.sets}×${st.reps||ex.reps} · 休息 ${fmtRest(ex.rest)}</div>`;
+  if(st.reps==null) st.reps=st.eq?suggest(ex,st.eq).base.reps:ex.reps;
   const bottom=`<div class="bottom" id="bottomBar">${workoutBottomInner()}</div>`;
   if(!st.eq){
     html+=`<div class="card mt"><b>今日用邊種器材？</b><div class="sub mb">揀「記住」之後就唔會再問（可以喺編輯度改返）。</div>`+
-      ex.variants.map(v=>{const sg=suggest(ex,v.eq);const q=equipOf(v.eq);return `<button class="choice" style="background:var(--card2)" onclick="chooseEq('${v.eq}',false)"><b>${esc(q.name)}</b><span>${shortW(ex,q,sg.w)} · ${esc(sg.msg)}</span></button>`;}).join('')+
+      ex.variants.map(v=>{const sg=suggest(ex,v.eq);const q=equipOf(v.eq);return `<button class="choice" style="background:var(--card2)" onclick="chooseEq('${v.eq}',false)"><b>${esc(q.name)}</b><span>${q.kind==='body'?'徒手':shortW(ex,q,sg.base.w)} × ${sg.base.reps} 下 · ${esc(sg.msg)}</span></button>`;}).join('')+
       `<div class="row mt">`+ex.variants.map(v=>`<button class="secondary" onclick="chooseEq('${v.eq}',true)">記住用${esc(equipOf(v.eq).name)}</button>`).join('')+`</div></div>`+bottom;
     return html;
   }
   const eq=equipOf(st.eq); const sg=suggest(ex,st.eq); const ls=logsFor(ex.id,st.eq); const last=ls[0];
-  const cls=sg.dir>0?(sg.u>=1.5?'strong':'up'):sg.dir<0?'down':'keep'; const arrow=sg.dir>0?'↑':sg.dir<0?'↓':'→';
-  const tierTxt=sg.dir>0?sg.tier:sg.dir<0?(sg.u<=-1?'減重':'微減'):(sg.tier?'維持':'');
   html+=`<div class="wgrid"><div><div class="card mt"><div class="row between" style="align-items:flex-start">
-      <div><span class="suggest ${cls}">${arrow} ${tierTxt?tierTxt+'：':''}${esc(sg.msg)}</span><div class="sub small mt">${esc(eq.name)}${ex.variants.length>1?` <button class="badge" onclick="W.step.eq=null;saveSession();render()">轉器材</button>`:''}</div></div>
-      <div class="last">${last?`<div class="n" style="color:${colorOf(last.rpe)}">${last.rpe}<small>/10</small></div><div class="sub small">上次 ${eq.kind==='body'?'徒手':fmtW(last.weight)+'kg'} · ${fmtD(last.date)}</div>`:`<div class="sub small">未有紀錄</div>`}</div></div>`;
-  html+=weightUI(ex,eq,st.weight)+`</div>`+lastNoteHTML(ls)+warmupHTML(ex,eq,st);
+      <div><b>${esc(eq.name)}</b>${ex.variants.length>1?` <button class="badge" onclick="W.step.eq=null;saveSession();render()">轉器材</button>`:''}<div class="sub small" style="margin-top:3px">進步方式：${PROG_LBL[progOf(ex,eq)]}</div></div>
+      <div class="last">${last?`<div class="n" style="color:${colorOf(last.rpe)}">${last.rpe}<small>/10</small></div><div class="sub small">上次 ${eq.kind==='body'?'徒手':fmtW(last.weight)+'kg'} × ${repsOfLog(last,ex)} · ${fmtD(last.date)}</div>`:`<div class="sub small">未有紀錄</div>`}</div></div>`;
+  html+=sugBoxHTML(ex,eq,st,sg);
+  html+=weightUI(ex,eq,st.weight)+repsUI(ex,eq,st)+`</div>`+lastNoteHTML(ls)+warmupHTML(ex,eq,st);
   html+=`<div class="card" id="setsCard">${setsCardHTML(ex,st)}</div></div><div class="wcol2">`;
   html+=`<div class="card" id="rpeCard"><div class="row between"><b>今日難度</b><span class="sub small">1 輕鬆 ─ 10 力竭</span></div>
     <div id="rpeDyn">${rpeDynHTML(ex,eq,st,ls)}</div>
@@ -1254,7 +1366,7 @@ function renderExtras(){
   const recentIds=[...new Set(S.logs.filter(l=>l.extra).sort((a,b)=>b.ts-a.ts).map(l=>l.ex))].filter(id=>S.ex[id]&&!done.has(id)).slice(0,6);
   const sugg=sch.extras.filter(id=>S.ex[id]&&!done.has(id));
   const btn=id=>{const e=S.ex[id];const eqId=e.defaultEq||e.variants[0].eq;const sg=suggest(e,eqId);const c=clashOf(id,tm);
-    return `<button class="choice${c?' clash':''}" onclick="addExtra('${id}')"><b>${esc(e.name)}</b><span>${CATS[e.cat]||''} · ${shortW(e,equipOf(eqId),sg.w)} · ${esc(sg.msg)}</span>${c?`<span class="warn-tag">⚠ ${esc(c)}</span>`:''}</button>`;};
+    return `<button class="choice${c?' clash':''}" onclick="addExtra('${id}')"><b>${esc(e.name)}</b><span>${CATS[e.cat]||''} · ${equipOf(eqId).kind==='body'?'徒手':shortW(e,equipOf(eqId),sg.base.w)} × ${sg.base.reps} · ${esc(sg.msg)}</span>${c?`<span class="warn-tag">⚠ ${esc(c)}</span>`:''}</button>`;};
   let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button><div class="title">今日要唔要加動作？${CLOCK()}</div>${SPACER}</div>
     <div class="sub center mb">主課表做完 🎉 想加就揀一個；唔加就撳「完成今日訓練」。</div>`;
   const memo=sch.memo||'';
@@ -1423,7 +1535,7 @@ function launchRocket(big){
 /* ---------- 紀錄：一行 + 修改／刪除 ---------- */
 function logRow(l,showName){
   const e=S.ex[l.ex]; const eq=equipOf(l.eq);
-  const w=eq.kind==='body'?'徒手':shortW(e,eq,l.weight);
+  const w=(eq.kind==='body'?'徒手':shortW(e,eq,l.weight))+' × '+repsOfLog(l,e)+' 下';
   const title=showName?esc(e?e.name:l.ex):fmtD(l.date)+' · '+esc(eq.name);
   const sub=showName?esc(eq.name)+' · '+w:w;
   return `<button class="hist" onclick="openLog('${l.id}')"><span class="dot" style="background:${colorOf(l.rpe)}"></span><span class="grow">${title}${isPR(l)?' <span class="pr">🏆</span>':''}${l.extra?' <span class="badge">加操</span>':''}${l.seed?' <span class="badge">舊筆記</span>':''}<div class="sub small">${sub}${l.note?' · 📝 '+esc(l.note):''}</div></span><b>${l.rpe}/10</b><span class="chev">›</span></button>`;
@@ -1432,7 +1544,7 @@ function logRow(l,showName){
 function isPR(l){ if(equipOf(l.eq).kind==='body'||l.seed) return false;
   const prev=S.logs.filter(x=>x.ex===l.ex&&x.eq===l.eq&&x.ts<l.ts); return prev.length>0&&l.weight>Math.max(...prev.map(x=>x.weight))+1e-9; }
 function openLog(id){ const l=S.logs.find(x=>x.id===id); if(!l) return; if(modalResolve) closeModal(false); LE=Object.assign({},l,{confirmDel:false}); drawLogSheet(); }
-function leRead(){ if(!LE) return; const d=$('#le_date'),q=$('#le_eq'),w=$('#le_w'),n=$('#le_note'); if(d&&d.value) LE.date=d.value; if(q) LE.eq=q.value; if(w) LE.weight=num(w.value)||0; if(n) LE.note=n.value; }
+function leRead(){ if(!LE) return; const d=$('#le_date'),q=$('#le_eq'),w=$('#le_w'),n=$('#le_note'); if(d&&d.value) LE.date=d.value; if(q) LE.eq=q.value; if(w) LE.weight=num(w.value)||0; if(n) LE.note=n.value; const rr=$('#le_r'); if(rr) LE.reps=Math.min(200,Math.max(1,parseInt(rr.value)||0))||undefined; }
 function leEqChange(){ leRead(); const q=S.equip[LE.eq]; if(q) LE.weight=q.kind==='body'?0:nearest(achievable(q),LE.weight,0); drawLogSheet(); }
 function leRpe(n){ leRead(); LE.rpe=n; drawLogSheet(); }
 function leExtra(){ leRead(); LE.extra=!LE.extra; drawLogSheet(); }
@@ -1442,8 +1554,8 @@ function drawLogSheet(){
   showModal(`<div class="row between"><b style="font-size:18px">${esc(e?e.name:LE.ex)}</b><button class="mini" onclick="closeModal(false)">✕</button></div>
    <div class="two"><div><label class="label">日期</label><input type="date" id="le_date" value="${LE.date}"></div>
    <div><label class="label">器材</label><select id="le_eq" onchange="leEqChange()">${eqs.map(q=>`<option value="${q}" ${q===LE.eq?'selected':''}>${esc(equipOf(q).name)}</option>`).join('')}</select></div></div>
-   <label class="label">重量 kg${eq.kind==='plates'&&eq.perSide?'（每邊）':eq.kind==='notch'&&eq.perHand?'（每隻手）':e&&e.perSide&&eq.kind==='stack'?'（每邊）':''}</label>
-   <input type="number" id="le_w" inputmode="decimal" step="0.5" value="${LE.weight}">
+   <label class="label">重量 kg${eq.kind==='plates'&&eq.perSide?'（每邊）':eq.kind==='notch'&&eq.perHand?'（每隻手）':e&&e.perSide&&eq.kind==='stack'?'（每邊）':''} ／ 每組次數</label>
+   <div class="two"><input type="number" id="le_w" inputmode="decimal" step="0.5" value="${LE.weight}" ${eq.kind==='body'?'disabled':''}><div class="row" style="gap:6px"><input type="number" id="le_r" inputmode="numeric" value="${repsOfLog(LE,e)}"><span class="sub small" style="white-space:nowrap">下／組</span></div></div>
    <label class="label">難度：<b style="color:${colorOf(LE.rpe)}">${LE.rpe} ${R?R.t:''}</b></label>
    <div class="rpe-bar sm" style="margin-top:4px">${Array.from({length:10},(_,i)=>`<button class="${LE.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="leRpe(${i+1})">${i+1}</button>`).join('')}</div>
    <input id="le_note" class="mt" placeholder="備註（可留空）" value="${esc(LE.note||'')}">
@@ -1462,7 +1574,7 @@ function saveLog(){
   const leq=S.equip[LE.eq]; const typed=r2(LE.weight);
   const lw=!leq?typed:leq.kind==='body'?0:nearest(achievable(leq),typed,0);
   if(leq&&leq.kind!=='body'&&Math.abs(lw-typed)>1e-9) toast(`${fmtW(typed)}kg 砌唔到，已改為最近嘅 ${fmtW(lw)}kg`); else toast('已更新');
-  S.logs[i]=Object.assign({},old,{date:LE.date,ts,eq:LE.eq,weight:lw,rpe:LE.rpe,extra:!!LE.extra,note:(LE.note||'').trim()||undefined,mt:Date.now()});
+  S.logs[i]=Object.assign({},old,{date:LE.date,ts,eq:LE.eq,weight:lw,reps:LE.reps||old.reps,rpe:LE.rpe,extra:!!LE.extra,note:(LE.note||'').trim()||undefined,mt:Date.now()});
   refreshVariant(old.ex,old.eq,old.pw); if(LE.eq!==old.eq) refreshVariant(old.ex,LE.eq);
   save(); closeModal(); render();
 }
@@ -1621,7 +1733,7 @@ function renderEdit(){
       <button class="mini" onclick="go('eqform',{id:'${q.id}',from:'edit'})">✎</button><button class="mini danger" onclick="delEquip('${q.id}')">🗑</button></div>`;}).join('')+`</div>`;
   }
   if(V.tab==='settings'){
-    return html+renderPrefsCard()+renderSyncCard()+`<h2>備份</h2><div class="card">
+    return html+renderProgCfgCard()+renderPrefsCard()+renderSyncCard()+`<h2>備份</h2><div class="card">
       <button class="secondary mb" onclick="exportData()">匯出備份 (JSON)</button>
       <label class="secondary mb">匯入備份<input type="file" accept=".json,application/json,text/plain" class="vh" onchange="importData(this)"></label>
       <button class="secondary" onclick="resetAll()"><span class="danger">重設為預設課表（清除所有紀錄）</span></button></div>
@@ -1686,12 +1798,19 @@ function renderExForm(){
     <div class="sub small mt">參考：一般 60s、複合動作（下拉／划船／臥推／深蹲）120s、腹部 30s</div>
    </div>
    <div class="card">
-    <label class="label" style="margin-top:0">器材 1 及目前重量</label>
-    <div class="two"><select id="f_eq1" onchange="exFormEqHint()">${eqOpts(e.variants[0].eq)}</select><input id="f_w1" type="number" inputmode="decimal" step="0.5" value="${e.variants[0].weight}"></div>
+    <label class="label" style="margin-top:0">進步方式（建議加嘢嗰陣加咩）</label>
+    <div class="seg sm" id="f_prog">${['weight','auto','reps'].map(k=>`<button data-k="${k}" class="${(e.prog||'weight')===k?'on':''}" onclick="pickProg('${k}')">${{weight:'加重量',auto:'次數＋重量',reps:'加次數'}[k]}</button>`).join('')}</div>
+    <div class="help" id="progHelp" style="margin:4px 2px 0"></div>
+    <div class="field" id="rmaxRow" style="display:none"><label class="label">次數上限（做到呢個次數先加重，之後由「次數」重新做起）</label><input id="f_rmax" type="number" inputmode="numeric" value="${repsMaxOf(e)}"></div>
+   </div>
+   <div class="card">
+    <label class="label" style="margin-top:0">器材 1</label>
+    <select id="f_eq1" onchange="exFormEqHint()">${eqOpts(e.variants[0].eq)}</select>
+    <div class="wpick" id="wp1"><label class="label" id="wl1">而家用緊幾重</label><select id="f_w1" data-cur="${e.variants[0].weight}"></select><div class="help" id="wh1"></div></div>
     <label class="label">器材 2（可留空，例如啞鈴／槓鈴兩種做法）</label>
-    <div class="two"><select id="f_eq2" onchange="exFormEqHint()"><option value="">— 無 —</option>${eqOpts(v2.eq)}</select><input id="f_w2" type="number" inputmode="decimal" step="0.5" value="${v2.weight}"></div>
-    <div class="help mt" id="eqHint"></div>
-    <div class="toggle mt" id="perSideRow" style="${hasStack?'':'display:none'}"><div><b>繩索兩邊配重 ×2</b><div class="sub small">龍門架兩邊配重合埋一齊用（例如下拉 30 ×2 = 60kg）</div></div><button class="switch ${e.perSide?'on':''}" id="f_perSide" onclick="this.classList.toggle('on')"></button></div>
+    <select id="f_eq2" onchange="exFormEqHint()"><option value="">— 無 —</option>${eqOpts(v2.eq)}</select>
+    <div class="wpick" id="wp2"><label class="label" id="wl2">而家用緊幾重</label><select id="f_w2" data-cur="${v2.weight===''?0:v2.weight}"></select><div class="help" id="wh2"></div></div>
+    <div class="toggle mt" id="perSideRow" style="${hasStack?'':'display:none'}"><div><b>繩索兩邊配重 ×2</b><div class="sub small">龍門架兩邊配重合埋一齊用（例如下拉 30 ×2 = 60kg）</div></div><button class="switch ${e.perSide?'on':''}" id="f_perSide" onclick="this.classList.toggle('on');exFormEqHint()"></button></div>
     <div class="toggle"><div><b>每次開始前問用邊種器材</b><div class="sub small">關閉就用下面嘅預設器材</div></div><button class="switch ${e.ask&&e.defaultEq==null?'on':''}" id="f_ask" onclick="this.classList.toggle('on')"></button></div>
     <div class="field"><label class="label">預設器材</label><select id="f_def">${eqOpts(e.defaultEq||e.variants[0].eq)}</select></div>
     <div class="sub small">冇你想要嘅器材？去「編輯 → 器材」新增。</div>
@@ -1701,16 +1820,38 @@ function renderExForm(){
    <div class="bottom"><button class="primary" onclick="saveForm()">儲存</button></div>
 `;
 }
+function pickProg(k){ document.querySelectorAll('#f_prog button').forEach(b=>b.classList.toggle('on',b.dataset.k===k)); exFormEqHint(); }
+function wOptLabel(eq,w,perSideStack){
+  if(eq.kind==='plates'){ const t=totalKg(null,eq,w);
+    if(eq.perSide) return w<=1e-9?`淨槓（總重 ${fmtW(t)}kg）`:`每邊 ${fmtW(w)}kg → 總重 ${fmtW(t)}kg`;
+    return `${fmtW(w)}kg`+(eq.base?` → 總重 ${fmtW(t)}kg`:''); }
+  if(eq.kind==='notch') return `${fmtW(w)}kg`+(eq.perHand?'（每隻）':'');
+  if(eq.kind==='stack'){ const p=stackParts(eq,w); return `${fmtW(w)}kg`+(p.extra?`（配重 ${fmtW(p.base)} + 加重片 ${fmtW(p.extra)}）`:'')+(perSideStack?` ×2 = ${fmtW(w*2)}kg`:''); }
+  return fmtW(w)+'kg';
+}
 function exFormEqHint(){
-  const h=$('#eqHint'); if(!h) return;
+  const psOn=!!($('#f_perSide')&&$('#f_perSide').classList.contains('on'));
+  [1,2].forEach(i=>{
+    const id=$('#f_eq'+i).value, box=$('#wp'+i), sel=$('#f_w'+i), hint=$('#wh'+i), lab=$('#wl'+i); if(!box) return;
+    if(!id){ box.style.display='none'; return; }
+    const q=equipOf(id); box.style.display='';
+    let cur=sel.dataset.cur!=null&&sel.dataset.cur!==''?num(sel.dataset.cur):num(sel.value); delete sel.dataset.cur; if(isNaN(cur)) cur=0;
+    if(q.kind==='body'){ sel.innerHTML='<option value="0">徒手（唔使揀重量）</option>'; sel.disabled=true; lab.textContent='重量'; hint.innerHTML='徒手動作冇得加重量，建議只會加／減次數。'; return; }
+    sel.disabled=false;
+    const a=achievable(q).slice(0,400), c=nearest(a,cur,0);
+    sel.innerHTML=a.map(w=>`<option value="${w}" ${Math.abs(w-c)<1e-9?'selected':''}>${esc(wOptLabel(q,w,psOn&&q.kind==='stack'))}</option>`).join('');
+    if(q.kind==='plates'&&q.perSide){ lab.textContent='每邊上幾多片'; hint.innerHTML=`槓本身 <b>${fmtW(q.base||0)}kg</b>（已經計埋），揀<b>每一邊</b>放幾重嘅片；你有嘅片：${(q.plates||[]).map(p=>fmtW(p.w)+'kg×'+p.n).join('、')}。`; }
+    else if(q.kind==='plates'){ lab.textContent='用幾重'; hint.innerHTML=`你有嘅片：${(q.plates||[]).map(p=>fmtW(p.w)+'kg×'+p.n).join('、')}，只會列出砌得到嘅重量。`; }
+    else if(q.kind==='notch'){ lab.textContent=q.perHand?'用邊一檔（一隻嘅重量）':'用邊一檔'; hint.innerHTML=`列晒「${esc(q.name)}」有嘅檔位；要改檔位去「編輯 → 器材」。`; }
+    else if(q.kind==='stack'){ lab.textContent='配重塊揀幾多'; hint.innerHTML=`配重 ${fmtW(q.min)}–${fmtW(q.max)}kg，每格 ${fmtW(q.step)}kg${(q.addons||[]).length?'，可以加加重片 '+q.addons.map(a=>fmtW(a.w)+'kg').join('／'):''}。`; }
+    else { lab.textContent='重量'; hint.innerHTML=''; }
+  });
   const ids=[$('#f_eq1').value,$('#f_eq2').value].filter(Boolean);
-  h.innerHTML=ids.map(id=>{const q=equipOf(id);let t='';
-    if(q.kind==='plates') t=q.perSide?`填<b>每邊</b>配重片重量（總重 = ${fmtW(q.base||0)}kg + 兩邊）`:`填配重片總重`;
-    else if(q.kind==='notch') t=`填檔位重量${q.perHand?'（每隻手）':''}`;
-    else if(q.kind==='stack') t=`填配重塊數字（${fmtW(q.min)}–${fmtW(q.max)}${(q.addons||[]).length?'，加重片可以 +'+q.addons.map(a=>fmtW(a.w)).join('/'):''}）`;
-    else t='徒手，唔使填重量';
-    return `<b>${esc(q.name)}</b>：${t}`;}).join('<br>');
   const ps=$('#perSideRow'); if(ps) ps.style.display=ids.some(id=>equipOf(id).kind==='stack')?'':'none';
+  const k=(document.querySelector('#f_prog button.on')||{}).dataset; const pk=k&&k.k||'weight';
+  const allBody=ids.length&&ids.every(id=>equipOf(id).kind==='body');
+  const ph=$('#progHelp'); if(ph) ph.innerHTML=allBody?'徒手：一律<b>加次數</b>（冇得加重量）。':pk==='weight'?'達標就建議加重量，次數唔變。':pk==='reps'?'達標就建議加 1–2 下，重量唔變（徒手亦一樣）。':'先每次加 1–2 下，加到「次數上限」先加重量，然後次數返返做起（雙重進階）。';
+  const rr=$('#rmaxRow'); if(rr) rr.style.display=pk==='auto'&&!allBody?'':'none';
 }
 function formBack(){ if(V.from==='workout') go('workout'); else if(V.from==='pick') go('pick',{tab:V.tab,key:V.key}); else go('edit',{tab:V.tab}); }
 function saveForm(){
@@ -1722,7 +1863,9 @@ function saveForm(){
   const ask=$('#f_ask').classList.contains('on')&&variants.length>1;
   let def=$('#f_def').value; if(!variants.some(v=>v.eq===def)) def=variants[0].eq;
   S.ex[id]=Object.assign(S.ex[id]||{id},{id,name,en:$('#f_en').value.trim(),cat:$('#f_cat').value,sets:Math.min(20,Math.max(1,parseInt($('#f_sets').value)||4)),reps:Math.min(200,Math.max(1,parseInt($('#f_reps').value)||12)),rest:Math.min(900,Math.max(0,isNaN(parseInt($('#f_rest').value))?60:parseInt($('#f_rest').value))),
-    perSide:$('#f_perSide').classList.contains('on'),variants,ask,defaultEq:ask?null:def,notes:$('#f_notes').value,mt:Date.now()});
+    perSide:$('#f_perSide').classList.contains('on'),variants,ask,defaultEq:ask?null:def,notes:$('#f_notes').value,mt:Date.now(),
+    prog:((document.querySelector('#f_prog button.on')||{}).dataset||{}).k||'weight'});
+  { const e2=S.ex[id], m=parseInt($('#f_rmax').value); e2.repsMax=m>e2.reps?Math.min(200,m):e2.reps+3; }
   delete S.deleted['ex:'+id];
   if(V.from==='pick'){(S.schedule[V.tab]=S.schedule[V.tab]||{main:[],extras:[]})[V.key].push(id);touchSched();save();toast('已新增並加入');go('edit',{tab:V.tab});return;}
   save();
@@ -1851,7 +1994,7 @@ function mergeData(a,b){ // a = 呢部機, b = 雲端；同一時間（例如兩
     schedule[k]={main:s.main.filter(id=>ex[id]),extras:s.extras.filter(id=>ex[id]),at:s.at||0,memo};
   });
   const sortObj=o=>{const s={};Object.keys(o).sort().forEach(k=>s[k]=o[k]);return s;};
-  return {v:3,ex:sortObj(ex),equip:sortObj(equip),schedule:sortObj(schedule),schedAt:Math.max(a.schedAt||0,b.schedAt||0),logs:Object.values(logs).sort((x,y)=>x.ts-y.ts||(x.id<y.id?-1:1)),deleted:sortObj(del)};
+  return {v:3,cfg:((a.cfg||{}).mt||0)>((b.cfg||{}).mt||0)?a.cfg:b.cfg,ex:sortObj(ex),equip:sortObj(equip),schedule:sortObj(schedule),schedAt:Math.max(a.schedAt||0,b.schedAt||0),logs:Object.values(logs).sort((x,y)=>x.ts-y.ts||(x.id<y.id?-1:1)),deleted:sortObj(del)};
 }
 async function syncNow(manual){
   if(!SY.token) return;
@@ -1878,10 +2021,18 @@ function ringAnimationSettingsHTML(){
   const styles=[
     ['green','綠色同款','伸長、收短嘅節奏同綠色做緊嗰個一樣。','最接近你話鍾意嘅綠圈'],
     ['soft','柔和伸縮','弧線只會輕輕收短再延長，變化冇咁大。','節奏較柔和'],
-    ['fixed','固定長度','弧線長度保持不變，只沿住圓圈旋轉。','唔會伸縮']
+    ['fixed','固定長度','弧線長度保持不變，只沿住圓圈旋轉。','唔會伸縮'],
+    ['dots','點點轉盤','一圈細點慢慢轉，點點會一大一細咁閃。','似 loading 點點'],
+    ['breathe','呼吸光圈','成個圈唔轉，一光一暗、一大一細咁呼吸。','最靜、最唔搶眼'],
+    ['tick','時鐘跳格','短弧一格一格咁跳，好似秒針。','有節奏感'],
+    ['swing','鐘擺','弧線喺圈上面左右來回擺動，唔係一路轉。','來回擺'],
+    ['draw','畫圈','條線由零開始畫滿成個圈，再由頭擦走。','一筆畫'],
+    ['twin','雙弧','兩條弧對角一齊轉，一長一短咁收放。','兩條線'],
+    ['orbit','衛星','一粒光點沿住軌道繞圈，有加速減速。','一粒點'],
+    ['heart','心跳','成個圈「噗通噗通」跳兩下，停一停。','跳動']
   ];
   return `<h2>組數倒數圈動畫（預覽及選擇）</h2><div class="card">
-    <div class="sub small">下面三款會一直動，睇吓邊款最順眼。撳每款下面嘅「選擇呢個」，就會即時套用到訓練畫面；之後可以再返嚟改。</div>
+    <div class="sub small">下面 ${styles.length} 款會一直動，睇吓邊款最順眼。撳每款下面嘅「選擇呢個」，就會即時套用到訓練畫面；之後可以再返嚟改。</div>
     <div class="ring-options">${styles.map(([id,title,desc,tag])=>`<div class="ring-option ${P.ringStyle===id?'selected':''}">
       <div class="ring-option-top"><div class="grow"><b>${title}</b><div class="desc">${desc}</div><div class="sub small" style="margin-top:5px">${tag}</div></div>
         <div class="ring-preview ring-style-${id}" aria-hidden="true"><svg class="rg" viewBox="0 0 56 56"><circle class="tr" cx="28" cy="28" r="25"/><circle class="ar" cx="28" cy="28" r="25"/></svg></div></div>
@@ -1889,13 +2040,26 @@ function ringAnimationSettingsHTML(){
     </div>`).join('')}</div>
   </div>`;
 }
+const RING_NAMES={green:'綠色同款',soft:'柔和伸縮',fixed:'固定長度',dots:'點點轉盤',breathe:'呼吸光圈',tick:'時鐘跳格',swing:'鐘擺',draw:'畫圈',twin:'雙弧',orbit:'衛星',heart:'心跳'};
 function chooseRingStyle(id){
-  if(!['green','soft','fixed'].includes(id)) return;
+  if(!RING_NAMES[id]) return;
   P.ringStyle=id; savePrefs(); render();
-  const names={green:'綠色同款',soft:'柔和伸縮',fixed:'固定長度'};
-  toast('已選用：'+names[id]);
+  toast('已選用：'+RING_NAMES[id]);
 }
 
+function setCfg(k,v){ S.cfg=Object.assign({},cfg(),{[k]:v,mt:Date.now()}); save(); render(); }
+function renderProgCfgCard(){
+  const C=cfg();
+  const nOpts=[[2,'連續 2 次'],[3,'連續 3 次'],[4,'連續 4 次'],[5,'連續 5 次']];
+  const mOpts=[[4,'≤ 4（OK 或更輕鬆）'],[5,'≤ 5（開始有挑戰或更輕鬆）'],[6,'≤ 6（剛剛好或更輕鬆）']];
+  return `<h2>加重／加次數建議（iPhone、iPad 同步）</h2><div class="card">
+    <div class="two"><div><label class="label" style="margin-top:0">要連續幾多次</label><select onchange="setCfg('upN',+this.value)">${nOpts.map(([v,t])=>`<option value="${v}" ${C.upN===v?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div><label class="label" style="margin-top:0">難度要</label><select onchange="setCfg('upMax',+this.value)">${mOpts.map(([v,t])=>`<option value="${v}" ${C.upMax===v?'selected':''}>${t}</option>`).join('')}</select></div></div>
+    <div class="help mt">同一個重量、同一個次數，最近<b>連續 ${C.upN} 次</b>難度都係 <b>≤ ${C.upMax}</b> 先會建議加。<br>
+    加幾多：按嗰幾次平均有幾輕鬆計，上身大約 +2–7.5%、腿 +3.5–10%，最少加一格；次數就加 1–2 下。<br>
+    減：力竭（10）一次、或者連續兩次 ≥ 8 先建議減；21 日冇練唔加，42 日冇練建議減約 10%。<br>
+    建議<b>唔會自動套用</b>，會寫喺重量上面，撳「套用」先改。每個動作嘅「加重量／加次數」喺編輯動作入面揀。</div></div>`;
+}
 function renderPrefsCard(){
   const sup=!!navigator.wakeLock;
   const opts=[[5,'5 分鐘'],[10,'10 分鐘'],[20,'20 分鐘'],[30,'30 分鐘'],[0,'永不（訓練完先熄）']];
@@ -1912,7 +2076,8 @@ function renderPrefsCard(){
     <h2>動作之間（只影響呢部機）</h2><div class="card">
     <div class="toggle"><div><b>做完一個動作後問要唔要休息</b><div class="sub small">記錄咗難度、撳「下一個」之後會先去休息頁倒數；跳過動作就唔會問</div></div><button class="switch ${P.exRest?'on':''}" onclick="P.exRest=!P.exRest;savePrefs();render()"></button></div>
     ${P.exRest?`<div class="field" style="margin-top:10px"><label class="label" style="margin-top:0">動作之間休息幾耐</label><select onchange="P.exRestSec=+this.value;savePrefs()">${brkOpts.map(([v,t])=>`<option value="${v}" ${P.exRestSec===v?'selected':''}>${t}</option>`).join('')}</select>
-    <div class="sub small mt">休息頁有 −30 秒／+30 秒／重新計／歸零，同埋「跳過休息」即刻開始。</div></div>`:''}</div>
+    <div class="sub small mt">休息頁有 −30 秒／+30 秒／重新計／歸零，同埋「跳過休息」即刻開始。</div></div>`:''}
+    <div class="toggle"><div><b>倒數完直接開始第 1 組</b><div class="sub small">動作之間休息、訓練前準備倒數完，會自動入去下一個動作並開始第 1 組（綠圈開始轉），唔使再撳部機；關：停喺動作頁等你撳。要揀器材嘅動作會等你揀先。</div></div><button class="switch ${P.brkAutoGo!==false?'on':''}" onclick="P.brkAutoGo=P.brkAutoGo===false;savePrefs();render()"></button></div></div>
     <h2>計時同聲音（只影響呢部機）</h2><div class="card">
     <div class="toggle"><div><b>休息完自動開始下一組</b><div class="sub small">開：組間休息倒數完會自動轉做「做緊」並開始計時；關：響完會停喺「準備」，等你自己撳開始</div></div><button class="switch ${P.autoGo?'on':''}" onclick="P.autoGo=!P.autoGo;savePrefs();render()"></button></div>
     <div class="toggle"><div><b>語音提示（廣東話）</b><div class="sub small">講「仲有十秒」「開始」「休息完」；用系統語音，冇廣東話語音嘅話會用其他中文 <button class="badge" onclick="event.stopPropagation();unlockAudio();speak('仲有十秒',true)">▶ 試聽</button></div></div><button class="switch ${P.voice?'on':''}" onclick="P.voice=!P.voice;savePrefs();if(P.voice){_spkU=false;unlockSpeech();}render()"></button></div>
