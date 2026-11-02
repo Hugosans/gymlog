@@ -49,6 +49,12 @@ h2{font-weight:700;margin:20px 4px 8px;color:var(--muted);letter-spacing:.5px;fo
 .badge.green{background:rgba(48,209,88,.18);color:var(--green)}
 .badge.strong{background:var(--green);color:#000}
 .badge.red{background:rgba(255,69,58,.18);color:var(--red)}
+.badge.orange{background:rgba(255,159,10,.18);color:var(--orange)}
+.sugbox.keep.plateau{background:rgba(255,159,10,.10);box-shadow:inset 0 0 0 1px rgba(255,159,10,.35)}.sugbox.keep.plateau .sb-t{color:var(--orange)}.sb-btn.orange{background:var(--orange);color:#000}
+.lr-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.lr-row .ctl{display:flex;align-items:center;gap:6px}.lr-row .ctl button{width:40px;height:40px;border-radius:11px;background:var(--card2);font-size:22px;font-weight:600;text-align:center}.lr-row .ctl b{min-width:34px;text-align:center;font-size:20px;font-variant-numeric:tabular-nums}
+.vol-row{padding:7px 0;border-bottom:1px solid var(--line)}.vol-row:last-child{border-bottom:0}.vol-row .vb{height:6px;border-radius:3px;background:var(--card2);margin-top:5px;position:relative;overflow:hidden}.vol-row .vb i{display:block;height:100%;border-radius:3px;background:var(--green)}.vol-row .vb i.low{background:var(--muted)}.vol-row .vb i.high{background:var(--orange)}.vol-row .vb em{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.35)}
+.cmp-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.cmp-row:last-child{border-bottom:0}.cmp-row .arrow{font-weight:800;min-width:22px;text-align:center}
 .primary{display:flex;align-items:center;justify-content:center;width:100%;padding:16px;border-radius:16px;background:var(--green);color:#000;font-weight:700;font-size:18px;text-align:center}
 .primary.blue{background:var(--blue);color:#fff}
 .primary.red{background:var(--red);color:#fff}
@@ -282,6 +288,10 @@ svg.chart{width:100%;height:auto;display:block}
 .hist:last-child{border-bottom:0}
 .hist .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto}
 .chev{color:var(--muted);font-size:18px;margin-left:2px}
+.collap .collap-h{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:0;background:none;color:var(--text)}
+.collap .collap-h .chev{transition:transform .2s;font-size:20px}
+.collap .collap-b{display:none;margin-top:10px}
+.collap.open .collap-b{display:block}.collap.open .collap-h .chev{transform:rotate(90deg)}
 .prow{width:100%;display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);text-align:left}
 .prow:last-child{border-bottom:0}
 .rpe-num{min-width:40px;text-align:center;font-weight:800;font-size:15px}
@@ -383,7 +393,7 @@ body.flash2{animation:flash2 .7s ease 1}
 <div id="toast" class="toast"></div>
 <script>
 /* ====================== 常數 ====================== */
-const APP_VER='v6.8';
+const APP_VER='v7.0';
 const LS_PREFS='gymlog_prefs_v1';
 const LS='gymlog_v2', LS_SESSION='gymlog_session_v2', LS_SYNC='gymlog_sync_v1';
 const DAYS=['日','一','二','三','四','五','六'];
@@ -396,37 +406,53 @@ const KIND_HELP={
   stack:'插銷式配重塊，例如龍門架／繩索機。輸入最低、最高同每格重量；有快拆加重片就加落「加重片」度。',
   body:'冇重量，記錄難度同次數；建議只會加／減次數。'};
 
-/* 難度 1–10：頭加「太輕鬆」、中間加「開始有挑戰」、尾加「力竭」，其餘對返舊 y / n 代號 */
+/* 難度 1–10（以「最後一組」同「目標次數」做指標）：
+   1–4 太輕鬆（有明顯餘力）→ 即刻加；5 開始有挑戰 → 連續 3 次先加；6 剛剛好 → 維持；7–10 太辛苦 → 維持／減
+   code = 舊筆記嘅 y / n 代號 */
 const RPE_COLORS=[null,'#3b82f6','#0ea5e9','#14b8a6','#22c55e','#84cc16','#eab308','#f97316','#ef4444','#d946ef','#9333ea'];
 const RPE=[null,
- {t:'太輕鬆',     code:'',     d:'完全冇感覺，好似熱身咁，4 組做完都唔覺攰。'},
- {t:'好輕鬆',     code:'yyy',  d:'好輕鬆，明顯可以再重好多。'},
- {t:'輕鬆',       code:'yy',   d:'輕鬆，最後一組都仲有好多力。'},
- {t:'OK',         code:'y',    d:'有訓練感但唔辛苦，可以試吓加少少。'},
- {t:'開始有挑戰', code:'',     d:'最後一組最後幾下開始吃力，但動作仲係好穩。'},
- {t:'剛剛好',     code:'空白', d:'有少少難，最後一兩下要出力但全部做得晒 — 剛剛好 ahhh。'},
- {t:'有啲頂唔順', code:'n',    d:'最後一組最後 1–4 下唔係好掂，要少少借力或者幫手。'},
- {t:'好辛苦',     code:'nn',   d:'最後一組最後 5–8 下已經 dying，勉強先完成。'},
- {t:'太重',       code:'nnn',  d:'最後一組大約只做到 3 下左右。'},
- {t:'力竭',       code:'',     d:'幾組都做唔夠，第二、三組已經跌晒次數，完全冇力。'},
+ {t:'太輕鬆',     code:'',     d:'好似熱身咁，最後一組做完目標之後仲可以多做 5 下或以上，完全唔覺攰。'},
+ {t:'好輕鬆',     code:'yyy',  d:'最後一組仲可以多做 3–4 下，唔使出力，明顯可以重好多。'},
+ {t:'輕鬆',       code:'yy',   d:'比目標多做到 2 下左右都仲輕鬆，做完仲有力。'},
+ {t:'有餘力',     code:'y',    d:'比目標多做到 1 下，或者啱啱好做到目標但完全冇力竭感，最後幾下都唔使好出力。'},
+ {t:'開始有挑戰', code:'',     d:'啱啱好做到目標次數，最後 1–2 下開始吃力，但估計仲可以多做 1 下（未去到力竭），動作好穩。'},
+ {t:'剛剛好',     code:'空白', d:'啱啱好做到目標次數，最後 1 下已經差少少力竭，再做多 1 下應該唔得，但動作仲係穩 — 剛剛好 ahhh。'},
+ {t:'有啲頂唔順', code:'n',    d:'最後一組差 1–2 下先夠目標，或者最後幾下要借力／俾人幫手先完成。'},
+ {t:'好辛苦',     code:'nn',   d:'最後一組差 3–4 下先夠目標，勉強先完成，動作已經變形。'},
+ {t:'太重',       code:'nnn',  d:'最後一組大約只做到目標嘅一半（例如 12 下只做到 5–6 下）。'},
+ {t:'力竭',       code:'',     d:'第二、三組已經跌晒次數，幾組都做唔夠目標，完全冇力。'},
 ];
 
-/* ====================== 建議算法 v2 ======================
+/* ====================== 建議算法 v3 ======================
    參考：
-   · NSCA／ACSM「2-for-2」：要連續幾次都明顯有餘力先加，唔會因為一次好狀態就加
    · RIR（仲剩幾多下）自動調節（Helms 等 2016／2018、Graham & Cleather 2021）：餘力越多加越多
    · NSCA 加重幅度：上身約 2.5–5%、下身約 5–10%；減重／停練後約減 5–10%
    · Plotkin 等 2022（PeerJ）：加次數同加重量，增肌效果相近 → 每個動作可以揀加重量、加次數或者兩者輪流
-   規則（同一重量 + 同一次數先計連續）：
-   · 加：最近連續 N 次（預設 3）難度都 ≤ 門檻（預設 5）
-   · 加幾多：按嗰 N 次平均 RIR 超出「剛剛好」幾多，上身每 1 RIR 約 +2%、下身約 +3.5%（上身最多 7.5%、下身 10%），
+   加嘅規則（同一重量 + 同一次數先計連續；門檻 upMax 預設 5）：
+   · 難度 ≤ 4（即 < upMax）：有明顯餘力 → 下一次即刻建議加，唔使等
+   · 難度 = 5（= upMax）：要連續 N 次（預設 3）都係 5 先加
+   · 一次跳兩級：難度 ≤ 6，而且同上次（同重量同次數）比跌咗 ≥ 2 級（例如 8→6、7→5）→ 即刻加
+   · 加幾多：按觸發嗰次／嗰幾次嘅平均 RIR，上身每 1 RIR 約 +2%、下身約 +3.5%（上身最多 7.5%、下身 10%），
      最少加一個最細可以加嘅重量；次數：平均難度 ≤3 加 2 下，否則加 1 下
    · 減：力竭（10）一次減約 7.5%；連續兩次 ≥8 減約 5%；連續三次 ≥8 減約 10%；啱啱加完就 ≥9 → 返返上次
    · 停練：21 日或以上唔加；42 日或以上減約 10%
    · 建議唔會自動套用：今日預設用返上次嘅重量同次數，建議寫喺旁邊，撳「套用」先改 */
-const RPE_RIR={1:6,2:5,3:4,4:3.5,5:2.5,6:1.5,7:0.5,8:0,9:0,10:0};
+const RPE_RIR={1:6,2:4,3:3,4:2,5:1,6:0.5,7:0,8:0,9:0,10:0};
+const DROP_MAX=6, DROP_BY=2; // 「一次跳兩級」規則：難度 ≤ DROP_MAX 而且比上次跌 ≥ DROP_BY 級就即刻加
+const OVER_UP=2;   // 最後一組比目標多做 ≥ OVER_UP 下就即刻加
+const PLATEAU_N=5, PLATEAU_DAYS=14; // 同一重量同一次數連續 ≥N 次（≥N 日）都冇觸發加 = 平台期
+// 最後一組實際做到幾多下（冇記就當做到目標）；over>0 多做，<0 差幾多下先夠
+function lrOf(l,ex){ const n=parseInt(l&&l.lr); return n>0?n:repsOfLog(l,ex); }
+function overOf(l,ex){ return (l&&l.lr>0)?l.lr-repsOfLog(l,ex):0; }
+// 有效 RIR：難度對應嘅 RIR，再加埋多做嘅次數
+function rirOf(l,ex){ const o=overOf(l,ex); return Math.max(0,(RPE_RIR[l.rpe]||0)+(o>0?o:0)); }
+// 估算 1RM（Epley，加埋餘力）：總重 × (1 + (實際次數 + RIR) / 30)；徒手冇得計
+function e1rm(l,ex){ ex=ex||S.ex[l.ex]; const eq=equipOf(l.eq); if(!ex||eq.kind==='body') return null;
+  const T=totalKg(ex,eq,l.weight); if(!(T>0)) return null; const n=Math.min(24,lrOf(l,ex)+Math.min(5,RPE_RIR[l.rpe]||0)); return r2(T*(1+n/30)); }
+// 兩個重量之間嘅總重跳幅（%）
+function jumpPct(ex,eq,w0,w1){ const a=totalKg(ex,eq,w0), b=totalKg(ex,eq,w1); return a>0?(b-a)/a:0; }
 const PROG_LBL={weight:'加重量',auto:'先加次數，夠數再加重',reps:'只加次數'};
-function cfg(){ const c=Object.assign({upN:3,upMax:5},S&&S.cfg||{}); c.upN=Math.min(6,Math.max(1,+c.upN||3)); c.upMax=Math.min(7,Math.max(1,+c.upMax||5)); return c; }
+function cfg(){ const c=Object.assign({upN:3,upMax:5,jumpMax:0.10},S&&S.cfg||{}); c.upN=Math.min(6,Math.max(1,+c.upN||3)); c.upMax=Math.min(7,Math.max(1,+c.upMax||5)); c.jumpMax=c.jumpMax==null?0.10:Math.max(0,+c.jumpMax||0); return c; }
 function progOf(ex,eq){ if(eq&&eq.kind==='body') return 'reps'; return ['weight','auto','reps'].includes(ex&&ex.prog)?ex.prog:'weight'; }
 function repsOfLog(l,ex){ const r=parseInt(l&&l.reps); return r>0?r:(ex?ex.reps:12); }
 function repsMaxOf(ex){ const m=parseInt(ex.repsMax); return m>ex.reps?Math.min(200,m):Math.min(200,ex.reps+3); }
@@ -448,10 +474,14 @@ function planFrom(ex,eq,hist,now){
   const res={base,w:base.w,reps:base.reps,dir:0,why:'',streak:0,need:C.upN,mode,hasLog:!!l0};
   if(!l0){ res.why='未有紀錄'; return res; }
   const same=[]; for(const l of hist){ if(Math.abs(l.weight-base.w)>1e-9||repsOfLog(l,ex)!==base.reps) break; same.push(l); }
-  let easy=0; for(const l of same){ if(l.rpe<=C.upMax) easy++; else break; }
-  let hard=0; for(const l of same){ if(l.rpe>=8) hard++; else break; }
-  res.streak=Math.min(easy,C.upN);
-  const gap=now?Math.round((now-l0.ts)/86400000):0, r0=l0.rpe, l1=hist[same.length];
+  let easy=0; for(const l of same){ if(l.rpe<=C.upMax&&overOf(l,ex)>=0) easy++; else break; }
+  let hard=0; for(const l of same){ if(l.rpe>=8||overOf(l,ex)<=-3) hard++; else break; }
+  const r0=l0.rpe, lPrev=same[1]||null, o0=overOf(l0,ex);
+  // 即刻加：(a) 最後一組比目標多做 ≥2 下；(b) 難度低過門檻（有明顯餘力）；(c) 難度 ≤6 而且比上次跌咗 ≥2 級
+  // 上次做唔夠目標次數（o0<0）就唔會加
+  const instant=o0<0?null:(o0>=OVER_UP&&r0<=7)?'over':r0<C.upMax?'light':(r0<=DROP_MAX&&lPrev&&lPrev.rpe-r0>=DROP_BY)?'drop':null;
+  res.streak=instant?C.upN:Math.min(easy,C.upN);
+  const gap=now?Math.round((now-l0.ts)/86400000):0, l1=hist[same.length];
   const heavierThanPrev=l1&&same.length===1&&(base.w>l1.weight+1e-9||(Math.abs(base.w-l1.weight)<1e-9&&base.reps>repsOfLog(l1,ex)));
   const legs=ex.cat==='legs';
   let act=null;
@@ -460,25 +490,44 @@ function planFrom(ex,eq,hist,now){
   else if(r0>=10) act={t:'down',pct:-0.075,dr:-2,why:'力竭、次數跌咗，減少少'};
   else if(hard>=3) act={t:'down',pct:-0.10,dr:-2,why:'連續三次好辛苦，減重重新儲力'};
   else if(hard>=2) act={t:'down',pct:-0.05,dr:-1,why:'連續兩次好辛苦，減少少'};
-  else if(easy>=C.upN){
+  else if(instant||easy>=C.upN){
     if(gap>=21){ res.why=`${gap} 日冇練，先維持多一次`; return res; }
-    const rs=same.slice(0,C.upN).map(l=>l.rpe), avgR=rs.reduce((a,b)=>a+b,0)/rs.length;
-    const rir=rs.reduce((a,r)=>a+(RPE_RIR[r]||0),0)/rs.length, ex1=Math.max(.5,rir-1.5);
-    const pct=Math.min(legs?.10:.075,ex1*(legs?.035:.02));
-    act={t:'up',pct,dr:avgR<=3?2:1,why:`連續 ${C.upN} 次都輕鬆（平均 ${fmtW(Math.round(avgR*10)/10)}）`};
+    const src=instant?[l0]:same.slice(0,C.upN), rs=src.map(l=>l.rpe), avgR=rs.reduce((a,b)=>a+b,0)/rs.length;
+    const rir=src.reduce((a,l)=>a+rirOf(l,ex),0)/src.length;
+    const pct=Math.min(legs?.10:.075,Math.max(.5,rir)*(legs?.035:.02));
+    const why=instant==='over'?`最後一組比目標多做 ${o0} 下，即刻加`
+      :instant==='light'?`難度 ${r0}（${RPE[r0].t}）有明顯餘力，即刻加`
+      :instant==='drop'?`難度由 ${lPrev.rpe} 跌到 ${r0}，餘力明顯多咗，即刻加`
+      :`連續 ${C.upN} 次都係 ${C.upMax}（${RPE[C.upMax].t}），加`;
+    act={t:'up',pct,dr:avgR<=3?2:1,why};
   } else {
-    res.why=r0>=9?'太重：再試一次，連續兩次先減':r0>=8?'好辛苦：維持，練到穩':easy>0?`輕鬆 ${easy}/${C.upN} 次，再穩多 ${C.upN-easy} 次先加`:r0>=6?'剛剛好，維持':'維持';
+    res.why=o0<0?`上次最後一組差 ${-o0} 下先夠目標，先做齊 ${base.reps} 下`
+      :r0>=9?'太重：再試一次，連續兩次先減':r0>=8?'好辛苦：維持，練到穩'
+      :r0<=C.upMax?`${RPE[r0].t} ${easy}/${C.upN} 次，再連續 ${C.upN-easy} 次先加（揀 ${C.upMax-1} 或以下、或者最後一組多做 ${OVER_UP} 下會即刻加）`
+      :r0>=6?`${RPE[r0].t}，維持${lPrev&&lPrev.rpe-r0>=1?'（比上次再跌一級就會加）':''}`:'維持';
+    // 平台期：同一重量同一次數連續 N 次（橫跨 ≥14 日）都冇加到
+    const real=same.filter(l=>!l.seed);
+    if(real.length>=PLATEAU_N){ const days=Math.round((real[0].ts-real[real.length-1].ts)/86400000);
+      if(days>=PLATEAU_DAYS){ res.plateau={n:real.length,days}; res.why+=`　⚠ 已經 ${real.length} 次（${days} 日）停喺呢個重量`; } }
     return res;
   }
   // 執行加／減
   const rMin=ex.reps, rMax=repsMaxOf(ex), canW=eq.kind!=='body'&&eq.kind!=='missing';
-  const doW=()=>{ const t=loadStep(ex,eq,base.w,act.pct); if(Math.abs(t-base.w)<1e-9) return false; res.w=t; return true; };
+  const pctTxt=x=>Math.round(x*100)+'%';
+  // allowBig=false：下一格跳幅超過 jumpMax（例如啞鈴 10 → 12.5 = +25%）就唔加，交返俾加次數
+  const doW=(allowBig)=>{ const t=loadStep(ex,eq,base.w,act.pct); if(Math.abs(t-base.w)<1e-9) return false;
+    const jp=jumpPct(ex,eq,base.w,t); if(act.t==='up'&&!allowBig&&C.jumpMax>0&&jp>C.jumpMax+1e-9){ res.bigJump=jp; return false; }
+    res.w=t; return true; };
   const doR=(lo,hi)=>{ const t=Math.max(lo,Math.min(hi,base.reps+act.dr)); if(t===base.reps) return false; res.reps=t; return true; };
   let ok=false;
   if(act.t==='up'){
     if(mode==='reps') ok=doR(1,200);
-    else if(mode==='auto'){ if(base.reps<rMax) ok=doR(1,rMax); else if(canW&&doW()){ res.reps=rMin; ok=true; act.why+='，次數夠晒，加重再由 '+rMin+' 下做起'; } else ok=doR(1,200); }
-    else { ok=canW&&doW(); if(!ok){ ok=doR(1,200); if(ok) act.why+='（已經最重，改加次數）'; } }
+    else if(mode==='auto'){ if(base.reps<rMax) ok=doR(1,rMax); else if(canW&&doW(true)){ res.reps=rMin; ok=true; act.why+='，次數夠晒，加重再由 '+rMin+' 下做起'; } else ok=doR(1,200); }
+    else { ok=canW&&doW(false);
+      if(!ok&&res.bigJump){ // 跳得太大：先加次數，去到上限先跳格、次數返返由頭做
+        if(base.reps<rMax){ ok=doR(1,rMax); if(ok) act.why+=`（下一格 +${pctTxt(res.bigJump)} 跳得太大，先加次數，去到 ${rMax} 下先加重）`; }
+        else if(doW(true)){ res.reps=rMin; ok=true; act.why+=`（次數已經去到 ${rMax} 下，跳格 +${pctTxt(res.bigJump)}，次數返返 ${rMin} 下做起）`; } }
+      if(!ok){ ok=doR(1,200); if(ok) act.why+='（已經最重，改加次數）'; } }
   } else {
     if(mode==='reps') ok=doR(1,200);
     else if(mode==='auto'){ ok=base.reps>rMin?doR(rMin,200):false; if(!ok) ok=canW&&doW(); if(!ok) ok=doR(1,200); }
@@ -684,6 +733,8 @@ function savePrefs(){try{localStorage.setItem(LS_PREFS,JSON.stringify(P));}catch
 // 舊版預設係 30 秒：首次升級時轉成 3 分鐘；之後仍然可以自行揀其他時間。
 if(!P.autoLastMigrated){ if(storedPrefs.autoLast===30) P.autoLast=180; P.autoLastMigrated=true; savePrefs(); }
 let V={view:'home'};
+const OPEN=new Set(); // 可摺疊卡片而家展開緊嘅 id
+function toggleCollap(id){ const el=document.getElementById(id); if(!el) return; el.classList.toggle('open'); if(el.classList.contains('open')){ OPEN.add(id); OPEN.delete(id+':closed'); } else { OPEN.delete(id); OPEN.add(id+':closed'); } }
 function go(view,extra){
   if(V.view==='summary'&&view!=='summary') document.querySelectorAll('.confetti,.rocket,.puff').forEach(e=>e.remove());
   V=Object.assign({view},extra||{});window.scrollTo(0,0);render();
@@ -719,7 +770,7 @@ function render(){
   tickTimer();
   if(V.view==='summary'&&V.celebrate){V.celebrate=false;runCelebration();}
 }
-function sugBadge(sg){ if(!sg.dir) return sg.hasLog&&sg.streak>0&&sg.streak<sg.need?`<span class="badge">輕鬆 ${sg.streak}/${sg.need}</span>`:''; return `<span class="badge ${sg.dir>0?'green':'red'}">${sg.dir>0?'建議加 ↑':'建議減 ↓'}</span>`; }
+function sugBadge(sg){ if(!sg.dir){ if(sg.plateau) return `<span class="badge orange">平台期 ${sg.plateau.n} 次</span>`; return sg.hasLog&&sg.streak>0&&sg.streak<sg.need?`<span class="badge">輕鬆 ${sg.streak}/${sg.need}</span>`:''; } return `<span class="badge ${sg.dir>0?'green':'red'}">${sg.dir>0?'建議加 ↑':'建議減 ↓'}</span>`; }
 
 /* ---------- 主頁 ---------- */
 function renderHome(){
@@ -797,6 +848,8 @@ function adjW(dir){
 function adjR(d){ const st=W.step; st.reps=Math.min(200,Math.max(1,(st.reps||S.ex[st.ex].reps)+d)); saveSession(); render(); }
 function applySug(){ const st=W&&W.step, ex=st&&S.ex[st.ex]; if(!ex||!st.eq) return; const sg=suggest(ex,st.eq); if(!sg.dir) return;
   st.weight=sg.w; st.reps=sg.reps; saveSession(); render(); toast('已套用建議：'+sugChange(ex,equipOf(st.eq),sg)); }
+function applyDeload(){ const st=W&&W.step, ex=st&&S.ex[st.ex]; if(!ex||!st.eq) return; const eq=equipOf(st.eq), b=suggest(ex,st.eq).base;
+  const t=loadStep(ex,eq,b.w,-0.10); st.weight=t; st.reps=b.reps; st.lr=null; saveSession(); render(); toast(`減量：${fmtW(b.w)} → ${fmtW(t)}kg，做番 ${b.reps} 下`); }
 function undoSug(){ const st=W&&W.step, ex=st&&S.ex[st.ex]; if(!ex||!st.eq) return; const b=suggest(ex,st.eq).base; st.weight=b.w; st.reps=b.reps; saveSession(); render(); toast('用返上次'); }
 function toggleAddon(i){const st=W.step;const eq=equipOf(st.eq);const p=stackParts(eq,st.weight);const a=eq.addons[i].w;setW(p.mask&(1<<i)?st.weight-a:st.weight+a);}
 function adjPlate(w,dir){const st=W.step;const t=r2(st.weight+w*dir);if(achievable(equipOf(st.eq)).some(v=>Math.abs(v-t)<1e-9))setW(t);}
@@ -806,6 +859,11 @@ function setRpe(r){
   const bb=$('#bottomBar'); if(bb) bb.innerHTML=workoutBottomInner(); paintTimer();
 }
 function setNote(v){ if(W&&W.step){W.step.note=v;saveSession();} }
+function adjLr(d){ const st=W&&W.step; if(!st) return; const ex=S.ex[st.ex], r=st.reps||ex.reps;
+  st.lr=Math.max(1,Math.min(200,(st.lr>0?st.lr:r)+d)); if(st.lr===r) st.lr=null; saveSession();
+  const dd=$('#rpeDyn'); if(dd) dd.innerHTML=rpeDynHTML(ex,equipOf(st.eq),st,logsFor(ex.id,st.eq)); }
+function lrRowHTML(ex,st){ const r=st.reps||ex.reps, lr=st.lr>0?st.lr:r, d=lr-r;
+  return `<div class="lr-row"><div><b>最後一組實際做到</b><div class="sub small">目標 ${r} 下${d?`　<b style="color:${d>0?'var(--green)':'var(--red)'}">${d>0?'+':'−'}${Math.abs(d)} 下</b>`:'　啱啱好'}${d>=OVER_UP?' · 會即刻建議加':d<0?' · 今次唔會建議加':''}</div></div><span class="ctl"><button onclick="adjLr(-1)" ${lr<=1?'disabled':''}>−</button><b>${lr}</b><button onclick="adjLr(1)" ${lr>=200?'disabled':''}>＋</button></span></div>`; }
 
 /* ---- 組數狀態：等緊（黃圈）→ 做緊（綠圈）→ 做完（綠底）→ 休息 → 下一組 ---- */
 const setsComplete=(st,ex)=>!!st&&!!ex&&(st.sets>=ex.sets||!!st.early);
@@ -1264,7 +1322,7 @@ function nextExercise(){
   const v=variantOf(ex,st.eq); const now=Date.now(); const isBody=equipOf(st.eq).kind==='body';
   const prev=logsFor(ex.id,st.eq); const prevMax=prev.length?Math.max(...prev.map(l=>l.weight)):null;
   const pr=!isBody&&prevMax!=null&&st.weight>prevMax+1e-9; const id=uid();
-  S.logs.push({id,date:W.date,ts:now,ex:ex.id,eq:st.eq,weight:st.weight,reps:st.reps||ex.reps,rpe:st.rpe,sets:st.sets||ex.sets,sd:String(W.dow),extra:!!W.extraMode,pw:v.weight,pr:pr||undefined,note:(st.note||'').trim()||undefined,mt:now});
+  S.logs.push({id,date:W.date,ts:now,ex:ex.id,eq:st.eq,weight:st.weight,reps:st.reps||ex.reps,lr:st.lr>0&&st.lr!==(st.reps||ex.reps)?st.lr:undefined,rpe:st.rpe,sets:st.sets||ex.sets,sd:String(W.dow),extra:!!W.extraMode,pw:v.weight,pr:pr||undefined,note:(st.note||'').trim()||undefined,mt:now});
   if(!isBody&&ex.variants.some(x=>x.eq===st.eq)) v.weight=st.weight; // 唔改 mt：重量由紀錄推算，避免同步時覆蓋另一部機嘅動作設定
   pushHist(id); save(); W.done.push(ex.id);
   toast(pr?`🏆 新重量紀錄！${fmtW(st.weight)}kg（之前 ${fmtW(prevMax)}kg）`:'已記錄 ✓'); advance(true);
@@ -1301,17 +1359,19 @@ function weightUI(ex,eq,w){
 function rpeDynHTML(ex,eq,st,ls){
   let desc=`<div class="d" style="margin-top:14px">做完之後，揀最貼近<b>最後一組</b>感覺嘅數字。下面會即刻話你下次建議幾重。</div>`;
   if(st.rpe){
-    const R=RPE[st.rpe]; const fake={weight:st.weight,reps:st.reps||ex.reps,rpe:st.rpe,ts:Date.now()};
+    const R=RPE[st.rpe]; const fake={weight:st.weight,reps:st.reps||ex.reps,lr:st.lr>0?st.lr:undefined,rpe:st.rpe,ts:Date.now()};
     const sg=planFrom(ex,eq,[fake].concat(ls),null); const chg=sg.dir?sugChange(ex,eq,sg):'';
     const nxt=sg.dir>0?`下次建議加：${chg}`:sg.dir<0?`下次建議減：${chg}`:'下次：維持';
     desc=`<div class="t" style="color:${colorOf(st.rpe)}">${st.rpe}　${R.t}${R.code?`<span class="code">舊：${R.code}</span>`:''}</div><div class="d">${R.d}</div><div class="next" style="color:${sg.dir>0?'var(--green)':sg.dir<0?'var(--red)':'var(--text)'}">${nxt}<span class="sub small" style="font-weight:500">　${esc(sg.why)}</span></div>${sg.dir?'<div class="sub small" style="margin-top:3px">只係建議，下次唔會自動改，喺重量旁邊撳「套用」先會用</div>':''}`;
   }
-  return `<div class="rpe-desc">${desc}</div><div class="rpe-bar">${Array.from({length:10},(_,i)=>`<button class="${st.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="setRpe(${i+1})">${i+1}</button>`).join('')}</div>`;
+  return `<div class="rpe-desc">${desc}</div><div class="rpe-bar">${Array.from({length:10},(_,i)=>`<button class="${st.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="setRpe(${i+1})">${i+1}</button>`).join('')}</div>${lrRowHTML(ex,st)}`;
 }
 function sugBoxHTML(ex,eq,st,sg){
   const dots=n=>`<span class="sdots">${Array.from({length:sg.need},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
   if(!sg.dir){
     if(!sg.hasLog) return `<div class="sugbox keep"><div class="sb-t">第一次做：揀一個做得穩陣嘅重量</div></div>`;
+    if(sg.plateau){ const rr=ex.reps, alt=rr>=10?`減重約 10%、每組做 ${rr+4} 下`:`加重、每組做 ${Math.max(5,rr-4)} 下`;
+      return `<div class="sugbox keep plateau"><div class="grow"><div class="sb-t">⚠ 平台期：${sg.plateau.n} 次（${sg.plateau.days} 日）冇進步</div><div class="sb-d">試吓：① 做一個減量週（−10%，練返儲力）；② 轉次數範圍（${alt}）；③ 將「最後一組實際做到」記準啲，多做 ${OVER_UP} 下就會加</div></div><button class="sb-btn orange" onclick="applyDeload()">減量 −10%</button></div>`; }
     return `<div class="sugbox keep"><div class="grow"><div class="sb-t">→ 維持${sg.streak>0?dots(sg.streak):''}</div><div class="sb-d">${esc(sg.why)}</div></div></div>`;
   }
   const applied=Math.abs(st.weight-sg.w)<1e-9&&(st.reps||ex.reps)===sg.reps;
@@ -1479,11 +1539,33 @@ function renderSummary(){
   if(ls.length) html+=`<div class="stats3">${[[ls.length,'個動作'],[setsN,'組'],[V.mins!=null&&V.mins<600?V.mins:'–','分鐘']].map(([n,t],i)=>`<div class="rise" style="--d:${.8+i*.1}s"><b${typeof n==='number'?` class="cnum" data-n="${n}"`:''}>${n}</b><span>${t}</span></div>`).join('')}</div>`
     +(prs?`<div class="center rise" style="--d:1.1s;margin-bottom:12px"><span class="pr" style="font-weight:800">🏆 ${prs} 個新重量紀錄</span></div>`:'');
   if(wi.planned&&ls.length) html+=`<div class="card rise" style="--d:1s"><div class="row between"><b>今個星期</b><span class="sub small">${wi.done}/${wi.planned} 日</span></div>${weekStrip(wi,popK)}<div class="celmsg ${cel.kind} rise" style="--d:1.6s"><div class="ct">${cel.title}</div><div class="cs">${cel.sub}</div></div></div>`;
+  if(ls.length) html+=compareCardHTML(ls);
   html+=`<div class="card">${ls.map(l=>logRow(l,true)).join('')||'<div class="empty">今次冇記錄</div>'}</div>
     <div class="sub small center">撳任何一條可以修改或者刪除</div>
     ${V.prevW?`<button class="secondary mt" onclick="reopenSession()">‹ 未做完？返回繼續加動作</button>`:''}
     <div class="bottom"><button class="primary blue" onclick="go('home')">返回主頁</button></div>`;
   return html;
+}
+// 總訓練量（kg）：總重 × 次數 × 組數，徒手唔計
+function tonnage(ls){ return ls.reduce((a,l)=>{ const e=S.ex[l.ex], q=equipOf(l.eq); if(!e||q.kind==='body') return a; return a+totalKg(e,q,l.weight)*repsOfLog(l,e)*(+l.sets||0); },0); }
+function compareCardHTML(ls){
+  const sd=String(V.dow), before=S.logs.filter(l=>!l.seed&&l.date<V.date);
+  let pd=before.filter(l=>sdOf(l)===sd).map(l=>l.date).sort().pop(); if(!pd) pd=before.map(l=>l.date).sort().pop();
+  const pls=pd?before.filter(l=>l.date===pd):[];
+  const t0=tonnage(ls), t1=tonnage(pls); const dT=t1>0?(t0-t1)/t1:null;
+  let up=0,down=0,flat=0; const rows=[];
+  ls.forEach(l=>{ const e=S.ex[l.ex]; if(!e) return; const q=equipOf(l.eq); const p=S.logs.filter(x=>!x.seed&&x.ex===l.ex&&x.eq===l.eq&&x.ts<l.ts).sort((a,b)=>b.ts-a.ts)[0];
+    const fmt=x=>(q.kind==='body'?'徒手':shortW(e,q,x.weight))+' × '+lrOf(x,e)+' <span class="sub small">·</span> <b style="color:'+colorOf(x.rpe)+'">'+x.rpe+'</b>';
+    if(!p){ rows.push(`<div class="cmp-row"><span class="grow"><b>${esc(e.name)}</b><div class="sub small">第一次做 · ${fmt(l)}</div></span><span class="arrow sub">新</span></div>`); return; }
+    const a=e1rm(p,e), b=e1rm(l,e); let d; if(a!=null&&b!=null) d=Math.sign(r2(b-a)); else d=Math.sign(lrOf(l,e)-lrOf(p,e))||Math.sign(p.rpe-l.rpe);
+    if(d>0) up++; else if(d<0) down++; else flat++;
+    const dTxt=a!=null&&b!=null?`e1RM ${b>a?'+':''}${fmtW(r2(b-a))}kg`:'';
+    rows.push(`<div class="cmp-row"><span class="grow"><b>${esc(e.name)}</b>${dTxt?` <span class="sub small">${dTxt}</span>`:''}<div class="sub small">${fmtD(p.date)} ${fmt(p)}　→　今日 ${fmt(l)}</div></span><span class="arrow" style="color:${d>0?'var(--green)':d<0?'var(--red)':'var(--muted)'}">${d>0?'↑':d<0?'↓':'→'}</span></div>`); });
+  const head=pd?`<div class="row between"><b>同上次比較</b><span class="sub small">上次 ${fmtD(pd)}</span></div>
+    <div class="row" style="gap:8px;margin-top:8px"><div class="grow"><div class="sub small">總訓練量</div><b style="font-size:20px">${Math.round(t0).toLocaleString()}<span class="sub small"> kg</span></b>${dT!=null?`<div class="sub small" style="color:${dT>0?'var(--green)':dT<0?'var(--red)':'inherit'}">${dT>=0?'+':''}${Math.round(dT*100)}%（上次 ${Math.round(t1).toLocaleString()}）</div>`:''}</div>
+    <div style="text-align:right"><div class="sub small">動作進步</div><b style="font-size:20px"><span style="color:var(--green)">↑${up}</span> <span style="color:var(--muted)">→${flat}</span> <span style="color:var(--red)">↓${down}</span></b></div></div>`
+    :`<div class="row between"><b>今日總結</b><span class="sub small">第一次訓練，未有得比較</span></div><div class="sub small mt">總訓練量 ${Math.round(t0).toLocaleString()} kg</div>`;
+  return `<div class="card rise" style="--d:1.2s">${head}<div class="mt">${rows.join('')}</div></div>`;
 }
 function runCelebration(){
   const cel=V._cel; if(!cel||cel.kind==='none') return;
@@ -1535,7 +1617,7 @@ function launchRocket(big){
 /* ---------- 紀錄：一行 + 修改／刪除 ---------- */
 function logRow(l,showName){
   const e=S.ex[l.ex]; const eq=equipOf(l.eq);
-  const w=(eq.kind==='body'?'徒手':shortW(e,eq,l.weight))+' × '+repsOfLog(l,e)+' 下';
+  const o=overOf(l,e); const w=(eq.kind==='body'?'徒手':shortW(e,eq,l.weight))+' × '+repsOfLog(l,e)+' 下'+(o?`（最後一組 ${l.lr}）`:'');
   const title=showName?esc(e?e.name:l.ex):fmtD(l.date)+' · '+esc(eq.name);
   const sub=showName?esc(eq.name)+' · '+w:w;
   return `<button class="hist" onclick="openLog('${l.id}')"><span class="dot" style="background:${colorOf(l.rpe)}"></span><span class="grow">${title}${isPR(l)?' <span class="pr">🏆</span>':''}${l.extra?' <span class="badge">加操</span>':''}${l.seed?' <span class="badge">舊筆記</span>':''}<div class="sub small">${sub}${l.note?' · 📝 '+esc(l.note):''}</div></span><b>${l.rpe}/10</b><span class="chev">›</span></button>`;
@@ -1544,7 +1626,8 @@ function logRow(l,showName){
 function isPR(l){ if(equipOf(l.eq).kind==='body'||l.seed) return false;
   const prev=S.logs.filter(x=>x.ex===l.ex&&x.eq===l.eq&&x.ts<l.ts); return prev.length>0&&l.weight>Math.max(...prev.map(x=>x.weight))+1e-9; }
 function openLog(id){ const l=S.logs.find(x=>x.id===id); if(!l) return; if(modalResolve) closeModal(false); LE=Object.assign({},l,{confirmDel:false}); drawLogSheet(); }
-function leRead(){ if(!LE) return; const d=$('#le_date'),q=$('#le_eq'),w=$('#le_w'),n=$('#le_note'); if(d&&d.value) LE.date=d.value; if(q) LE.eq=q.value; if(w) LE.weight=num(w.value)||0; if(n) LE.note=n.value; const rr=$('#le_r'); if(rr) LE.reps=Math.min(200,Math.max(1,parseInt(rr.value)||0))||undefined; }
+function leRead(){ if(!LE) return; const d=$('#le_date'),q=$('#le_eq'),w=$('#le_w'),n=$('#le_note'); if(d&&d.value) LE.date=d.value; if(q) LE.eq=q.value; if(w) LE.weight=num(w.value)||0; if(n) LE.note=n.value; const rr=$('#le_r'); if(rr) LE.reps=Math.min(200,Math.max(1,parseInt(rr.value)||0))||undefined;
+  const lr=$('#le_lr'); if(lr){ const v=parseInt(lr.value); LE.lr=v>0&&v<=200?v:undefined; } }
 function leEqChange(){ leRead(); const q=S.equip[LE.eq]; if(q) LE.weight=q.kind==='body'?0:nearest(achievable(q),LE.weight,0); drawLogSheet(); }
 function leRpe(n){ leRead(); LE.rpe=n; drawLogSheet(); }
 function leExtra(){ leRead(); LE.extra=!LE.extra; drawLogSheet(); }
@@ -1556,6 +1639,7 @@ function drawLogSheet(){
    <div><label class="label">器材</label><select id="le_eq" onchange="leEqChange()">${eqs.map(q=>`<option value="${q}" ${q===LE.eq?'selected':''}>${esc(equipOf(q).name)}</option>`).join('')}</select></div></div>
    <label class="label">重量 kg${eq.kind==='plates'&&eq.perSide?'（每邊）':eq.kind==='notch'&&eq.perHand?'（每隻手）':e&&e.perSide&&eq.kind==='stack'?'（每邊）':''} ／ 每組次數</label>
    <div class="two"><input type="number" id="le_w" inputmode="decimal" step="0.5" value="${LE.weight}" ${eq.kind==='body'?'disabled':''}><div class="row" style="gap:6px"><input type="number" id="le_r" inputmode="numeric" value="${repsOfLog(LE,e)}"><span class="sub small" style="white-space:nowrap">下／組</span></div></div>
+   <div class="two"><div><label class="label">最後一組實際做到（留空＝同目標）</label><input type="number" id="le_lr" inputmode="numeric" placeholder="${repsOfLog(LE,e)}" value="${LE.lr>0?LE.lr:''}"></div><div><label class="label">e1RM 估算</label><div style="padding:11px 0;font-weight:800">${(()=>{const v=e1rm(LE,e);return v?fmtW(v)+'kg':'—';})()}</div></div></div>
    <label class="label">難度：<b style="color:${colorOf(LE.rpe)}">${LE.rpe} ${R?R.t:''}</b></label>
    <div class="rpe-bar sm" style="margin-top:4px">${Array.from({length:10},(_,i)=>`<button class="${LE.rpe===i+1?'on':''}" style="background:${RPE_COLORS[i+1]}" onclick="leRpe(${i+1})">${i+1}</button>`).join('')}</div>
    <input id="le_note" class="mt" placeholder="備註（可留空）" value="${esc(LE.note||'')}">
@@ -1574,7 +1658,7 @@ function saveLog(){
   const leq=S.equip[LE.eq]; const typed=r2(LE.weight);
   const lw=!leq?typed:leq.kind==='body'?0:nearest(achievable(leq),typed,0);
   if(leq&&leq.kind!=='body'&&Math.abs(lw-typed)>1e-9) toast(`${fmtW(typed)}kg 砌唔到，已改為最近嘅 ${fmtW(lw)}kg`); else toast('已更新');
-  S.logs[i]=Object.assign({},old,{date:LE.date,ts,eq:LE.eq,weight:lw,reps:LE.reps||old.reps,rpe:LE.rpe,extra:!!LE.extra,note:(LE.note||'').trim()||undefined,mt:Date.now()});
+  S.logs[i]=Object.assign({},old,{date:LE.date,ts,eq:LE.eq,weight:lw,reps:LE.reps||old.reps,lr:LE.lr>0&&LE.lr!==(LE.reps||old.reps)?LE.lr:undefined,rpe:LE.rpe,extra:!!LE.extra,note:(LE.note||'').trim()||undefined,mt:Date.now()});
   refreshVariant(old.ex,old.eq,old.pw); if(LE.eq!==old.eq) refreshVariant(old.ex,LE.eq);
   save(); closeModal(); render();
 }
@@ -1587,6 +1671,20 @@ function deleteLog(){
 
 /* ---------- 進度 ---------- */
 function renderProgress(){ return V.exId&&S.ex[V.exId]?renderProgressDetail():renderProgressList(); }
+// 每週各部位組數（星期一開始）：今週 vs 上週 vs 課表計劃；一般建議每個部位每週 10–20 組
+function volumeCardHTML(){
+  const ws=weekStartDate(new Date()), ps=new Date(ws); ps.setDate(ws.getDate()-7);
+  const d0=dstr(ws), p0=dstr(ps), cur={}, prev={}, plan={};
+  S.logs.forEach(l=>{ if(l.seed) return; const e=S.ex[l.ex]; if(!e) return; const n=+l.sets||0;
+    if(l.date>=d0) cur[e.cat]=(cur[e.cat]||0)+n; else if(l.date>=p0) prev[e.cat]=(prev[e.cat]||0)+n; });
+  DAY_ORDER.forEach(k=>{ const sc=S.schedule[k]; if(!sc) return; sc.main.forEach(id=>{ const e=S.ex[id]; if(e) plan[e.cat]=(plan[e.cat]||0)+(+e.sets||0); }); });
+  const cats=Object.keys(CATS).filter(c=>c!=='other'&&(cur[c]||prev[c]||plan[c]));
+  if(!cats.length) return '';
+  const MAX=24, pct=n=>Math.min(100,n/MAX*100);
+  const rows=cats.map(c=>{ const n=cur[c]||0, pv=prev[c]||0, pl=plan[c]||0, cls=n>20?'high':n<10?'low':'';
+    return `<div class="vol-row"><div class="row between"><span><b>${CATS[c]}</b> <span class="sub small">${n} 組${pv?` · 上週 ${pv}`:''}${pl?` · 課表 ${pl}`:''}</span></span><span class="sub small" style="color:${n>20?'var(--orange)':n>=10?'var(--green)':'var(--muted)'}">${n>20?'偏多':n>=10?'✓ 夠':n?'未夠 10':'未練'}</span></div><div class="vb"><em style="left:${pct(10)}%"></em><em style="left:${pct(20)}%"></em><i class="${cls}" style="width:${pct(n)}%"></i></div></div>`; }).join('');
+  return `<div class="card collap ${OPEN.has('volCard')||!OPEN.has('volCard:closed')?'open':''}" id="volCard" style="padding-top:12px"><button class="collap-h" onclick="toggleCollap('volCard')"><div><b>今週各部位組數</b><div class="sub small" style="margin-top:2px">${fmtD(d0)} 起 · 兩條線 = 每週 10–20 組建議範圍</div></div><span class="chev">›</span></button><div class="collap-b" style="margin-top:4px">${rows}<div class="sub small" style="margin-top:8px">以每週 10–20 組／部位為參考（Schoenfeld 等 2017），初學者 10 組左右已經夠，進階先需要 20 組。</div></div></div>`;
+}
 function renderProgressList(){
   const mode=V.mode||'day';
   let html=`<div class="topbar"><button class="icon-btn" onclick="go('home')">${ICON.back}</button><div class="title">我嘅進度</div>${SPACER}</div>
@@ -1596,6 +1694,7 @@ function renderProgressList(){
     const days=new Set(recent.map(l=>l.date)).size; const prs=recent.filter(isPR).length;
     const up=new Set(); Object.keys(S.ex).forEach(id=>{const ls=logsFor(id).filter(l=>!l.seed);const old=ls.find(l=>l.ts<since)||ls[ls.length-1];if(ls[0]&&old&&ls[0].ts>=since&&ls[0].eq===old.eq&&ls[0].weight>old.weight+1e-9)up.add(id);});
     html+=`<div class="card" style="padding:12px 16px"><div class="row between"><div><b>過去 30 日</b><div class="sub small">${days} 日訓練 · ${recent.length} 個動作</div></div><div style="text-align:right"><b style="color:var(--green)">${up.size} 個動作加咗重</b><div class="sub small"><span class="pr">🏆</span> ${prs} 個新紀錄</div></div></div></div>`; }
+  html+=volumeCardHTML();
   const groups=[];
   if(mode==='day'){ const seen=new Set();
     DAY_ORDER.forEach(k=>{const s=S.schedule[k];if(!s)return;const ids=[...new Set(s.main.concat(s.extras))].filter(id=>S.ex[id]);ids.forEach(id=>seen.add(id));if(ids.length)groups.push(['星期'+DAYS[k],ids]);});
@@ -1630,6 +1729,9 @@ function renderLogBook(){
 const RANGES=[['3D','3日',3],['W','週',7],['M','月',30],['6M','6月',182],['Y','年',365]];
 const DAY=86400000;
 function openDetail(id){ V.exId=id; V.sel=null; V.range=V.range||'M'; V.end=null; render(); }
+function setMetric(k){ V.metric=k; V.sel=null; render(); }
+// 圖表用邊個數值：重量 or e1RM（徒手一律重量＝0，所以只有有重量嘅動作先有得揀）
+function mval(l){ if(V.metric==='e1rm'){ const v=e1rm(l); if(v!=null) return v; } return l.weight; }
 function setRange(k){ V.range=k; V.end=null; V.sel=null; render(); }
 function renderProgressDetail(){
   const ex=S.ex[V.exId];
@@ -1637,14 +1739,18 @@ function renderProgressDetail(){
   let html=`<div class="topbar"><button class="icon-btn" onclick="V.exId=null;V.sel=null;render()">${ICON.back}</button><div class="title">${esc(ex.name)}</div>${SPACER}</div>`;
   if(!ls.length) return html+`<div class="empty">未有紀錄，做完第一次就會有圖表 📈</div>`;
   const lastL=ls[ls.length-1]; const same=ls.filter(l=>l.eq===lastL.eq); const eq=equipOf(lastL.eq);
-  const diff=r2(lastL.weight-same[0].weight);
-  const best=eq.kind==='body'?null:Math.max(...same.map(l=>l.weight));
-  html+=`<div class="row mb" style="gap:8px"><div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">${best!=null?'最高 🏆':'總次數'}</div><b style="font-size:22px">${best!=null?fmtW(best)+'<span class="sub small">kg</span>':ls.length}</b></div>
-    <div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">${esc(eq.name)}變化</div><b style="font-size:22px;color:${diff>0?'var(--green)':diff<0?'var(--red)':'inherit'}">${diff>0?'+':''}${fmtW(diff)}kg</b></div>
-    <div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">最近難度</div><b style="font-size:22px;color:${colorOf(lastL.rpe)}">${lastL.rpe}/10</b></div></div>`;
-  html+=`<div class="chart-wrap"><div class="seg sm" style="margin:0 2px 4px">${RANGES.map(([k,t])=>`<button class="${(V.range||'M')===k?'on':''}" onclick="setRange('${k}')">${t}</button>`).join('')}</div><div id="chartBox" class="chartbox" onpointerdown="chartDown(event)" onpointermove="chartMove(event)" onpointerup="chartUp(event)" onpointercancel="chartCancel(event)">${chartInner(ls)}</div>
+  const canE=eq.kind!=='body'&&same.some(l=>e1rm(l,ex)!=null); if(!canE) V.metric='w';
+  const E=V.metric==='e1rm';
+  const val=l=>E?(e1rm(l,ex)||0):l.weight;
+  const diff=r2(val(lastL)-val(same[0]));
+  const best=eq.kind==='body'?null:Math.max(...same.map(val));
+  const trend=(()=>{ if(!E) return ''; const cut=Date.now()-30*DAY, old=same.filter(l=>l.ts<cut); if(!old.length) return ''; const o=val(old[old.length-1]), n=val(lastL); const d=o>0?(n-o)/o:0; return `<div class="sub small">30 日 ${d>=0?'+':''}${Math.round(d*100)}%</div>`; })();
+  html+=`<div class="row mb" style="gap:8px"><div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">${best!=null?(E?'最高 e1RM':'最高 🏆'):'總次數'}</div><b style="font-size:22px">${best!=null?fmtW(best)+'<span class="sub small">kg</span>':ls.length}</b></div>
+    <div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">${E?'e1RM 變化':esc(eq.name)+'變化'}</div><b style="font-size:22px;color:${diff>0?'var(--green)':diff<0?'var(--red)':'inherit'}">${diff>0?'+':''}${fmtW(diff)}kg</b>${trend}</div>
+    <div class="card grow center" style="margin:0;padding:12px 6px"><div class="sub small">${E?'最新 e1RM':'最近難度'}</div><b style="font-size:22px;color:${E?'inherit':colorOf(lastL.rpe)}">${E?fmtW(val(lastL))+'<span class="sub small">kg</span>':lastL.rpe+'/10'}</b></div></div>`;
+  html+=`<div class="chart-wrap">${canE?`<div class="seg sm" style="margin:0 2px 6px">${[['w','重量'],['e1rm','e1RM 估算力量']].map(([k,t])=>`<button class="${(V.metric||'w')===k?'on':''}" onclick="setMetric('${k}')">${t}</button>`).join('')}</div>`:''}<div class="seg sm" style="margin:0 2px 4px">${RANGES.map(([k,t])=>`<button class="${(V.range||'M')===k?'on':''}" onclick="setRange('${k}')">${t}</button>`).join('')}</div><div id="chartBox" class="chartbox" onpointerdown="chartDown(event)" onpointermove="chartMove(event)" onpointerup="chartUp(event)" onpointercancel="chartCancel(event)">${chartInner(ls)}</div>
     <div class="legend">1 輕鬆<div class="g" style="background:linear-gradient(90deg,${RPE_COLORS.slice(1).join(',')})"></div>10 力竭</div>
-    <div class="tooltip" id="tip">${V.sel!=null&&ls[V.sel]?tipHtml(ls[V.sel]):'<span class="sub">撳圖上嘅點睇當日重量同難度 · 左右掃可以睇其他日子</span>'}</div></div>`;
+    <div class="tooltip" id="tip">${V.sel!=null&&ls[V.sel]?tipHtml(ls[V.sel]):'<span class="sub">撳圖上嘅點睇當日重量同難度 · 左右掃可以睇其他日子</span>'}</div>${E?'<div class="sub small" style="margin:6px 4px 0">e1RM = 總重 × (1 + (實際次數 + 餘力) ÷ 30)，用嚟比較唔同次數、唔同重量下嘅真正力量，轉咗次數範圍都睇得出有冇進步。</div>':''}</div>`;
   html+=`<h2>紀錄（撳一條可以改／刪）</h2><div class="card" style="padding-top:2px;padding-bottom:2px">${ls.slice().reverse().map(l=>logRow(l,false)).join('')}</div>`;
   return html;
 }
@@ -1656,20 +1762,20 @@ function chartWindow(ls){
   V.end=Math.max(Math.min(minEnd,maxEnd),Math.min(maxEnd,V.end));
   return {x1:V.end,x0:V.end-span,span,days:R[2]};
 }
-function tipHtml(l){const e=S.ex[l.ex];const eq=equipOf(l.eq);return `<div class="row between"><b>${l.date}</b><b style="color:${colorOf(l.rpe)}">難度 ${l.rpe}/10 · ${RPE[l.rpe]?RPE[l.rpe].t:''}</b></div><div class="sub small mt">${esc(eq.name)} · ${eq.kind==='body'?'徒手':shortW(e,eq,l.weight)} · ${l.sets||4} 組${l.extra?' · 加操':''}${l.seed?' · 舊筆記':''}${l.note?'<br>📝 '+esc(l.note):''}</div>`;}
+function tipHtml(l){const e=S.ex[l.ex];const eq=equipOf(l.eq);const o=overOf(l,e),v=e1rm(l,e);return `<div class="row between"><b>${l.date}</b><b style="color:${colorOf(l.rpe)}">難度 ${l.rpe}/10 · ${RPE[l.rpe]?RPE[l.rpe].t:''}</b></div><div class="sub small mt">${esc(eq.name)} · ${eq.kind==='body'?'徒手':shortW(e,eq,l.weight)} × ${repsOfLog(l,e)}${o?`（最後一組 ${l.lr}）`:''} · ${l.sets||4} 組${v!=null?' · e1RM '+fmtW(v)+'kg':''}${l.extra?' · 加操':''}${l.seed?' · 舊筆記':''}${l.note?'<br>📝 '+esc(l.note):''}</div>`;}
 function chartInner(ls){
   const win=chartWindow(ls);
   const vis=ls.map((l,i)=>({l,i})).filter(o=>o.l.ts>=win.x0&&o.l.ts<=win.x1);
   const dateTxt=d=>{const x=new Date(d);return (win.days>=182?x.getFullYear()+'年':'')+(x.getMonth()+1)+'月'+x.getDate()+'日';};
   let head;
-  if(vis.length){const ys=vis.map(o=>o.l.weight);const a=Math.min(...ys),b=Math.max(...ys);head=`<div><div class="k">範圍</div><div class="v">${a===b?fmtW(a):fmtW(a)+'–'+fmtW(b)}<small> kg</small></div></div>`;}
+  if(vis.length){const ys=vis.map(o=>mval(o.l));const a=Math.min(...ys),b=Math.max(...ys);head=`<div><div class="k">${V.metric==='e1rm'?'e1RM 範圍':'範圍'}</div><div class="v">${a===b?fmtW(a):fmtW(a)+'–'+fmtW(b)}<small> kg</small></div></div>`;}
   else head=`<div><div class="k">範圍</div><div class="v"><small>呢段時間冇紀錄</small></div></div>`;
   head=`<div class="rangehead">${head}<div class="d" style="text-align:right">${dateTxt(win.x0)} – ${dateTxt(win.x1)}</div></div>`;
   return head+chartSVG(ls,win,vis);
 }
 function chartSVG(ls,win,vis){
   const Wd=chartW(),H=Wd>500?300:230,pl=CH.pl,pr=CH.pr,pt=14,pb=30;
-  const base=vis.length?vis.map(o=>o.l.weight):ls.map(l=>l.weight);
+  const base=vis.length?vis.map(o=>mval(o.l)):ls.map(mval);
   let y0=Math.min(...base),y1=Math.max(...base); const pad=Math.max(2.5,(y1-y0)*0.25); y0=Math.max(0,y0-pad); y1=y1+pad;
   const X=t=>pl+(t-win.x0)/win.span*(Wd-pl-pr), Y=v=>pt+(1-(v-y0)/(y1-y0))*(H-pt-pb);
   let g=`<defs><clipPath id="clip"><rect x="${pl}" y="0" width="${Wd-pl-pr}" height="${H}"/></clipPath></defs>`;
@@ -1682,9 +1788,9 @@ function chartSVG(ls,win,vis){
   ticks.forEach(([t,lab])=>{if(t<win.x0)return;const x=X(t);g+=`<line x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}" stroke="#2c2c30" stroke-width="1" stroke-dasharray="2,3"/><text x="${x}" y="${H-10}" fill="#8e8e93" font-size="11" text-anchor="middle">${lab}</text>`;});
   g+=`<g clip-path="url(#clip)">`;
   const eqs=[...new Set(ls.map(l=>l.eq))];
-  eqs.forEach((eq,k)=>{const pts=ls.filter(l=>l.eq===eq).map(l=>`${X(l.ts).toFixed(1)},${Y(l.weight).toFixed(1)}`).join(' ');
+  eqs.forEach((eq,k)=>{const pts=ls.filter(l=>l.eq===eq).map(l=>`${X(l.ts).toFixed(1)},${Y(mval(l)).toFixed(1)}`).join(' ');
     g+=`<polyline points="${pts}" fill="none" stroke="#8e8e93" stroke-width="2" stroke-dasharray="${k?'5,4':''}" opacity=".6"/>`;});
-  vis.forEach(({l,i})=>{const sel=V.sel===i;g+=`<circle cx="${X(l.ts).toFixed(1)}" cy="${Y(l.weight).toFixed(1)}" r="${sel?9:7}" fill="${colorOf(l.rpe)}" stroke="#fff" stroke-width="${sel?3:0}"/>`;});
+  vis.forEach(({l,i})=>{const sel=V.sel===i;g+=`<circle cx="${X(l.ts).toFixed(1)}" cy="${Y(mval(l)).toFixed(1)}" r="${sel?9:7}" fill="${colorOf(l.rpe)}" stroke="#fff" stroke-width="${sel?3:0}"/>`;});
   g+=`</g>`;
   if(eqs.length>1) g+=eqs.map((eq,k)=>`<text x="${pl+4}" y="${pt+12+k*14}" fill="#8e8e93" font-size="11">${k?'- - ':'—— '}${esc(equipOf(eq).name)}</text>`).join('');
   return `<svg class="chart" viewBox="0 0 ${Wd} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
@@ -1735,6 +1841,7 @@ function renderEdit(){
   if(V.tab==='settings'){
     return html+renderProgCfgCard()+renderPrefsCard()+renderSyncCard()+`<h2>備份</h2><div class="card">
       <button class="secondary mb" onclick="exportData()">匯出備份 (JSON)</button>
+      <button class="secondary mb" onclick="exportCSV()">匯出紀錄 CSV（Excel／Numbers）</button>
       <label class="secondary mb">匯入備份<input type="file" accept=".json,application/json,text/plain" class="vh" onchange="importData(this)"></label>
       <button class="secondary" onclick="resetAll()"><span class="danger">重設為預設課表（清除所有紀錄）</span></button></div>
       <div class="sub small center">Gym Log ${APP_VER}${navigator.serviceWorker&&navigator.serviceWorker.controller?' · 可離線使用 ✓':''}</div>`;
@@ -1797,11 +1904,13 @@ function renderExForm(){
     <div class="three"><div><label class="label">組數</label><input id="f_sets" type="number" inputmode="numeric" value="${e.sets}"></div><div><label class="label">次數</label><input id="f_reps" type="number" inputmode="numeric" value="${e.reps}"></div><div><label class="label">休息 (秒)</label><input id="f_rest" type="number" inputmode="numeric" value="${e.rest}"></div></div>
     <div class="sub small mt">參考：一般 60s、複合動作（下拉／划船／臥推／深蹲）120s、腹部 30s</div>
    </div>
-   <div class="card">
-    <label class="label" style="margin-top:0">進步方式（建議加嘢嗰陣加咩）</label>
+   <div class="card collap ${isNew||OPEN.has('progCard')?'open':''}" id="progCard">
+    <button class="collap-h" onclick="toggleCollap('progCard')"><div><b>進步方式</b><div class="sub small" id="progSum" style="margin-top:2px"></div></div><span class="chev">›</span></button>
+    <div class="collap-b">
     <div class="seg sm" id="f_prog">${['weight','auto','reps'].map(k=>`<button data-k="${k}" class="${(e.prog||'weight')===k?'on':''}" onclick="pickProg('${k}')">${{weight:'加重量',auto:'次數＋重量',reps:'加次數'}[k]}</button>`).join('')}</div>
     <div class="help" id="progHelp" style="margin:4px 2px 0"></div>
-    <div class="field" id="rmaxRow" style="display:none"><label class="label">次數上限（做到呢個次數先加重，之後由「次數」重新做起）</label><input id="f_rmax" type="number" inputmode="numeric" value="${repsMaxOf(e)}"></div>
+    <div class="field" id="rmaxRow" style="display:none"><label class="label">次數上限（做到呢個次數先加重，之後由「次數」重新做起）</label><input id="f_rmax" type="number" inputmode="numeric" value="${repsMaxOf(e)}" oninput="exFormEqHint()"></div>
+    </div>
    </div>
    <div class="card">
     <label class="label" style="margin-top:0">器材 1</label>
@@ -1852,6 +1961,7 @@ function exFormEqHint(){
   const allBody=ids.length&&ids.every(id=>equipOf(id).kind==='body');
   const ph=$('#progHelp'); if(ph) ph.innerHTML=allBody?'徒手：一律<b>加次數</b>（冇得加重量）。':pk==='weight'?'達標就建議加重量，次數唔變。':pk==='reps'?'達標就建議加 1–2 下，重量唔變（徒手亦一樣）。':'先每次加 1–2 下，加到「次數上限」先加重量，然後次數返返做起（雙重進階）。';
   const rr=$('#rmaxRow'); if(rr) rr.style.display=pk==='auto'&&!allBody?'':'none';
+  const sm=$('#progSum'); if(sm){ const rm=$('#f_rmax'); sm.textContent=allBody?'加次數（徒手）':pk==='weight'?'加重量，次數唔變':pk==='reps'?'加次數，重量唔變':`先加次數，去到 ${rm&&rm.value?rm.value:'上限'} 下先加重`; }
 }
 function formBack(){ if(V.from==='workout') go('workout'); else if(V.from==='pick') go('pick',{tab:V.tab,key:V.key}); else go('edit',{tab:V.tab}); }
 function saveForm(){
@@ -1919,6 +2029,17 @@ async function exportData(){
     if(navigator.canShare&&navigator.canShare({files:[f]})){ await navigator.share({files:[f],title:'Gym Log 備份'}); return; } }
   catch(e){ if(e&&e.name==='AbortError') return; }
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove();
+}
+async function exportCSV(){
+  const cols=['日期','動作','英文名','部位','器材','重量(kg)','總重(kg)','每組次數','最後一組實際','組數','難度','難度描述','e1RM(kg)','PR','加操','備註','id'];
+  const cell=v=>{ v=v==null?'':String(v); return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+  const rows=S.logs.slice().sort((a,b)=>a.ts-b.ts).map(l=>{ const e=S.ex[l.ex]||{name:l.ex,cat:'other',variants:[]}, q=equipOf(l.eq); const r=RPE[l.rpe]; const v=e1rm(l,e);
+    return [l.date,e.name,e.en||'',CATS[e.cat]||e.cat||'',q.name,q.kind==='body'?'':fmtW(l.weight),q.kind==='body'?'':fmtW(totalKg(e,q,l.weight)),repsOfLog(l,e),l.lr>0?l.lr:'',l.sets||'',l.rpe,r?r.t:'',v!=null?fmtW(v):'',isPR(l)?'Y':'',l.extra?'Y':'',l.note||'',l.id].map(cell).join(','); });
+  const txt='\ufeff'+cols.join(',')+'\n'+rows.join('\n'), name='gymlog-'+todayStr()+'.csv';
+  try{ const f=new File([txt],name,{type:'text/csv'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){ await navigator.share({files:[f],title:'Gym Log CSV'}); return; } }
+  catch(e){ if(e&&e.name==='AbortError') return; }
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();a.remove();
 }
 function importData(inp){
   const f=inp.files[0]; if(!f) return; const r=new FileReader();
@@ -2051,14 +2172,23 @@ function setCfg(k,v){ S.cfg=Object.assign({},cfg(),{[k]:v,mt:Date.now()}); save(
 function renderProgCfgCard(){
   const C=cfg();
   const nOpts=[[2,'連續 2 次'],[3,'連續 3 次'],[4,'連續 4 次'],[5,'連續 5 次']];
-  const mOpts=[[4,'≤ 4（OK 或更輕鬆）'],[5,'≤ 5（開始有挑戰或更輕鬆）'],[6,'≤ 6（剛剛好或更輕鬆）']];
-  return `<h2>加重／加次數建議（iPhone、iPad 同步）</h2><div class="card">
-    <div class="two"><div><label class="label" style="margin-top:0">要連續幾多次</label><select onchange="setCfg('upN',+this.value)">${nOpts.map(([v,t])=>`<option value="${v}" ${C.upN===v?'selected':''}>${t}</option>`).join('')}</select></div>
-    <div><label class="label" style="margin-top:0">難度要</label><select onchange="setCfg('upMax',+this.value)">${mOpts.map(([v,t])=>`<option value="${v}" ${C.upMax===v?'selected':''}>${t}</option>`).join('')}</select></div></div>
-    <div class="help mt">同一個重量、同一個次數，最近<b>連續 ${C.upN} 次</b>難度都係 <b>≤ ${C.upMax}</b> 先會建議加。<br>
-    加幾多：按嗰幾次平均有幾輕鬆計，上身大約 +2–7.5%、腿 +3.5–10%，最少加一格；次數就加 1–2 下。<br>
+  const mOpts=[[4,'4（有餘力）'],[5,'5（開始有挑戰）'],[6,'6（剛剛好）']];
+  return `<h2>加重／加次數建議（iPhone、iPad 同步）</h2><div class="card collap ${OPEN.has('progCfg')?'open':''}" id="progCfg">
+    <button class="collap-h" onclick="toggleCollap('progCfg')"><div><b>加嘅門檻</b><div class="sub small" style="margin-top:2px">難度 ${C.upMax} 連續 ${C.upN} 次先加 · ${C.upMax-1} 或以下即刻加 · 跌 2 級即刻加</div></div><span class="chev">›</span></button>
+    <div class="collap-b">
+    <div class="two"><div><label class="label" style="margin-top:0">門檻難度</label><select onchange="setCfg('upMax',+this.value)">${mOpts.map(([v,t])=>`<option value="${v}" ${C.upMax===v?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div><label class="label" style="margin-top:0">門檻要連續幾多次</label><select onchange="setCfg('upN',+this.value)">${nOpts.map(([v,t])=>`<option value="${v}" ${C.upN===v?'selected':''}>${t}</option>`).join('')}</select></div></div>
+    <label class="label">一格跳幾多先算太大（先改加次數）</label><select onchange="setCfg('jumpMax',+this.value)">${[[0.075,'超過 7.5%'],[0.10,'超過 10%（預設）'],[0.15,'超過 15%'],[0,'唔理，照跳格']].map(([v,t])=>`<option value="${v}" ${Math.abs(C.jumpMax-v)<1e-9?'selected':''}>${t}</option>`).join('')}</select>
+    <div class="help mt">同一個重量、同一個次數：<br>
+    · 最後一組<b>比目標多做 ${OVER_UP} 下或以上</b> → <b>下一次即刻</b>建議加（做唔夠目標就唔會加）<br>
+    · 難度 <b>${C.upMax-1} 或以下</b>（有明顯餘力）→ <b>下一次即刻</b>建議加<br>
+    · 難度 <b>${C.upMax}</b> → 要<b>連續 ${C.upN} 次</b>都係 ${C.upMax} 先建議加<br>
+    · 難度 ≤ 6 而且比上次<b>跌咗 2 級或以上</b>（例如 8→6、7→5）→ 即刻建議加<br>
+    加幾多：按觸發嗰次有幾多餘力（難度 + 多做嘅次數）計，上身大約 +2–7.5%、腿 +3.5–10%，最少加一格；次數就加 1–2 下。<br>
+    跳格太大（例如啞鈴 10 → 12.5kg = +25%）：「加重量」嘅動作會先加次數，去到次數上限先跳格，然後次數返返由頭做起。<br>
+    平台期：同一重量同一次數連續 ${PLATEAU_N} 次（${PLATEAU_DAYS} 日以上）都冇加到，會提示減量週或者轉次數範圍。<br>
     減：力竭（10）一次、或者連續兩次 ≥ 8 先建議減；21 日冇練唔加，42 日冇練建議減約 10%。<br>
-    建議<b>唔會自動套用</b>，會寫喺重量上面，撳「套用」先改。每個動作嘅「加重量／加次數」喺編輯動作入面揀。</div></div>`;
+    建議<b>唔會自動套用</b>，會寫喺重量上面，撳「套用」先改。每個動作嘅「加重量／加次數」喺編輯動作入面揀。</div></div></div>`;
 }
 function renderPrefsCard(){
   const sup=!!navigator.wakeLock;
